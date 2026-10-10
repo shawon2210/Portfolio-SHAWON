@@ -1,9 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import { TabType, Project } from '../types';
 import { PERSONAL_INFO, PROJECTS, SKILL_CATEGORIES } from '../data/portfolioData';
-import { TechCanvas3D } from '../components/TechCanvas3D';
 import { AppIcon } from '../components/AppIcon';
+
+const TechCanvas3D = lazy(() =>
+  import('../components/TechCanvas3D').then((m) => ({ default: m.TechCanvas3D }))
+);
 
 interface HomeViewProps {
   avatarUrl: string;
@@ -528,7 +531,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </span>
           </div>
 
-          <TechCanvas3D className="h-64 sm:h-72 w-full" variant="hero" />
+          <Suspense
+            fallback={
+              <div className="h-64 sm:h-72 w-full rounded-2xl bg-surface-container-low/50 animate-pulse border border-white/5 flex items-center justify-center text-on-surface-variant font-code-sm text-xs">
+                Initializing 3D Lattice...
+              </div>
+            }
+          >
+            <TechCanvas3D className="h-64 sm:h-72 w-full" variant="hero" />
+          </Suspense>
         </motion.div>
 
         {/* Professional Summary Panel (Engineering Blueprint) */}
