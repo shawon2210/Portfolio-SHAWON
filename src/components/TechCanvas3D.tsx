@@ -1,10 +1,142 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Terminal, Code2 } from 'lucide-react';
+import { SYNTAX_PALETTE } from '../lib/tokens';
 
 interface TechCanvas3DProps {
   className?: string;
   variant?: 'hero' | 'compact';
+}
+
+const HERO_CODE_SNIPPETS = [
+  {
+    file: 'architecture.ts',
+    lang: 'TS',
+    lines: [
+      { t: '// Microservices & LLM Orchestration', c: SYNTAX_PALETTE.slate },
+      { t: 'export async function dispatchTask(', c: SYNTAX_PALETTE.sky },
+      { t: '  intent: LLMIntent,', c: SYNTAX_PALETTE.violet },
+      { t: '  context: VectorContext', c: SYNTAX_PALETTE.violet },
+      { t: '): Promise<ExecutionResult> {', c: SYNTAX_PALETTE.sky },
+      { t: '  const stream = await llm.stream({', c: '#cbd5e1' },
+      { t: '    model: "claude-3-7-sonnet",', c: SYNTAX_PALETTE.emerald },
+      { t: '    temperature: 0.2,', c: SYNTAX_PALETTE.amber },
+      { t: '    system: CORE_GUARDRAILS,', c: SYNTAX_PALETTE.violet },
+      { t: '  });', c: '#cbd5e1' },
+      { t: '  return compileOutput(stream);', c: SYNTAX_PALETTE.sky },
+      { t: '}', c: SYNTAX_PALETTE.dim },
+    ],
+  },
+  {
+    file: 'systemCluster.ts',
+    lang: 'TS',
+    lines: [
+      { t: 'interface ClusterTelemetry {', c: SYNTAX_PALETTE.violet },
+      { t: '  activeNodes: number;', c: SYNTAX_PALETTE.amber },
+      { t: '  p99LatencyMs: number;', c: SYNTAX_PALETTE.amber },
+      { t: '  distributedState: "SYNCED";', c: SYNTAX_PALETTE.emerald },
+      { t: '}', c: SYNTAX_PALETTE.dim },
+      { t: 'const telemetry: ClusterTelemetry = {', c: SYNTAX_PALETTE.sky },
+      { t: '  activeNodes: 64,', c: SYNTAX_PALETTE.amber },
+      { t: '  p99LatencyMs: 14.2,', c: SYNTAX_PALETTE.amber },
+      { t: '  distributedState: "SYNCED",', c: SYNTAX_PALETTE.emerald },
+      { t: '};', c: SYNTAX_PALETTE.dim },
+    ],
+  },
+  {
+    file: 'query.sql',
+    lang: 'SQL',
+    lines: [
+      { t: 'WITH ranked_events AS (', c: SYNTAX_PALETTE.sky },
+      { t: '  SELECT trace_id, duration_ms,', c: '#cbd5e1' },
+      { t: '    ROW_NUMBER() OVER (', c: SYNTAX_PALETTE.violet },
+      { t: '      PARTITION BY service', c: SYNTAX_PALETTE.violet },
+      { t: '      ORDER BY timestamp DESC', c: SYNTAX_PALETTE.sky },
+      { t: '    ) as rank', c: SYNTAX_PALETTE.amber },
+      { t: '  FROM system_telemetry', c: '#cbd5e1' },
+      { t: ')', c: SYNTAX_PALETTE.dim },
+      { t: 'SELECT * FROM ranked_events', c: SYNTAX_PALETTE.sky },
+      { t: 'WHERE rank <= 10;', c: SYNTAX_PALETTE.amber },
+    ],
+  },
+  {
+    file: 'neuralEngine.py',
+    lang: 'PY',
+    lines: [
+      { t: '@router.post("/v1/embeddings")', c: SYNTAX_PALETTE.violet },
+      { t: 'async def embed_batch(req: BatchReq):', c: SYNTAX_PALETTE.sky },
+      { t: '    """Compute dense vector projections"""', c: SYNTAX_PALETTE.slate },
+      { t: '    vectors = await model.encode(', c: '#cbd5e1' },
+      { t: '        req.documents,', c: SYNTAX_PALETTE.amber },
+      { t: '        batch_size=128,', c: SYNTAX_PALETTE.amber },
+      { t: '        normalize=True', c: SYNTAX_PALETTE.emerald },
+      { t: '    )', c: '#cbd5e1' },
+      { t: '    return {"dim": 1536, "data": vectors}', c: SYNTAX_PALETTE.sky },
+    ],
+  },
+];
+
+function createSnippetTexture(snippet: typeof HERO_CODE_SNIPPETS[number]): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 360;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Background card with glass styling
+  ctx.fillStyle = 'rgba(9, 11, 17, 0.94)';
+  ctx.beginPath();
+  ctx.roundRect(4, 4, 632, 352, 16);
+  ctx.fill();
+
+  // Subtle border
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.28)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Window titlebar
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+  ctx.beginPath();
+  ctx.roundRect(4, 4, 632, 38, [16, 16, 0, 0]);
+  ctx.fill();
+
+  // Window control dots
+  const dots = ['#ef4444', '#eab308', '#22c55e'];
+  dots.forEach((color, i) => {
+    ctx.beginPath();
+    ctx.arc(22 + i * 14, 22, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+
+  // Filename label
+  ctx.font = '12px "JetBrains Mono", Menlo, monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText(snippet.file, 74, 26);
+
+  // Language pill
+  ctx.font = '10px "JetBrains Mono", Menlo, monospace';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText(`[${snippet.lang}]`, 580, 26);
+
+  // Code lines
+  ctx.font = '13px "JetBrains Mono", Menlo, monospace';
+  let y = 68;
+  snippet.lines.forEach((line, idx) => {
+    // Line number
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+    ctx.fillText(`${(idx + 1).toString().padStart(2, ' ')}`, 18, y);
+
+    // Code text
+    ctx.fillStyle = line.c;
+    ctx.fillText(line.t, 52, y);
+    y += 24;
+  });
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
 }
 
 export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
@@ -14,23 +146,25 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
   const mountRef = useRef<HTMLDivElement>(null);
   const [isRotating, setIsRotating] = useState(true);
   const isRotatingRef = useRef(isRotating);
-  useEffect(() => { isRotatingRef.current = isRotating; }, [isRotating]);
-  const [wireframeMode, setWireframeMode] = useState<'neural' | 'lattice' | 'particles'>('neural');
-  const [isHovered, setIsHovered] = useState(false);
+  useEffect(() => {
+    isRotatingRef.current = isRotating;
+  }, [isRotating]);
+
+  const [activeSnippetIdx, setActiveSnippetIdx] = useState(0);
 
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    // Scene, Camera, Renderer
+    // Scene & Fog
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2('#090b11', 0.08);
 
-    const width = container.clientWidth || 320;
-    const height = container.clientHeight || 240;
+    const width = container.clientWidth || 360;
+    const height = container.clientHeight || 340;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.z = variant === 'hero' ? 4.5 : 3.8;
+    camera.position.set(0, 0, 4.8);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -42,85 +176,69 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     container.appendChild(renderer.domElement);
 
+    const rootGroup = new THREE.Group();
+    scene.add(rootGroup);
 
-    // Group for all rotating elements
-    const systemGroup = new THREE.Group();
-    scene.add(systemGroup);
+    // 1. Central 3D Floating Code Card Stack
+    const cardGroup = new THREE.Group();
+    rootGroup.add(cardGroup);
 
-    // 1. Primary Polyhedral Wireframe Core
-    const coreGeometry = new THREE.IcosahedronGeometry(1.2, 1);
-    const wireframeGeometry = new THREE.WireframeGeometry(coreGeometry);
-    const coreLineMaterial = new THREE.LineBasicMaterial({
-      color: 0x4cd7f6,
-      transparent: true,
-      opacity: 0.65,
-      linewidth: 1,
+    const cardGeo = new THREE.PlaneGeometry(2.35, 1.35);
+    const textures: THREE.CanvasTexture[] = [];
+    const materials: THREE.MeshBasicMaterial[] = [];
+    const cardMeshes: THREE.Mesh[] = [];
+
+    HERO_CODE_SNIPPETS.forEach((snippet, i) => {
+      const tex = createSnippetTexture(snippet);
+      textures.push(tex);
+      const mat = new THREE.MeshBasicMaterial({
+        map: tex,
+        transparent: true,
+        opacity: i === 0 ? 0.95 : 0.45,
+        side: THREE.DoubleSide,
+      });
+      materials.push(mat);
+      const mesh = new THREE.Mesh(cardGeo, mat);
+
+      // Stack cards at slight offset in 3D depth
+      const zOffset = (i - 1.5) * 0.45;
+      const yOffset = (i - 1.5) * 0.15;
+      mesh.position.set(0, yOffset, zOffset);
+      mesh.rotation.x = 0.08;
+      mesh.rotation.y = (i - 1.5) * -0.12;
+
+      cardMeshes.push(mesh);
+      cardGroup.add(mesh);
     });
-    const coreMesh = new THREE.LineSegments(wireframeGeometry, coreLineMaterial);
-    systemGroup.add(coreMesh);
 
-    // 2. Vertex Nodes on Polyhedron
-    const nodeGeometry = new THREE.SphereGeometry(0.045, 8, 8);
-    const nodeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x4edea3,
-    });
-    const nodeGroup = new THREE.Group();
-    
-    // Extract vertices from coreGeometry
-    const posAttr = coreGeometry.attributes.position;
-    const vertexSet = new Set<string>();
-    for (let i = 0; i < posAttr.count; i++) {
-      const x = Number(posAttr.getX(i).toFixed(3));
-      const y = Number(posAttr.getY(i).toFixed(3));
-      const z = Number(posAttr.getZ(i).toFixed(3));
-      const key = `${x},${y},${z}`;
-      if (!vertexSet.has(key)) {
-        vertexSet.add(key);
-        const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-        node.position.set(x, y, z);
-        nodeGroup.add(node);
-      }
-    }
-    systemGroup.add(nodeGroup);
-
-    // 3. Inner Pulsing Core
-    const innerGeo = new THREE.OctahedronGeometry(0.55, 0);
-    const innerMat = new THREE.MeshBasicMaterial({
-      color: 0x06b6d4,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const innerMesh = new THREE.Mesh(innerGeo, innerMat);
-    systemGroup.add(innerMesh);
-
-    // 4. Orbital Cybernetic Rings
-    const ringGeo1 = new THREE.TorusGeometry(1.65, 0.015, 8, 48);
+    // 2. Cybernetic Orbit Rings around the code cards
+    const ringGeo1 = new THREE.TorusGeometry(2.1, 0.012, 8, 54);
     const ringMat1 = new THREE.MeshBasicMaterial({
-      color: 0x4cd7f6,
+      color: 0x38bdf8,
       transparent: true,
       opacity: 0.35,
     });
     const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
-    ring1.rotation.x = Math.PI / 3;
-    systemGroup.add(ring1);
+    ring1.rotation.x = Math.PI / 2.6;
+    ring1.rotation.y = 0.2;
+    rootGroup.add(ring1);
 
-    const ringGeo2 = new THREE.TorusGeometry(1.85, 0.012, 8, 48);
+    const ringGeo2 = new THREE.TorusGeometry(2.35, 0.01, 8, 54);
     const ringMat2 = new THREE.MeshBasicMaterial({
-      color: 0x4edea3,
+      color: 0x34d399,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.25,
     });
     const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
-    ring2.rotation.y = Math.PI / 4;
-    ring2.rotation.x = -Math.PI / 5;
-    systemGroup.add(ring2);
+    ring2.rotation.x = -Math.PI / 3;
+    ring2.rotation.y = -0.3;
+    rootGroup.add(ring2);
 
-    // 5. Surrounding Floating Particle Constellation
-    const particleCount = 140;
+    // 3. Orbiting Data Nodes / Constellation Particles
+    const particleCount = 90;
     const particlePositions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount; i++) {
-      const radius = 1.6 + Math.random() * 1.5;
+      const radius = 1.9 + Math.random() * 1.3;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
       particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
@@ -130,61 +248,40 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     const particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0xadc6ff,
-      size: 0.035,
+      color: 0x38bdf8,
+      size: 0.04,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.75,
     });
     const particles = new THREE.Points(particleGeo, particleMat);
-    systemGroup.add(particles);
+    rootGroup.add(particles);
 
-    // Interactive pointer tracking
+    // Mouse / Touch interaction
     let targetRotationX = 0;
     let targetRotationY = 0;
     let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
+    let prevMouse = { x: 0, y: 0 };
 
     const handlePointerMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-      targetRotationY = x * 0.8;
-      targetRotationX = -y * 0.8;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        const rect = container.getBoundingClientRect();
-        const deltaX = touch.clientX - previousMousePosition.x;
-        const deltaY = touch.clientY - previousMousePosition.y;
-        systemGroup.rotation.y += deltaX * 0.01;
-        systemGroup.rotation.x += deltaY * 0.01;
-        previousMousePosition = { x: touch.clientX, y: touch.clientY };
-      }
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        previousMousePosition = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        };
-      }
+      targetRotationY = x * 0.6;
+      targetRotationX = -y * 0.45;
     };
 
     const handleMouseDown = (e: MouseEvent) => {
       isDragging = true;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      prevMouse = { x: e.clientX, y: e.clientY };
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
-        const deltaX = e.clientX - previousMousePosition.x;
-        const deltaY = e.clientY - previousMousePosition.y;
-        systemGroup.rotation.y += deltaX * 0.01;
-        systemGroup.rotation.x += deltaY * 0.01;
-        previousMousePosition = { x: e.clientX, y: e.clientY };
+        const deltaX = e.clientX - prevMouse.x;
+        const deltaY = e.clientY - prevMouse.y;
+        rootGroup.rotation.y += deltaX * 0.008;
+        rootGroup.rotation.x += deltaY * 0.008;
+        prevMouse = { x: e.clientX, y: e.clientY };
       } else {
         handlePointerMove(e);
       }
@@ -197,10 +294,8 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchmove', handleTouchMove, { passive: true });
 
-    // Handle Window Resize
+    // Resize handler
     const handleResize = () => {
       if (!container) return;
       const newWidth = container.clientWidth;
@@ -211,10 +306,7 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    // Animation Loop with Visibility Throttling & Reduced Motion Support
-    let animationFrameId: number;
-    const startTime = performance.now();
-
+    // Visibility & reduced motion throttling
     let isInView = true;
     let observer: IntersectionObserver | null = null;
     if ('IntersectionObserver' in window) {
@@ -237,47 +329,49 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Animation Loop
+    let animationFrameId: number;
+    const startTime = performance.now();
+
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Throttle render loop when off-screen or tab is hidden
-      if (!isInView || !isDocVisible) {
-        return;
-      }
+      if (!isInView || !isDocVisible) return;
 
-      const elapsedTime = (performance.now() - startTime) * 0.001;
+      const elapsed = (performance.now() - startTime) * 0.001;
 
-      // Damped mouse rotation
-      systemGroup.rotation.y += (targetRotationY - systemGroup.rotation.y) * 0.05;
-      systemGroup.rotation.x += (targetRotationX - systemGroup.rotation.x) * 0.05;
+      // Mouse parallax damping
+      rootGroup.rotation.y += (targetRotationY - rootGroup.rotation.y) * 0.05;
+      rootGroup.rotation.x += (targetRotationX - rootGroup.rotation.x) * 0.05;
 
-      // Constant rotation if active (slow drift when reduced motion is preferred)
+      // Subtle float oscillation
+      const floatOffset = Math.sin(elapsed * 1.8) * 0.05;
+      cardGroup.position.y = floatOffset;
+
       if (isRotatingRef.current) {
-        const speedMult = prefersReducedMotion ? 0.15 : 1.0;
-        systemGroup.rotation.y += 0.005 * speedMult;
-        ring1.rotation.z += 0.008 * speedMult;
-        ring2.rotation.z -= 0.006 * speedMult;
-        particles.rotation.y -= 0.002 * speedMult;
+        const speed = prefersReducedMotion ? 0.15 : 1.0;
+        rootGroup.rotation.y += 0.003 * speed;
+        ring1.rotation.z += 0.005 * speed;
+        ring2.rotation.z -= 0.004 * speed;
+        particles.rotation.y -= 0.002 * speed;
       }
 
-      // Gentle pulsating energy breathing
-      const pulseMult = prefersReducedMotion ? 0.015 : 0.08;
-      const pulseSpeed = prefersReducedMotion ? 0.8 : 2.5;
-      const pulse = 1 + Math.sin(elapsedTime * pulseSpeed) * pulseMult;
-      innerMesh.scale.set(pulse, pulse, pulse);
-      innerMesh.rotation.y += 0.015 * (prefersReducedMotion ? 0.15 : 1.0);
+      // Sine wave dynamic card hover wave
+      cardMeshes.forEach((mesh, idx) => {
+        const wave = Math.sin(elapsed * 2.2 + idx * 0.9) * 0.03;
+        mesh.position.y = (idx - 1.5) * 0.15 + wave;
+      });
 
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // Context loss listeners
+    const canvas = renderer.domElement;
     const handleContextLost = (e: Event) => {
       e.preventDefault();
       cancelAnimationFrame(animationFrameId);
     };
-    const canvas = renderer.domElement;
     canvas.addEventListener('webglcontextlost', handleContextLost, false);
 
     // Cleanup
@@ -289,17 +383,11 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
       canvas.removeEventListener('webglcontextlost', handleContextLost);
 
-      coreGeometry.dispose();
-      wireframeGeometry.dispose();
-      coreLineMaterial.dispose();
-      nodeGeometry.dispose();
-      nodeMaterial.dispose();
-      innerGeo.dispose();
-      innerMat.dispose();
+      cardGeo.dispose();
+      textures.forEach((t) => t.dispose());
+      materials.forEach((m) => m.dispose());
       ringGeo1.dispose();
       ringMat1.dispose();
       ringGeo2.dispose();
@@ -312,36 +400,34 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
         container.removeChild(canvas);
       }
     };
-  }, [variant, wireframeMode]);
+  }, [variant]);
 
   return (
     <div
-      className={`relative rounded-xl overflow-hidden bg-gradient-to-b from-surface-container-high/80 to-surface-container-low/90 backdrop-blur-md border border-white/10 shadow-xl group ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`relative rounded-xl overflow-hidden bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-md border border-white/[0.08] shadow-2xl group ${className}`}
     >
       {/* 3D Canvas Mount */}
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing min-h-[220px]" />
+      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing min-h-[300px]" />
 
       {/* Atmospheric Top Glow */}
-      <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-sky-500/10 via-transparent to-transparent pointer-events-none" />
 
-      {/* Interactive HUD Layer (Layered DOM overlay per guidelines) */}
+      {/* Interactive HUD Layer */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md border border-white/5 pointer-events-auto shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-          <span className="font-status-label text-[10px] text-primary uppercase font-bold tracking-wider">
-            Spatial Architecture 3D
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#090b11]/85 backdrop-blur-md border border-white/10 pointer-events-auto shadow-sm">
+          <Code2 className="w-3.5 h-3.5 text-sky-400" />
+          <span className="font-mono text-[10px] text-sky-400 font-bold tracking-wider uppercase">
+            3D Code Engine
           </span>
         </div>
 
-        <div className="flex items-center gap-1 pointer-events-auto">
+        <div className="flex items-center gap-1.5 pointer-events-auto">
           <button
             onClick={() => setIsRotating((prev) => !prev)}
-            className={`p-1.5 rounded-lg backdrop-blur-md transition-all text-xs border border-white/5 ${
+            className={`p-1.5 rounded-lg backdrop-blur-md transition-all text-xs border border-white/10 ${
               isRotating
-                ? 'bg-primary/20 text-primary'
-                : 'bg-surface-container-lowest/80 text-on-surface-variant hover:text-on-surface'
+                ? 'bg-sky-500/20 text-sky-400'
+                : 'bg-[#090b11]/80 text-[#94a3b8] hover:text-[#e2e8f0]'
             }`}
             title={isRotating ? 'Pause rotation' : 'Resume rotation'}
           >
@@ -351,11 +437,12 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
       </div>
 
       {/* Bottom Telemetry HUD */}
-      <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none text-[11px] font-code-sm">
-        <span className="text-on-surface-variant/80 bg-surface-container-lowest/70 backdrop-blur px-2 py-0.5 rounded border border-white/5">
-          Drag to orbit · Real-time WebGL
+      <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none text-[11px] font-mono">
+        <span className="text-[#94a3b8] bg-[#090b11]/80 backdrop-blur px-2 py-0.5 rounded border border-white/10 flex items-center gap-1.5">
+          <Terminal className="w-3 h-3 text-emerald-400" />
+          <span>Interactive 3D Code Matrix</span>
         </span>
-        <span className="text-secondary bg-surface-container-lowest/70 backdrop-blur px-2 py-0.5 rounded border border-white/5">
+        <span className="text-emerald-400 bg-[#090b11]/80 backdrop-blur px-2 py-0.5 rounded border border-white/10 font-bold">
           60 FPS
         </span>
       </div>
