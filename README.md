@@ -20,7 +20,7 @@
 
 ## Preview
 
-![Portfolio home view](docs/preview-home.png)
+
 
 ---
 
