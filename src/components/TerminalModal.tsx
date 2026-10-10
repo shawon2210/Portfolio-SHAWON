@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { TabType } from '../types';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  useModalA11y(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -137,7 +139,13 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Interactive terminal"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="relative w-full max-w-xl h-[480px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-primary/20 flex flex-col overflow-hidden font-code-sm">
         {/* Terminal Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-surface-container-high border-b border-white/5">

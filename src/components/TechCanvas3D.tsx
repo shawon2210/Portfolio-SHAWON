@@ -13,6 +13,8 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [isRotating, setIsRotating] = useState(true);
+  const isRotatingRef = useRef(isRotating);
+  useEffect(() => { isRotatingRef.current = isRotating; }, [isRotating]);
   const [wireframeMode, setWireframeMode] = useState<'neural' | 'lattice' | 'particles'>('neural');
   const [isHovered, setIsHovered] = useState(false);
 
@@ -208,30 +210,61 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     };
     window.addEventListener('resize', handleResize);
 
-    // Animation Loop
+    // Animation Loop with Visibility Throttling & Reduced Motion Support
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
+
+    let isInView = true;
+    let observer: IntersectionObserver | null = null;
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isInView = entry.isIntersecting;
+        },
+        { threshold: 0.01 }
+      );
+      observer.observe(container);
+    }
+
+    let isDocVisible = typeof document !== 'undefined' ? !document.hidden : true;
+    const handleVisibilityChange = () => {
+      isDocVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+
+      // Throttle render loop when off-screen or tab is hidden
+      if (!isInView || !isDocVisible) {
+        return;
+      }
+
+      const elapsedTime = (performance.now() - startTime) * 0.001;
 
       // Damped mouse rotation
       systemGroup.rotation.y += (targetRotationY - systemGroup.rotation.y) * 0.05;
       systemGroup.rotation.x += (targetRotationX - systemGroup.rotation.x) * 0.05;
 
-      // Constant gentle rotation if active
-      if (isRotating) {
-        systemGroup.rotation.y += 0.005;
-        ring1.rotation.z += 0.008;
-        ring2.rotation.z -= 0.006;
-        particles.rotation.y -= 0.002;
+      // Constant rotation if active (slow drift when reduced motion is preferred)
+      if (isRotatingRef.current) {
+        const speedMult = prefersReducedMotion ? 0.15 : 1.0;
+        systemGroup.rotation.y += 0.005 * speedMult;
+        ring1.rotation.z += 0.008 * speedMult;
+        ring2.rotation.z -= 0.006 * speedMult;
+        particles.rotation.y -= 0.002 * speedMult;
       }
 
       // Gentle pulsating energy breathing
-      const pulse = 1 + Math.sin(elapsedTime * 2.5) * 0.08;
+      const pulseMult = prefersReducedMotion ? 0.015 : 0.08;
+      const pulseSpeed = prefersReducedMotion ? 0.8 : 2.5;
+      const pulse = 1 + Math.sin(elapsedTime * pulseSpeed) * pulseMult;
       innerMesh.scale.set(pulse, pulse, pulse);
-      innerMesh.rotation.y += 0.015;
+      innerMesh.rotation.y += 0.015 * (prefersReducedMotion ? 0.15 : 1.0);
 
       renderer.render(scene, camera);
     };
@@ -249,6 +282,8 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
     // Cleanup
     return () => {
       cancelAnimationFrame(animationFrameId);
+      if (observer) observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', handleResize);
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mousedown', handleMouseDown);
@@ -276,7 +311,7 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
         container.removeChild(canvas);
       }
     };
-  }, [isRotating, variant, wireframeMode]);
+  }, [variant, wireframeMode]);
 
   return (
     <div

@@ -439,26 +439,28 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   }
 
   return (
-    <div
-      aria-hidden="true"
-      className={`fixed inset-0 pointer-events-none z-0 overflow-hidden select-none ${className}`}
-    >
-      {/* 3D WebGL Canvas Container */}
-      <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
-
-      {/* High-Contrast WCAG AA Protection Scrim: Gentle vignetting allowing full particle luminosity */}
+    <>
       <div
-        className="absolute inset-0 pointer-events-none z-[1]"
-        style={{
-          background:
-            'radial-gradient(circle at 50% 30%, rgba(16, 19, 26, 0.15) 0%, rgba(16, 19, 26, 0.45) 70%, rgba(16, 19, 26, 0.72) 100%)',
-        }}
-      />
+        aria-hidden="true"
+        className={`fixed inset-0 pointer-events-none z-0 overflow-hidden select-none ${className}`}
+      >
+        {/* 3D WebGL Canvas Container */}
+        <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
-      {/* Subtle Ambient Scanline Grid for Systems Aesthetic */}
-      <div className="absolute inset-0 opacity-[0.018] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none z-[2]" />
+        {/* High-Contrast WCAG AA Protection Scrim: Gentle vignetting allowing full particle luminosity */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[1]"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 30%, rgba(16, 19, 26, 0.15) 0%, rgba(16, 19, 26, 0.45) 70%, rgba(16, 19, 26, 0.72) 100%)',
+          }}
+        />
 
-      {/* Optional Accessible Background Controls (Floating micro-pill for toggling pause) */}
+        {/* Subtle Ambient Scanline Grid for Systems Aesthetic */}
+        <div className="absolute inset-0 opacity-[0.018] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none z-[2]" />
+      </div>
+
+      {/* Accessible Background Controls (Floating micro-pill for toggling pause) */}
       <div className="fixed bottom-4 left-4 z-50 pointer-events-auto opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
         <button
           type="button"
@@ -466,15 +468,15 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
             if (onTogglePause) onTogglePause();
             else setInternalPaused((prev) => !prev);
           }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md border border-white/10 text-[10px] font-mono text-outline hover:text-primary transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md border border-white/10 text-[10px] font-mono text-outline hover:text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
           title={paused ? 'Resume 3D Ambient Constellation' : 'Pause 3D Ambient Constellation'}
-          aria-label={paused ? 'Resume 3D background' : 'Pause 3D background'}
+          aria-label={paused ? 'Resume 3D background animation' : 'Pause 3D background animation'}
         >
-          {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+          {paused ? <Play className="w-3.5 h-3.5" aria-hidden="true" /> : <Pause className="w-3.5 h-3.5" aria-hidden="true" />}
           <span>{paused ? 'RESUME 3D' : `${fps} FPS`}</span>
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

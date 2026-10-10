@@ -63,16 +63,16 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' as const },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 28 },
+    hidden: { opacity: 0, y: 24 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.55, ease: 'easeOut' as const },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
     },
     exit: {
       opacity: 0,
