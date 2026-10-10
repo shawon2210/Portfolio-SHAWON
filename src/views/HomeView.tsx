@@ -282,7 +282,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       ========================================================================= */}
       <div
         ref={blueprintRef}
-        className="flex flex-col w-full pb-20 max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12"
+        className="flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-16 sm:pt-20 lg:pt-24 pb-20 sm:pb-24 lg:pb-28 scroll-mt-20 sm:scroll-mt-24 lg:scroll-mt-28"
       >
         {/* Professional Summary Panel (Engineering Blueprint) */}
         <motion.div
@@ -290,7 +290,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-surface-container-low/90 backdrop-blur-md shadow-lg mb-8 flex flex-col gap-4 border border-white/5"
+          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-white/[0.03] backdrop-blur-xl shadow-2xl shadow-black/20 mb-8 sm:mb-10 lg:mb-12 flex flex-col gap-4 border border-white/[0.08]"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Engineering Blueprint
               </span>
             </div>
-            <span className="font-status-label text-[10px] text-on-surface-variant px-2 py-0.5 rounded bg-surface-container">
+            <span className="font-status-label text-[10px] text-on-surface-variant px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08]">
               CS GRADUATE
             </span>
           </div>
@@ -318,7 +318,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <motion.div
               variants={childFade}
               whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-surface-container-high/70 flex flex-col border border-white/5"
+              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-primary">3+</span>
@@ -331,7 +331,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <motion.div
               variants={childFade}
               whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-surface-container-high/70 flex flex-col border border-white/5"
+              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-secondary">97</span>
@@ -344,7 +344,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <motion.div
               variants={childFade}
               whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-surface-container-high/70 flex flex-col border border-white/5"
+              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-tertiary">+27</span>
@@ -357,7 +357,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <motion.div
               variants={childFade}
               whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-surface-container-high/70 flex flex-col border border-white/5"
+              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-primary-fixed">91+</span>
@@ -376,7 +376,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 flex flex-col gap-3 mb-8"
+          className="relative z-10 flex flex-col gap-3 mb-8 sm:mb-10 lg:mb-12"
         >
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
@@ -400,11 +400,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 key={category.id}
                 variants={childFade}
                 whileHover={{ y: -3 }}
-                className="p-4 rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-2.5 border border-white/5 hover:border-primary/20 transition-all"
+                className="p-4 rounded-xl bg-white/[0.02] backdrop-blur-sm flex flex-col gap-2.5 border border-white/[0.08] hover:border-sky-400/30 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+                    <div className="w-7 h-7 rounded-lg bg-white/[0.05] flex items-center justify-center text-primary">
                       <AppIcon name={category.icon} className="w-[18px] h-[18px]" />
                     </div>
                     <span className="font-headline-md text-sm sm:text-base font-semibold text-on-surface">
@@ -419,7 +419,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   {category.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-code-sm text-xs border border-white/5"
+                      className="px-2.5 py-1 rounded bg-white/[0.03] text-on-surface font-code-sm text-xs border border-white/[0.07]"
                     >
                       {skill}
                     </span>
@@ -436,7 +436,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low shadow-xl flex flex-col gap-3 border border-white/5"
+          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white/[0.06] via-white/[0.03] to-transparent backdrop-blur-xl shadow-2xl shadow-black/20 flex flex-col gap-3 border border-white/[0.08]"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -445,7 +445,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Hiring for your engineering team?
               </span>
             </div>
-            <span className="font-code-sm text-xs text-secondary bg-surface-container-lowest px-2 py-0.5 rounded">
+            <span className="font-code-sm text-xs text-secondary bg-white/[0.03] border border-white/[0.07] px-2 py-0.5 rounded">
               Ready to Deploy
             </span>
           </div>
@@ -462,7 +462,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </button>
             <button
               onClick={handleCopyEmail}
-              className="h-10 px-3.5 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary font-code-sm text-xs flex items-center justify-center gap-1.5 transition-colors border border-white/5 cursor-pointer"
+              className="h-10 px-3.5 rounded-lg bg-white/[0.04] text-on-surface hover:text-sky-400 hover:bg-white/[0.08] font-code-sm text-xs flex items-center justify-center gap-1.5 transition-colors border border-white/[0.1] cursor-pointer"
             >
               <AppIcon name={copiedEmail ? 'check' : 'content_copy'} className="w-4 h-4" />
               <span>{copiedEmail ? 'Copied' : 'Copy Email'}</span>
