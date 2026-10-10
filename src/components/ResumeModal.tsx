@@ -12,6 +12,7 @@ import {
   Send,
 } from 'lucide-react';
 import { PERSONAL_INFO, WORK_EXPERIENCE, EDUCATION_LIST, CERTIFICATES, SKILL_CATEGORIES } from '../data/portfolioData';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface ResumeModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
   onShowToast,
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  useModalA11y(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -50,14 +52,20 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resume-modal-title"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="relative w-full max-w-3xl max-h-[90vh] bg-surface-container rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden">
         {/* Modal Top Bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">
           <div className="flex items-center gap-2.5">
             <FileText className="text-primary w-5 h-5" />
             <div>
-              <h2 className="font-headline-md text-base sm:text-lg font-bold text-on-surface">
+              <h2 id="resume-modal-title" className="font-headline-md text-base sm:text-lg font-bold text-on-surface">
                 Curriculum Vitae — MD Shawon Molla
               </h2>
               <span className="font-code-sm text-xs text-on-surface-variant">
