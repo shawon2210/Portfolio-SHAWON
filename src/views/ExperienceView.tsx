@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  Briefcase,
+  GraduationCap,
+  Award,
+  Calendar,
+  MapPin,
+  CheckCircle2,
+  ExternalLink,
+  Building2,
+  Layers,
+  Sparkles,
+} from 'lucide-react';
 import { TabType } from '../types';
 import { WORK_EXPERIENCE, EDUCATION_LIST, CERTIFICATES } from '../data/portfolioData';
-import { AppIcon } from '../components/AppIcon';
+import { GlassCard, Badge, Tag } from '../components/primitives';
 
 interface ExperienceViewProps {
   onNavigate: (tab: TabType) => void;
@@ -15,175 +28,153 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
   const showAcademy = activeFilter === 'all' || activeFilter === 'academy';
 
   return (
-    <div className="flex flex-col w-full pb-24 max-w-4xl mx-auto">
-      {/* Interactive Ambient Header Aura */}
-      <div className="relative px-4 sm:px-6 pt-4 pb-2 overflow-hidden">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-primary border border-white/5">
-            <AppIcon name="timeline" className="w-[15px] h-[15px]" />
-          </span>
-          <span className="font-status-label text-[10px] sm:text-[11px] text-primary uppercase tracking-wider font-semibold">
-            Career Telemetry &amp; Degrees
-          </span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-          Experience &amp; Education
-        </h1>
-        <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant mt-1.5 leading-relaxed">
-          Professional software engineering trajectory, technical internships, national ICT training, and academic background.
-        </p>
+    <div className="flex flex-col w-full pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
+      {/* Editorial Header */}
+      <div className="relative pt-8 sm:pt-12 pb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-start gap-2"
+        >
+          <div className="flex items-center gap-2">
+            <Badge variant="accent">
+              Trajectory &amp; Credentials
+            </Badge>
+            <span className="text-xs font-mono text-slate-500 hidden sm:inline">
+              Production Experience &amp; Academic Background
+            </span>
+          </div>
 
-        {/* Top Telemetry Micro-Stats Bento */}
-        <div className="grid grid-cols-3 gap-2 mt-4">
-          <div className="bg-surface-container-low rounded-xl p-3 flex flex-col justify-between shadow-sm border border-white/5">
-            <span className="font-code-sm text-[11px] text-on-surface-variant">Lighthouse</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-secondary">91</span>
-              <span className="font-code-sm text-xs text-secondary font-semibold">/100</span>
-            </div>
-            <span className="font-status-label text-[10px] text-secondary mt-0.5 font-semibold">+27 boost</span>
-          </div>
-          <div className="bg-surface-container-low rounded-xl p-3 flex flex-col justify-between shadow-sm border border-white/5">
-            <span className="font-code-sm text-[11px] text-on-surface-variant">API Latency</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-primary">-30%</span>
-            </div>
-            <span className="font-status-label text-[10px] text-primary mt-0.5 font-semibold">Speed index</span>
-          </div>
-          <div className="bg-surface-container-low rounded-xl p-3 flex flex-col justify-between shadow-sm border border-white/5">
-            <span className="font-code-sm text-[11px] text-on-surface-variant">Academic</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-tertiary">5.00</span>
-            </div>
-            <span className="font-status-label text-[10px] text-tertiary mt-0.5 font-semibold">Dual 100% GPA</span>
-          </div>
-        </div>
-      </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+            Engineering Trajectory
+          </h1>
+          <p className="text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
+            Professional software development, full-stack microservices apprenticeships, government ICT programs, and academic achievements.
+          </p>
+        </motion.div>
 
-      {/* Interactive Segment Tabs */}
-      <div className="px-4 sm:px-6 my-4">
-        <div className="bg-surface-container-lowest p-1 rounded-xl flex items-center gap-1 shadow-inner border border-white/5">
-          <button
-            onClick={() => setActiveFilter('all')}
-            className={`flex-1 py-2 px-3 rounded-lg font-code-sm text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
-              activeFilter === 'all'
-                ? 'bg-surface-container-high text-primary shadow-sm border border-white/5'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <AppIcon name="hub" className="w-4 h-4" />
-            <span>Overview</span>
-          </button>
-          <button
-            onClick={() => setActiveFilter('work')}
-            className={`flex-1 py-2 px-3 rounded-lg font-code-sm text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
-              activeFilter === 'work'
-                ? 'bg-surface-container-high text-primary shadow-sm border border-white/5'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <AppIcon name="terminal" className="w-4 h-4" />
-            <span>Work</span>
-          </button>
-          <button
-            onClick={() => setActiveFilter('academy')}
-            className={`flex-1 py-2 px-3 rounded-lg font-code-sm text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
-              activeFilter === 'academy'
-                ? 'bg-surface-container-high text-primary shadow-sm border border-white/5'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <AppIcon name="school" className="w-4 h-4" />
-            <span>Academy</span>
-          </button>
+        {/* Filter Segment Tabs with Spring Pill */}
+        <div className="flex items-center gap-1.5 mt-6 pt-4 border-t border-white/[0.08]">
+          {[
+            { id: 'all', label: 'All Milestones', icon: Layers },
+            { id: 'work', label: 'Work & Apprenticeships', icon: Briefcase },
+            { id: 'academy', label: 'Academic & Degrees', icon: GraduationCap },
+          ].map((tab) => {
+            const isActive = activeFilter === tab.id;
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id as 'all' | 'work' | 'academy')}
+                className={`relative px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
+                  isActive
+                    ? 'text-slate-950 font-bold'
+                    : 'text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06]'
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="experienceFilterTab"
+                    className="absolute inset-0 bg-sky-400 rounded-full shadow-[0_0_16px_rgba(56,189,248,0.45)]"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Section 1: Professional Experience */}
+      {/* Section 1: Work Experience Timeline */}
       {showWork && (
-        <div className="px-4 sm:px-6 flex flex-col gap-4">
+        <div className="flex flex-col gap-6 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+              <h2 className="text-xl font-bold text-white tracking-tight">
                 Work &amp; Apprenticeship
               </h2>
             </div>
-            <span className="font-code-sm text-xs text-primary bg-primary/10 px-2.5 py-1 rounded-full font-medium">
+            <span className="text-xs font-mono text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20 font-medium">
               Production Track
             </span>
           </div>
 
-          {/* Timeline Wrapper */}
-          <div className="relative pl-6 flex flex-col gap-6 mt-1">
-            {/* Glow timeline trace line */}
-            <div className="absolute left-2.5 top-3 bottom-4 w-0.5 bg-gradient-to-b from-primary via-secondary to-tertiary opacity-40"></div>
+          {/* Clean Editorial Timeline (Zero garish neon glow halos) */}
+          <div className="relative pl-6 sm:pl-8 flex flex-col gap-8 mt-2">
+            {/* Subtle, restrained 1px timeline spine */}
+            <div className="absolute left-2 sm:left-3 top-3 bottom-4 w-px bg-white/[0.12]" />
 
-            {/* Experience Items */}
             {WORK_EXPERIENCE.map((exp, idx) => (
               <div key={exp.id} className="relative flex flex-col gap-3 group">
-                {/* Node indicator */}
-                <div className="absolute -left-6 top-1.5 w-5 h-5 rounded-full bg-surface flex items-center justify-center">
-                  <div
-                    className={`w-3 h-3 rounded-full ${
-                      idx === 0 ? 'bg-primary ring-4 ring-primary/20' : 'bg-secondary ring-4 ring-secondary/20'
-                    }`}
-                  ></div>
+                {/* Node indicator: obsidian center with crisp border */}
+                <div className="absolute -left-[23px] sm:-left-[27px] top-2 w-4 h-4 rounded-full bg-[#090b11] border-2 border-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.5)] z-10 flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
                 </div>
 
-                <div className="bg-surface-container rounded-2xl p-4 shadow-md flex flex-col gap-3 border border-white/5 hover:border-primary/20 transition-all">
-                  <div className="flex flex-col gap-1">
+                <GlassCard
+                  interactive
+                  className="p-5 sm:p-6 rounded-2xl bg-[#0d1017]/90 border border-white/[0.08] hover:border-sky-500/40 transition-all duration-300 shadow-xl"
+                >
+                  {/* Company & Role Header */}
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <span className={`font-code-sm text-xs font-bold ${exp.badgeColor === 'text-secondary' ? 'text-primary' : 'text-secondary'}`}>
-                        {exp.company}
-                      </span>
-                      <span className="inline-flex items-center gap-1 font-status-label text-[10px] text-secondary bg-secondary/10 px-2 py-0.5 rounded-full font-semibold">
-                        {idx === 0 && <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>}
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-sky-400" />
+                        <span className="font-mono text-xs font-bold text-sky-400 tracking-wide uppercase">
+                          {exp.company}
+                        </span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 font-mono text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full font-medium">
+                        {idx === 0 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
                         {exp.badge}
                       </span>
                     </div>
-                    <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold leading-tight">
+
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                       {exp.role}
                     </h3>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
-                      <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                        <AppIcon name="calendar_month" className="w-3.5 h-3.5" />
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-slate-400 mt-0.5">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
                         <span>{exp.period}</span>
                       </span>
-                      <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                        <AppIcon name="pin_drop" className="w-3.5 h-3.5" />
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-slate-500" />
                         <span>{exp.location}</span>
                       </span>
                     </div>
                   </div>
 
-                  {/* Stack Summary Banner */}
-                  <div className="bg-surface-container-high rounded-xl px-3 py-2 flex items-center justify-between text-on-surface border border-white/5">
-                    <span className="font-body-sm text-xs font-medium">{exp.stackSummary}</span>
-                    <span className="font-code-sm text-xs text-secondary bg-surface-container px-2 py-0.5 rounded">
+                  {/* Stack Summary Pill */}
+                  <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-300">{exp.stackSummary}</span>
+                    <span className="text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
                       {exp.typeBadge}
                     </span>
                   </div>
 
-                  {/* Highlight Metric Badges */}
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Verified Impact Metrics */}
+                  <div className="grid grid-cols-2 gap-2.5 mt-3">
                     {exp.metrics.map((m, mIdx) => (
                       <div
                         key={mIdx}
-                        className="bg-surface-container-low rounded-xl p-2.5 flex items-center gap-2.5 border border-white/5"
+                        className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center gap-3"
                       >
-                        <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            m.color === 'text-secondary' ? 'bg-secondary/15 text-secondary' : 'bg-primary/15 text-primary'
-                          }`}
-                        >
-                          <AppIcon name={m.icon} className="w-[18px] h-[18px]" />
+                        <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                          <Sparkles className="w-4 h-4" />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-status-label text-[9px] text-on-surface-variant uppercase tracking-wider">
+                          <span className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                             {m.label}
                           </span>
-                          <span className={`font-code-md text-xs sm:text-sm font-bold ${m.color}`}>
+                          <span className="font-mono text-xs sm:text-sm font-bold text-white">
                             {m.value}
                           </span>
                         </div>
@@ -191,230 +182,226 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
                     ))}
                   </div>
 
-                  {/* Bullet Points */}
-                  <div className="flex flex-col gap-2 pt-1">
+                  {/* Role Achievements Bullet Points */}
+                  <div className="flex flex-col gap-2 pt-3 mt-1">
                     {exp.achievements.map((item, aIdx) => (
-                      <div key={aIdx} className="flex items-start gap-2.5">
-                        <AppIcon name="check_circle" className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                          {item}
-                        </p>
+                      <div key={aIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-300">
+                        <span className="text-sky-400 font-mono text-xs shrink-0 mt-0.5">&gt;</span>
+                        <p className="leading-relaxed">{item}</p>
                       </div>
                     ))}
                   </div>
 
-                  {/* Visual Project Snapshot (Innofast) */}
+                  {/* Project Snapshot (Innofast) */}
                   {exp.previewImage && (
-                    <div className="relative w-full h-36 rounded-xl overflow-hidden mt-1 shadow-sm border border-white/5 group-hover:border-primary/20">
+                    <div className="relative w-full h-40 rounded-xl overflow-hidden mt-3 border border-white/[0.08] group-hover:border-sky-500/30 transition-all">
                       <img
                         className="w-full h-full object-cover"
-                        alt="Innofast Dashboard UI"
+                        alt="Innofast Dashboard Preview"
                         src={exp.previewImage}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent flex items-end p-2.5">
-                        <span className="font-code-sm text-[11px] text-primary-fixed bg-surface-container-lowest/80 px-2 py-0.5 rounded backdrop-blur">
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+                        <span className="font-mono text-xs text-sky-300 bg-slate-950/80 px-2.5 py-1 rounded backdrop-blur border border-white/[0.08]">
                           {exp.previewCaption}
                         </span>
                       </div>
                     </div>
                   )}
-                </div>
+                </GlassCard>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Section 2: Education Cards */}
+      {/* Section 2: Education & Degrees */}
       {showAcademy && (
-        <div className="px-4 sm:px-6 flex flex-col gap-4 mt-6">
+        <div className="flex flex-col gap-6 mt-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-tertiary"></span>
-              <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
-                Academic Credentials
+              <span className="w-2 h-2 rounded-full bg-violet-400" />
+              <h2 className="text-xl font-bold text-white tracking-tight">
+                Academic Degrees
               </h2>
             </div>
-            <span className="font-code-sm text-xs text-tertiary bg-tertiary/10 px-2.5 py-1 rounded-full font-medium">
+            <span className="text-xs font-mono text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20 font-medium">
               BSc in CSE
             </span>
           </div>
 
-          {/* Education Card 1: University */}
-          <div className="bg-surface-container rounded-2xl p-4 shadow-md flex flex-col gap-3 relative overflow-hidden border border-white/5">
-            <div className="absolute -right-8 -top-8 w-28 h-28 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+          {/* University Degree Card */}
+          <GlassCard
+            interactive
+            className="p-5 sm:p-6 rounded-2xl bg-[#0d1017]/90 border border-white/[0.08] hover:border-violet-500/40 transition-all duration-300 shadow-xl flex flex-col gap-4"
+          >
             <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 shadow-sm border border-white/5">
-                  <AppIcon name="account_balance" className="w-6 h-6" />
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-6 h-6" />
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-status-label text-[10px] text-primary uppercase font-bold tracking-wider">
-                    Bachelor Degree
+                <div className="flex flex-col">
+                  <span className="font-mono text-xs text-violet-400 uppercase font-semibold">
+                    Bachelor of Science
                   </span>
-                  <h3 className="font-body-lg text-sm sm:text-base text-on-surface font-bold leading-snug">
+                  <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
                     BSc in Computer Science &amp; Engineering
                   </h3>
                 </div>
               </div>
             </div>
 
-            <div className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-2 border border-white/5">
-              <div className="flex items-center justify-between">
-                <span className="font-body-sm text-xs sm:text-sm text-on-surface font-semibold">
-                  IUBAT — International University of Business Agriculture &amp; Technology
+            <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex flex-col gap-2">
+              <span className="text-sm font-semibold text-slate-200">
+                IUBAT &mdash; International University of Business Agriculture &amp; Technology
+              </span>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs font-mono">
+                <span className="text-slate-400 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Jan 2022 &ndash; Feb 2026</span>
                 </span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                  <AppIcon name="calendar_today" className="w-3.5 h-3.5" />
-                  <span>Jan 2022 – Feb 2026</span>
+                <span className="bg-white/[0.04] border border-white/[0.08] px-3 py-1 rounded-full text-sky-400 font-bold">
+                  CGPA: 3.35 / 4.00
                 </span>
-                <div className="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-0.5 rounded-full border border-white/5">
-                  <span className="font-status-label text-[10px] text-on-surface-variant">CGPA</span>
-                  <span className="font-code-sm text-xs text-primary font-bold">3.35 / 4.00</span>
-                </div>
               </div>
             </div>
 
             {/* Core Coursework Chips */}
-            <div className="flex flex-col gap-1.5">
-              <span className="font-status-label text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-xs text-slate-400 uppercase tracking-wider">
                 Core Engineering Curricula
               </span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {[
                   'Data Structures & Algorithms',
-                  'Software Engineering',
-                  'Database Management',
+                  'System Architecture',
+                  'Database Systems (RDBMS & NoSQL)',
                   'Computer Networks',
                   'Artificial Intelligence',
                 ].map((course, cIdx) => (
-                  <span
-                    key={cIdx}
-                    className="font-code-sm text-xs px-2.5 py-1 rounded bg-surface-container-high text-on-surface border border-white/5"
-                  >
+                  <Tag key={cIdx} variant="glass">
                     {course}
-                  </span>
+                  </Tag>
                 ))}
               </div>
             </div>
-          </div>
+          </GlassCard>
 
-          {/* Double Perfect 5.00 HSC & SSC Bento */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Dual Perfect 5.00 HSC & SSC Bento Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* HSC */}
-            <div className="bg-surface-container rounded-2xl p-4 shadow-md flex flex-col justify-between gap-3 relative border border-white/5">
+            <GlassCard
+              interactive
+              className="p-5 rounded-xl bg-[#0d1017]/90 border border-white/[0.08] flex flex-col justify-between gap-3 shadow-lg"
+            >
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
-                    <AppIcon name="verified_user" className="w-[18px] h-[18px]" />
+                <div className="flex flex-col">
+                  <span className="font-mono text-[11px] text-emerald-400 uppercase font-semibold">
+                    Higher Secondary Certificate
                   </span>
-                  <div className="flex flex-col">
-                    <span className="font-status-label text-[10px] text-secondary uppercase font-bold">
-                      Higher Secondary
-                    </span>
-                    <h4 className="font-body-md text-xs sm:text-sm text-on-surface font-bold">
-                      HSC, Science
-                    </h4>
-                  </div>
+                  <h4 className="text-base font-bold text-white mt-0.5">
+                    HSC, Science
+                  </h4>
                 </div>
-                <span className="font-code-sm text-xs text-secondary bg-secondary/15 px-2 py-0.5 rounded-full font-bold">
+                <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
                   GPA 5.00
                 </span>
               </div>
-              <div className="flex flex-col gap-1 bg-surface-container-low p-2.5 rounded-xl border border-white/5">
-                <span className="font-body-sm text-xs text-on-surface font-medium truncate">
+
+              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] text-xs font-mono">
+                <span className="text-slate-200 font-medium block truncate">
                   Khulna Public College
                 </span>
-                <div className="flex items-center justify-between text-on-surface-variant font-code-sm text-[11px] mt-0.5">
-                  <span>Jessore Board</span>
-                  <span>2019 – 2020</span>
-                </div>
+                <span className="text-slate-500 block mt-0.5">
+                  Jessore Board &bull; 2019&ndash;2020
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 text-secondary font-code-sm text-xs font-medium">
-                <AppIcon name="star" className="w-3.5 h-3.5" /> Perfect Score Achiever
-              </div>
-            </div>
+
+              <span className="text-xs font-mono text-emerald-400/90 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" /> Perfect Score Achievement
+              </span>
+            </GlassCard>
 
             {/* SSC */}
-            <div className="bg-surface-container rounded-2xl p-4 shadow-md flex flex-col justify-between gap-3 relative border border-white/5">
+            <GlassCard
+              interactive
+              className="p-5 rounded-xl bg-[#0d1017]/90 border border-white/[0.08] flex flex-col justify-between gap-3 shadow-lg"
+            >
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-tertiary/15 text-tertiary flex items-center justify-center shrink-0">
-                    <AppIcon name="military_tech" className="w-[18px] h-[18px]" />
+                <div className="flex flex-col">
+                  <span className="font-mono text-[11px] text-violet-400 uppercase font-semibold">
+                    Secondary School Certificate
                   </span>
-                  <div className="flex flex-col">
-                    <span className="font-status-label text-[10px] text-tertiary uppercase font-bold">
-                      Secondary School
-                    </span>
-                    <h4 className="font-body-md text-xs sm:text-sm text-on-surface font-bold">
-                      SSC, Science
-                    </h4>
-                  </div>
+                  <h4 className="text-base font-bold text-white mt-0.5">
+                    SSC, Science
+                  </h4>
                 </div>
-                <span className="font-code-sm text-xs text-tertiary bg-tertiary/15 px-2 py-0.5 rounded-full font-bold">
+                <span className="font-mono text-xs font-bold text-violet-400 bg-violet-500/10 border border-violet-500/25 px-2.5 py-0.5 rounded-full">
                   GPA 5.00
                 </span>
               </div>
-              <div className="flex flex-col gap-1 bg-surface-container-low p-2.5 rounded-xl border border-white/5">
-                <span className="font-body-sm text-xs text-on-surface font-medium truncate">
+
+              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] text-xs font-mono">
+                <span className="text-slate-200 font-medium block truncate">
                   A C Laha Pilot High School
                 </span>
-                <div className="flex items-center justify-between text-on-surface-variant font-code-sm text-[11px] mt-0.5">
-                  <span>Jessore Board</span>
-                  <span>2016 – 2017</span>
-                </div>
+                <span className="text-slate-500 block mt-0.5">
+                  Jessore Board &bull; 2016&ndash;2017
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 text-tertiary font-code-sm text-xs font-medium">
-                <AppIcon name="star" className="w-3.5 h-3.5" /> Perfect Score Achiever
-              </div>
-            </div>
+
+              <span className="text-xs font-mono text-violet-400/90 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" /> Perfect Score Achievement
+              </span>
+            </GlassCard>
           </div>
         </div>
       )}
 
-      {/* Section 3: Verified Technical Certifications */}
-      <div className="px-4 sm:px-6 flex flex-col gap-3 mt-6">
+      {/* Section 3: Verified Industry Certifications */}
+      <div className="flex flex-col gap-4 mt-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AppIcon name="workspace_premium" className="w-5 h-5 text-primary" />
-            <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
-              Verified Certificates
+            <Award className="w-5 h-5 text-sky-400" />
+            <h2 className="text-xl font-bold text-white tracking-tight">
+              Verified Certifications
             </h2>
           </div>
-          <span className="font-status-label text-[10px] text-on-surface-variant uppercase font-semibold">
+          <span className="text-xs font-mono text-slate-500 uppercase font-medium">
             Industry Validated
           </span>
         </div>
 
-        {CERTIFICATES.map((cert) => (
-          <div
-            key={cert.id}
-            className="bg-surface-container rounded-2xl p-4 shadow-md flex items-center gap-3.5 border border-white/5 hover:border-primary/20 transition-colors"
-          >
-            <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary shrink-0 shadow-inner border border-white/5">
-              <AppIcon name={cert.icon} className="w-6 h-6" />
-            </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1">
-                <h4 className="font-body-md text-xs sm:text-sm text-on-surface font-bold truncate">
-                  {cert.title}
-                </h4>
-                <span className="font-code-sm text-xs text-secondary bg-secondary/10 px-2 py-0.5 rounded shrink-0">
-                  {cert.duration}
+        <div className="flex flex-col gap-3">
+          {CERTIFICATES.map((cert) => (
+            <GlassCard
+              key={cert.id}
+              interactive
+              className="p-4 sm:p-5 rounded-xl bg-[#0d1017]/85 border border-white/[0.08] hover:border-sky-500/35 transition-all flex items-center gap-4"
+            >
+              <div className="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5" />
+              </div>
+
+              <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                    {cert.title}
+                  </h4>
+                  <span className="font-mono text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded shrink-0">
+                    {cert.duration}
+                  </span>
+                </div>
+                <p className="text-xs font-mono text-slate-400 truncate mt-0.5">
+                  {cert.issuer}
+                </p>
+                <span className="font-mono text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3 text-slate-600" />
+                  <span>{cert.completedDate}</span>
                 </span>
               </div>
-              <p className="font-body-sm text-xs text-on-surface-variant truncate mt-0.5">
-                {cert.issuer}
-              </p>
-              <span className="font-code-sm text-xs text-primary mt-1 flex items-center gap-1">
-                <AppIcon name="event_available" className="w-3.5 h-3.5" />
-                <span>{cert.completedDate}</span>
-              </span>
-            </div>
-          </div>
-        ))}
+            </GlassCard>
+          ))}
+        </div>
       </div>
     </div>
   );
