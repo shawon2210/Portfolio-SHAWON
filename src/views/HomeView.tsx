@@ -57,7 +57,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.55, ease: 'easeOut' as const },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 
@@ -66,18 +66,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08,
+        staggerChildren: 0.07,
         delayChildren: 0.04,
       },
     },
   };
 
   const childFade = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 14 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.45, ease: 'easeOut' as const },
+      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 

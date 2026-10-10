@@ -62,8 +62,8 @@ export const PROJECTS: Project[] = [
       },
     ],
     techStack: [
-      'Next.js 16',
-      'NestJS 11',
+      'Next.js',
+      'NestJS',
       'PostgreSQL',
       'Prisma',
       'Redis',
@@ -418,7 +418,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     badge: 'UI / UX',
     icon: 'web',
     color: 'text-secondary',
-    skills: ['React.js', 'Next.js 15/16', 'TypeScript', 'Tailwind CSS', 'State Machines'],
+    skills: ['React.js', 'Next.js 15', 'TypeScript', 'Tailwind CSS', 'State Machines'],
   },
   {
     id: 'backend',
