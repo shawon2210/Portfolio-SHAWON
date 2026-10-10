@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { FileText, Terminal, Camera } from 'lucide-react';
 import { TabType } from '../types';
 import { PERSONAL_INFO } from '../data/portfolioData';
@@ -71,48 +72,29 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Desktop Navigation links */}
-        <nav className="hidden lg:flex items-center gap-1 bg-surface-container-low/70 px-2 py-1 rounded-full border border-white/5">
-          <button
-            onClick={() => onSelectTab('home')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              activeTab === 'home'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Home
-          </button>
-          <button
-            onClick={() => onSelectTab('projects')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              activeTab === 'projects'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Projects
-          </button>
-          <button
-            onClick={() => onSelectTab('experience')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              activeTab === 'experience'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Experience
-          </button>
-          <button
-            onClick={() => onSelectTab('contact')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              activeTab === 'contact'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            Contact
-          </button>
+        {/* Desktop Navigation links with smooth sliding active pill */}
+        <nav className="hidden lg:flex items-center gap-1 bg-surface-container-low/80 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+          {(['home', 'projects', 'experience', 'contact'] as TabType[]).map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => onSelectTab(tab)}
+                className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors capitalize cursor-pointer ${
+                  isActive ? 'text-on-primary' : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 bg-primary rounded-full shadow-[0_0_12px_rgba(76,215,246,0.4)]"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{tab}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Action Controls */}

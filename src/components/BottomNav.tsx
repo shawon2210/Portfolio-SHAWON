@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { TabType } from '../types';
 import { AppIcon } from './AppIcon';
 
@@ -25,13 +26,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
               key={item.id}
               onClick={() => onSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] h-12 px-1 transition-all ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[44px] h-12 px-1 transition-all ${
                 isActive
-                  ? 'text-primary font-semibold scale-105'
+                  ? 'text-primary font-semibold'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              <AppIcon name={item.icon} className="w-5 h-5" />
+              {isActive && (
+                <motion.div
+                  layoutId="bottomNavIndicator"
+                  className="absolute -top-1 w-6 h-0.5 rounded-full bg-primary shadow-[0_0_8px_#38bdf8]"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <AppIcon name={item.icon} className={`w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
               <span className="font-status-label text-[10px] tracking-tight leading-tight">{item.label}</span>
             </button>
           );

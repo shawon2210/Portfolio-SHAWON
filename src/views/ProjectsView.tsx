@@ -186,10 +186,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               viewport={{ once: true, margin: '-50px' }}
               exit="exit"
               whileHover={{ y: -4 }}
-              className="flex flex-col bg-surface-container rounded-xl shadow-xl overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-300 group"
+              className="flex flex-col bg-surface-container-low/90 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all duration-300 group"
             >
               {/* Media Header & Visual Telemetry Strip */}
-              <div className="relative w-full h-44 bg-surface-container-high overflow-hidden">
+              <div className="relative w-full h-48 sm:h-56 bg-surface-container-high overflow-hidden">
                 {project.imageUrl && (
                   <img
                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
@@ -290,10 +290,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="flex flex-wrap items-center gap-2 pt-3">
                   <button
                     onClick={() => onSelectProject(project)}
-                    className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-bright text-on-surface font-code-md text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] border border-white/5 cursor-pointer"
+                    className="flex-1 min-w-[150px] flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface hover:text-primary font-code-md text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] border border-white/10 hover:border-primary/30 cursor-pointer"
                   >
-                    <AppIcon name="code" className="w-[17px] h-[17px]" />
-                    <span>Architecture</span>
+                    <AppIcon name="code" className="w-[17px] h-[17px] text-primary" />
+                    <span>Inspect Architecture</span>
                   </button>
 
                   {project.liveUrl && (
@@ -358,7 +358,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 viewport={{ once: true, margin: '-40px' }}
                 exit="exit"
                 whileHover={{ y: -2 }}
-                className="flex flex-col bg-surface-container-low p-4 rounded-xl shadow-md border border-white/5 hover:border-primary/20 transition-all"
+                className="flex flex-col bg-surface-container-low/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl shadow-md border border-white/10 hover:border-primary/30 transition-all"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col min-w-0">

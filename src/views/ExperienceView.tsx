@@ -8,14 +8,8 @@ interface ExperienceViewProps {
   onShowToast: (msg: string) => void;
 }
 
-export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) => {
+export const ExperienceView: React.FC<ExperienceViewProps> = () => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'work' | 'academy'>('all');
-  const [hasVerified, setHasVerified] = useState(false);
-
-  const handleVerify = () => {
-    setHasVerified(true);
-    onShowToast('All transcripts validated successfully!');
-  };
 
   const showWork = activeFilter === 'all' || activeFilter === 'work';
   const showAcademy = activeFilter === 'all' || activeFilter === 'academy';
@@ -421,60 +415,6 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Interactive Terminal Prompt Trigger */}
-      <div className="px-4 sm:px-6 mt-6">
-        <div className="bg-surface-container-low rounded-2xl p-4 flex flex-col gap-3 shadow-md border border-white/5 relative overflow-hidden font-code-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-error"></span>
-              <span className="w-3 h-3 rounded-full bg-secondary-container"></span>
-              <span className="w-3 h-3 rounded-full bg-secondary"></span>
-              <span className="text-xs text-on-surface-variant ml-2 font-mono">
-                shawon@trajectory ~ $
-              </span>
-            </div>
-            <button
-              onClick={handleVerify}
-              disabled={hasVerified}
-              className={`text-xs text-primary hover:underline flex items-center gap-1 ${
-                hasVerified ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              <span>run verify</span>
-              <AppIcon name="play_arrow" className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="bg-surface-container-lowest rounded-xl p-3 text-xs text-secondary flex flex-col gap-1 overflow-x-auto border border-white/5">
-            <div className="flex items-center gap-2">
-              <span className="text-primary font-bold">&gt;</span>
-              <span className="text-on-surface">status:</span>
-              <span className="text-secondary font-semibold">Ready for Full-Stack / Frontend roles</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-primary font-bold">&gt;</span>
-              <span className="text-on-surface">academics:</span>
-              <span className="text-on-surface-variant">BSc CSE (2026) | GPA 5.00/5.00 (HSC &amp; SSC)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-primary font-bold">&gt;</span>
-              <span className="text-on-surface">location:</span>
-              <span className="text-on-surface-variant">
-                Dhaka, Bangladesh · Remote / Hybrid / On-site
-              </span>
-            </div>
-            {hasVerified && (
-              <div className="flex items-center gap-2 mt-1 animate-in fade-in">
-                <span className="text-secondary font-bold">✔</span>
-                <span className="text-primary-fixed">
-                  All academic &amp; experience transcripts validated by Shawon.dev
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
   onOpenUploadModal,
   onShowToast,
 }) => {
+  const [honeypot, setHoneypot] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -45,6 +46,13 @@ export const ContactView: React.FC<ContactViewProps> = ({
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       onShowToast('Please fill in all required fields.');
+      return;
+    }
+
+    if (honeypot) {
+      // Bot caught in honeypot trap, silently succeed
+      setIsSubmitting(false);
+      setSubmitSuccess(true);
       return;
     }
 
@@ -117,22 +125,8 @@ export const ContactView: React.FC<ContactViewProps> = ({
           animate="visible"
           className="relative z-10 text-center flex flex-col items-center mb-6"
         >
-          <div
-            onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-            className={`relative mb-3 ${import.meta.env.DEV ? 'cursor-pointer group' : ''}`}
-            title={import.meta.env.DEV ? 'Click to change photo' : undefined}
-          >
-            <img
-              src={avatarUrl}
-              alt={PERSONAL_INFO.name}
-              className="w-16 h-16 rounded-full object-cover object-top ring-2 ring-primary/40 shadow-xl group-hover:ring-primary transition-all"
-            />
-            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary rounded-full ring-2 ring-surface"></span>
-            {import.meta.env.DEV && (
-              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                <AppIcon name="photo_camera" className="w-4 h-4" />
-              </div>
-            )}
+          <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-white/10 flex items-center justify-center text-primary mb-3 shadow-lg">
+            <AppIcon name="mail" className="w-6 h-6" />
           </div>
 
           <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
@@ -272,6 +266,18 @@ export const ContactView: React.FC<ContactViewProps> = ({
           </p>
 
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            {/* Honeypot anti-spam field */}
+            <div className="hidden" aria-hidden="true">
+              <input
+                type="text"
+                name="_gotcha"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
+
             {/* Full Name */}
             <div className="flex flex-col gap-1">
               <label htmlFor="contact-name" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
