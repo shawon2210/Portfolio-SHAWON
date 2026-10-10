@@ -20,10 +20,9 @@ export const PrintablePortfolio: React.FC = () => {
             <span>github.com/shawon2210</span>
             <span>&bull;</span>
             <span>linkedin.com/in/md-shawon-molla-2a3877293</span>
-            <span>&bull;</span>
-            <span>oddboundary.lovable.app</span>
           </div>
         </div>
+      
       </header>
 
       {/* Professional Summary */}
