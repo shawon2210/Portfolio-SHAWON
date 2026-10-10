@@ -25,14 +25,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
               key={item.id}
               onClick={() => onSelectTab(item.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 transition-all ${
+              className={`flex flex-col items-center justify-center gap-0.5 min-w-[44px] h-12 px-1 transition-all ${
                 isActive
                   ? 'text-primary font-semibold scale-105'
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
               <AppIcon name={item.icon} className="w-5 h-5" />
-              <span className="font-status-label text-[11px] leading-tight">{item.label}</span>
+              <span className="font-status-label text-[10px] tracking-tight leading-tight">{item.label}</span>
             </button>
           );
         })}

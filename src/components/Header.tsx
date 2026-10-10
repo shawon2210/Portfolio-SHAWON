@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Desktop Navigation links */}
-        <nav className="hidden md:flex items-center gap-1 bg-surface-container-low/70 px-2 py-1 rounded-full border border-white/5">
+        <nav className="hidden lg:flex items-center gap-1 bg-surface-container-low/70 px-2 py-1 rounded-full border border-white/5">
           <button
             onClick={() => onSelectTab('home')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOpenResume}
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
+            className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
             title="Inspect CV Resume"
           >
             <FileText className="w-4 h-4" />
