@@ -83,12 +83,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
           Right: Interactive 3D Spatial Architecture Canvas (TechCanvas3D)
       ========================================================================= */}
       <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between px-4 sm:px-6 lg:px-12 xl:px-16 pt-20 sm:pt-24 pb-8 sm:pb-12">
-        {/* Subtle Atmospheric Gradient Scrim (Enhances contrast without covering 3D constellation) */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#090b11]/30 to-[#090b11]/80" />
+        {/* Subtle ethereal aurora glow (transparent, zero muddying scrims) */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-30">
+          <div className="absolute top-10 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" />
         </div>
+
 
         {/* Minimal Live Status Bar */}
         <motion.div

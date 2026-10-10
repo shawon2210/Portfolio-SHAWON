@@ -1,480 +1,610 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Activity } from 'lucide-react';
+import { createCodeAtlas, CodeAtlasResult } from '../lib/codeAtlas';
+import { THEME_COLORS } from '../lib/tokens';
 
-export interface BackgroundSceneConfig {
-  /** Particle count (default: 1800 to ensure high density and visibility) */
-  particleCount?: number;
-  /** Movement speed factor */
+export interface FloatingCodeConfig {
+  count?: number;
   speed?: number;
-  /** Opacity / brightness intensity factor (0.1 - 1.0) */
-  intensity?: number;
-  /** Primary node color */
-  primaryColor?: string;
-  /** Connection line & secondary glow color */
-  secondaryColor?: string;
-  /** Accent particle color */
-  accentColor?: string;
-  /** Proximity threshold for constellation connection lines (in world units) */
-  connectDistance?: number;
-  /** Particle size in world units */
-  particleSize?: number;
+  depth?: number;
+  opacity?: number;
+  parallax?: boolean;
+  quality?: 'auto' | 'high' | 'medium' | 'low';
 }
 
 interface BackgroundSceneProps {
-  config?: BackgroundSceneConfig;
+  config?: FloatingCodeConfig;
   className?: string;
   isPaused?: boolean;
   onTogglePause?: () => void;
 }
 
-const DEFAULT_CONFIG: Required<BackgroundSceneConfig> = {
-  particleCount: 1800,
-  speed: 0.6,
-  intensity: 0.9,
-  primaryColor: '#4cd7f6', // High-tech luminous Cyan
-  secondaryColor: '#70d6ff', // Bright Ice Sky
-  accentColor: '#4edea3', // Vibrant Emerald Accent
-  connectDistance: 0.82,
-  particleSize: 0.065,
-};
-
-function checkWebGLSupport(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(
-      window.WebGLRenderingContext &&
-        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-    );
-  } catch {
-    return false;
-  }
+interface CardInstance {
+  baseX: number;
+  baseY: number;
+  baseZ: number;
+  x: number;
+  y: number;
+  z: number;
+  scale: number;
+  rotX: number;
+  rotY: number;
+  rotZ: number;
+  speedY: number;
+  swayFreq: number;
+  swayAmp: number;
+  phase: number;
+  alpha: number;
+  tileIndex: number;
 }
+
+type QualityTier = 'high' | 'medium' | 'low';
 
 export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   config: userConfig,
   className = '',
-  isPaused: externalPaused = false,
+  isPaused: externalPaused,
   onTogglePause,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [webGLSupported, setWebGLSupported] = useState(true);
-  const [internalPaused, setInternalPaused] = useState(false);
-  const [fps, setFps] = useState<number>(60);
-  const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const config = { ...DEFAULT_CONFIG, ...userConfig };
-  const paused = externalPaused || internalPaused;
-
-  useEffect(() => {
-    // 1. WebGL Verification
-    if (!checkWebGLSupport()) {
-      setWebGLSupported(false);
-      return;
-    }
-
-    // 2. Reduced Motion & URL Override (?bg=force)
-    const urlParams = new URLSearchParams(window.location.search);
-    const isForceBg = urlParams.get('bg') === 'force';
-
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const initialReduced = !isForceBg && motionQuery.matches;
-    setIsReducedMotion(initialReduced);
-
-    const handleMotionChange = (e: MediaQueryListEvent) => {
-      if (!isForceBg) {
-        setIsReducedMotion(e.matches);
-      }
-    };
-
-    if (motionQuery.addEventListener) {
-      motionQuery.addEventListener('change', handleMotionChange);
-    }
-
-    return () => {
-      if (motionQuery.removeEventListener) {
-        motionQuery.removeEventListener('change', handleMotionChange);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !webGLSupported) return;
-
-    // URL Override check (?bg=force)
-    const urlParams = new URLSearchParams(window.location.search);
-    const isForceBg = urlParams.get('bg') === 'force';
-
-    // DPR Clamping (Max 1.5 to guarantee high performance across Retina/4K displays)
-    const targetDPR = Math.min(window.devicePixelRatio || 1, 1.5);
-
-    // Three.js Scene Setup
-    const scene = new THREE.Scene();
-
-    let width = container.clientWidth || window.innerWidth || 1440;
-    let height = container.clientHeight || window.innerHeight || 900;
-
-    // Camera at z=8 with 60 deg FOV
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
-    camera.position.z = 8;
-
-    let renderer: THREE.WebGLRenderer | null = null;
+  // States
+  const [internalPaused, setInternalPaused] = useState(() => {
     try {
-      renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true,
-        powerPreference: 'high-performance',
+      return localStorage.getItem('shawon_portfolio_bg_paused') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [fps, setFps] = useState(60);
+  const [drawCalls, setDrawCalls] = useState(2);
+  const [qualityTier, setQualityTier] = useState<QualityTier>('high');
+  const [showDebug, setShowDebug] = useState(false);
+  const [webGLSupported, setWebGLSupported] = useState(true);
+
+  const isPaused = externalPaused !== undefined ? externalPaused : internalPaused;
+
+  const togglePause = useCallback(() => {
+    if (onTogglePause) {
+      onTogglePause();
+    } else {
+      setInternalPaused((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem('shawon_portfolio_bg_paused', String(next));
+        } catch {}
+        return next;
       });
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(targetDPR);
-      renderer.domElement.setAttribute('aria-hidden', 'true');
-      renderer.domElement.style.position = 'absolute';
-      renderer.domElement.style.inset = '0';
-      renderer.domElement.style.width = '100%';
-      renderer.domElement.style.height = '100%';
-      renderer.domElement.style.pointerEvents = 'none';
-      renderer.domElement.style.zIndex = '0';
-      container.appendChild(renderer.domElement);
-    } catch (err) {
-      console.warn('WebGL Renderer initialization error:', err);
+    }
+  }, [onTogglePause]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebug = urlParams.get('bg') === 'debug';
+    const isForce = urlParams.get('bg') === 'force';
+    setShowDebug(isDebug);
+
+    // Reduced motion check
+    const prefersReducedMotion =
+      !isForce &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Viewport-based initial tier
+    const width = window.innerWidth;
+    let initialTier: QualityTier = 'high';
+    if (width < 640) initialTier = 'low';
+    else if (width < 1024) initialTier = 'medium';
+
+    setQualityTier(initialTier);
+
+    const cardCounts: Record<QualityTier, number> = {
+      high: 24,
+      medium: 14,
+      low: 8,
+    };
+
+    const count = userConfig?.count ?? cardCounts[initialTier];
+
+    // Check WebGL
+    const testCanvas = document.createElement('canvas');
+    const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+    if (!gl) {
       setWebGLSupported(false);
       return;
     }
 
-    // World coordinate boundary calculations at camera z=8
-    const halfFovRad = (60 / 2) * (Math.PI / 180);
-    const visibleHeightAtOrigin = 2 * Math.tan(halfFovRad) * 8;
-    const visibleWidthAtOrigin = visibleHeightAtOrigin * (width / height);
+    if (!containerRef.current) return;
 
-    const bounds = {
-      x: visibleWidthAtOrigin * 0.95,
-      y: visibleHeightAtOrigin * 0.95,
-      z: 5.0,
-    };
+    let destroyed = false;
+    let animationFrameId: number;
+    let scene: THREE.Scene;
+    let camera: THREE.PerspectiveCamera;
+    let renderer: THREE.WebGLRenderer;
+    let instancedCardsMesh: THREE.InstancedMesh | null = null;
+    let dustPoints: THREE.Points | null = null;
+    let atlasResult: CodeAtlasResult | null = null;
 
-    const count = config.particleCount;
-    const maxConnections = Math.min(count * 4, 3000);
-
-    // Particle Buffers (Preallocated Float32Arrays for zero GC churn)
-    const particlePositions = new Float32Array(count * 3);
-    const particleVelocities = new Float32Array(count * 3);
-    const particleColors = new Float32Array(count * 3);
-
-    const primaryCol = new THREE.Color(config.primaryColor);
-    const secCol = new THREE.Color(config.secondaryColor);
-    const accentCol = new THREE.Color(config.accentColor);
-    const whiteIceCol = new THREE.Color('#e2f7ff');
-
-    const effectiveSpeed = (isReducedMotion && !isForceBg ? 0.04 : 1.0) * config.speed;
-
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3;
-      particlePositions[i3] = (Math.random() - 0.5) * bounds.x * 2;
-      particlePositions[i3 + 1] = (Math.random() - 0.5) * bounds.y * 2;
-      particlePositions[i3 + 2] = (Math.random() - 0.5) * bounds.z * 2;
-
-      // Smooth multi-directional velocities
-      particleVelocities[i3] = (Math.random() - 0.5) * 0.009 * effectiveSpeed;
-      particleVelocities[i3 + 1] = (Math.random() - 0.5) * 0.009 * effectiveSpeed;
-      particleVelocities[i3 + 2] = (Math.random() - 0.5) * 0.006 * effectiveSpeed;
-
-      // Color distribution: high-contrast neon cyan, ice-blue, and white-hot nodes
-      const rand = Math.random();
-      const col = rand > 0.6 ? primaryCol : rand > 0.3 ? secCol : rand > 0.12 ? accentCol : whiteIceCol;
-      particleColors[i3] = col.r;
-      particleColors[i3 + 1] = col.g;
-      particleColors[i3 + 2] = col.b;
-    }
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    particlesGeometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(particlePositions, 3)
-    );
-    particlesGeometry.setAttribute(
-      'color',
-      new THREE.BufferAttribute(particleColors, 3)
-    );
-
-    // Procedural Glowing Circular Particle Texture (Crisp, self-illuminated nodes)
-    const particleCanvas = document.createElement('canvas');
-    particleCanvas.width = 64;
-    particleCanvas.height = 64;
-    const pCtx = particleCanvas.getContext('2d');
-    if (pCtx) {
-      const grad = pCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-      grad.addColorStop(0.2, 'rgba(76, 215, 246, 0.95)');
-      grad.addColorStop(0.5, 'rgba(112, 214, 255, 0.5)');
-      grad.addColorStop(0.8, 'rgba(78, 222, 163, 0.15)');
-      grad.addColorStop(1, 'rgba(16, 19, 26, 0)');
-      pCtx.fillStyle = grad;
-      pCtx.fillRect(0, 0, 64, 64);
-    }
-    const particleTexture = new THREE.CanvasTexture(particleCanvas);
-
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: config.particleSize,
-      sizeAttenuation: true,
-      vertexColors: true,
-      map: particleTexture,
-      transparent: true,
-      opacity: 0.95 * config.intensity,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-
-    const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particleSystem);
-
-    // Constellation Connection Lines Buffer
-    const linePositions = new Float32Array(maxConnections * 6);
-    const lineColors = new Float32Array(maxConnections * 6);
-    const linesGeometry = new THREE.BufferGeometry();
-    linesGeometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage)
-    );
-    linesGeometry.setAttribute(
-      'color',
-      new THREE.BufferAttribute(lineColors, 3).setUsage(THREE.DynamicDrawUsage)
-    );
-
-    const linesMaterial = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.55 * config.intensity,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-
-    const linesSystem = new THREE.LineSegments(linesGeometry, linesMaterial);
-    scene.add(linesSystem);
-
-    // Mouse Parallax & Scroll Integration (Captured on window so pointer-events: none works)
+    // Mouse and scroll parallax trackers
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    let targetScrollOffset = 0;
+    const scroll = { y: 0, targetY: 0 };
 
-    const handlePointerMove = (e: MouseEvent) => {
-      mouse.targetX = (e.clientX / window.innerWidth - 0.5) * 0.9;
-      mouse.targetY = -(e.clientY / window.innerHeight - 0.5) * 0.7;
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize to [-1, 1]
+      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
     const handleScroll = () => {
-      targetScrollOffset = (window.scrollY / Math.max(window.innerHeight, 1)) * 0.6;
+      scroll.targetY = window.scrollY;
     };
 
-    window.addEventListener('mousemove', handlePointerMove, { passive: true });
+    if (window.innerWidth >= 768) {
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    }
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Responsive Resize Handler
+    // FPS measurement
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let fpsAccumulator = 0;
+    let fpsHistory: number[] = [];
+
+    // Initialize Three.js Scene
+    const initScene = async () => {
+      const container = containerRef.current;
+      if (!container || destroyed) return;
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // 1. Scene & Exponential Fog (fading out into #090b11)
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2('#090b11', 0.015);
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(54, w / h, 0.1, 100);
+      camera.position.set(0, 0, 18);
+
+      // 3. Renderer with clamped DPR to 1.5
+      renderer = new THREE.WebGLRenderer({
+        antialias: window.devicePixelRatio < 1.5,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.setSize(w, h);
+      renderer.setClearColor(0x000000, 0); // Transparent canvas, html has #090b11
+
+      container.appendChild(renderer.domElement);
+
+      // 4. Generate Texture Atlas
+      atlasResult = await createCodeAtlas();
+      if (destroyed) {
+        atlasResult.texture.dispose();
+        return;
+      }
+
+      const { texture: atlasTexture, tiles } = atlasResult;
+
+      // 5. Build Cards Instances
+      // Card geometry: aspect ratio ~ 1.55 (e.g. 5.6 x 3.6 world units)
+      const cardW = 5.4;
+      const cardH = 3.4;
+      const cardGeom = new THREE.PlaneGeometry(cardW, cardH);
+
+      // Custom instanced shader material
+      const cardMat = new THREE.MeshBasicMaterial({
+        map: atlasTexture,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+
+      cardMat.onBeforeCompile = (shader) => {
+        shader.vertexShader = `
+          attribute vec4 instanceUv;
+          attribute float instanceAlpha;
+          varying vec2 vTileUv;
+          varying float vInstanceAlpha;
+          ${shader.vertexShader}
+        `.replace(
+          '#include <uv_vertex>',
+          `
+          #include <uv_vertex>
+          vTileUv = uv * instanceUv.zw + instanceUv.xy;
+          vInstanceAlpha = instanceAlpha;
+          `
+        );
+
+        shader.fragmentShader = `
+          varying vec2 vTileUv;
+          varying float vInstanceAlpha;
+          ${shader.fragmentShader}
+        `.replace(
+          '#include <map_fragment>',
+          `
+          #ifdef USE_MAP
+            vec4 sampledColor = texture2D( map, vTileUv );
+            diffuseColor = sampledColor;
+            diffuseColor.a *= vInstanceAlpha;
+          #endif
+          `
+        );
+      };
+
+      instancedCardsMesh = new THREE.InstancedMesh(cardGeom, cardMat, count);
+      instancedCardsMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+      // UV offset attributes: vec4(uOffset, vOffset, uScale, vScale)
+      const instanceUvArray = new Float32Array(count * 4);
+      const instanceAlphaArray = new Float32Array(count);
+
+      // Setup 3 Depth Bands:
+      // Band 0 (Near): z in [-8, -3], alpha 0.50, scale 1.2
+      // Band 1 (Mid): z in [-20, -10], alpha 0.72, scale 1.0
+      // Band 2 (Far): z in [-34, -22], alpha 0.45, scale 0.78
+      const cards: CardInstance[] = [];
+
+      for (let i = 0; i < count; i++) {
+        const band = i % 3;
+        let baseZ = -15;
+        let scale = 1.0;
+        let alpha = 0.55;
+
+        if (band === 0) {
+          // Near layer
+          baseZ = -3 - Math.random() * 5;
+          scale = 1.2;
+          alpha = 0.48; // Crisp and visible, yet restrained
+        } else if (band === 1) {
+          // Mid layer
+          baseZ = -10 - Math.random() * 10;
+          scale = 1.0;
+          alpha = 0.72;
+        } else {
+          // Far layer
+          baseZ = -22 - Math.random() * 14;
+          scale = 0.78;
+          alpha = 0.45;
+        }
+
+
+        // Layout awareness: distribute across width with exclusion zone in center-left column
+        let x = (Math.random() - 0.5) * 36;
+        if (x > -8 && x < 2) {
+          // Push out of center-left hero text column
+          x += Math.random() > 0.5 ? 8 : -8;
+        }
+
+        const y = (Math.random() - 0.5) * 32;
+
+        const tileIndex = i % tiles.length;
+        const tile = tiles[tileIndex];
+
+        instanceUvArray[i * 4 + 0] = tile.uOffset;
+        instanceUvArray[i * 4 + 1] = tile.vOffset;
+        instanceUvArray[i * 4 + 2] = tile.uScale;
+        instanceUvArray[i * 4 + 3] = tile.vScale;
+        instanceAlphaArray[i] = alpha;
+
+        cards.push({
+          baseX: x,
+          baseY: y,
+          baseZ,
+          x,
+          y,
+          z: baseZ,
+          scale,
+          rotX: (Math.random() - 0.5) * 0.15,
+          rotY: (Math.random() - 0.5) * 0.25,
+          rotZ: (Math.random() - 0.5) * 0.1,
+          speedY: 0.15 + Math.random() * 0.25,
+          swayFreq: 0.4 + Math.random() * 0.6,
+          swayAmp: 0.3 + Math.random() * 0.5,
+          phase: Math.random() * Math.PI * 2,
+          alpha,
+          tileIndex,
+        });
+      }
+
+      cardGeom.setAttribute(
+        'instanceUv',
+        new THREE.InstancedBufferAttribute(instanceUvArray, 4)
+      );
+      cardGeom.setAttribute(
+        'instanceAlpha',
+        new THREE.InstancedBufferAttribute(instanceAlphaArray, 1)
+      );
+
+      scene.add(instancedCardsMesh);
+
+      // 6. Dust & Space Particle Motes Layer
+      const dustCount = initialTier === 'high' ? 300 : initialTier === 'medium' ? 180 : 80;
+      const dustGeom = new THREE.BufferGeometry();
+      const dustPos = new Float32Array(dustCount * 3);
+
+      for (let i = 0; i < dustCount; i++) {
+        dustPos[i * 3 + 0] = (Math.random() - 0.5) * 45;
+        dustPos[i * 3 + 1] = (Math.random() - 0.5) * 40;
+        dustPos[i * 3 + 2] = -42 + Math.random() * 40;
+      }
+
+      dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+
+      // Luminous cyan/emerald tiny particle motes
+      const dustMat = new THREE.PointsMaterial({
+        color: new THREE.Color(THEME_COLORS.accent),
+        size: 0.18,
+        transparent: true,
+        opacity: 0.45,
+        blending: THREE.AdditiveBlending,
+      });
+
+      dustPoints = new THREE.Points(dustGeom, dustMat);
+      scene.add(dustPoints);
+
+      // Helper matrix
+      const dummy = new THREE.Object3D();
+
+      // Render one initial composed frame (useful for reduced motion or static fallback)
+      const renderComposedFrame = (time: number) => {
+        for (let i = 0; i < count; i++) {
+          const c = cards[i];
+          dummy.position.set(c.x, c.y, c.z);
+          dummy.rotation.set(c.rotX, c.rotY, c.rotZ);
+          dummy.scale.set(c.scale, c.scale, 1);
+          dummy.updateMatrix();
+          instancedCardsMesh?.setMatrixAt(i, dummy.matrix);
+        }
+        instancedCardsMesh!.instanceMatrix.needsUpdate = true;
+        renderer.render(scene, camera);
+      };
+
+      renderComposedFrame(0);
+
+      // If reduced motion is requested, stop right here after composed frame!
+      if (prefersReducedMotion) {
+        return;
+      }
+
+      // 7. Animation Loop
+      const boundTop = 18;
+      const boundBottom = -18;
+
+      const animate = () => {
+        if (destroyed) return;
+
+        animationFrameId = requestAnimationFrame(animate);
+
+        // Pause check
+        if (isPaused) {
+          return;
+        }
+
+        const now = performance.now();
+        const delta = Math.min((now - lastTime) / 1000, 0.1);
+        lastTime = now;
+
+        // FPS calculation & degradation check
+        frameCount++;
+        fpsAccumulator += delta;
+        if (fpsAccumulator >= 0.5) {
+          const currentFps = Math.round(frameCount / fpsAccumulator);
+          setFps(currentFps);
+          setDrawCalls(renderer.info.render.calls);
+          fpsHistory.push(currentFps);
+          if (fpsHistory.length > 4) fpsHistory.shift();
+
+          // Auto-drop tier if average FPS stays under 45 for 2 seconds
+          if (fpsHistory.length >= 4) {
+            const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
+            if (avgFps < 45 && initialTier === 'high') {
+              setQualityTier('medium');
+            }
+          }
+
+          frameCount = 0;
+          fpsAccumulator = 0;
+        }
+
+        // Smooth Parallax Lerp
+        mouse.x += (mouse.targetX - mouse.x) * 0.04;
+        mouse.y += (mouse.targetY - mouse.y) * 0.04;
+        scroll.y += (scroll.targetY - scroll.y) * 0.05;
+
+        // Camera gentle drift from parallax
+        camera.position.x = mouse.x * 1.8;
+        camera.position.y = mouse.y * 1.2 - (scroll.y * 0.003);
+        camera.rotation.y = -mouse.x * 0.035;
+        camera.rotation.x = mouse.y * 0.025;
+
+        const time = now * 0.001;
+
+        // Update Code Cards
+        for (let i = 0; i < count; i++) {
+          const c = cards[i];
+
+          // Slow vertical drift
+          c.y += c.speedY * delta;
+          if (c.y > boundTop) {
+            c.y = boundBottom;
+          }
+
+          // Gentle sine sway and tiny rotations
+          const swayX = Math.sin(time * c.swayFreq + c.phase) * c.swayAmp;
+          const currentRotX = c.rotX + Math.sin(time * 0.3 + c.phase) * 0.04;
+          const currentRotY = c.rotY + Math.cos(time * 0.4 + c.phase) * 0.05;
+          const currentRotZ = c.rotZ + Math.sin(time * 0.2 + c.phase) * 0.02;
+
+          // Mouse proximity nudge (desktop only, for near/mid cards)
+          let nudgeX = 0;
+          let nudgeY = 0;
+          if (c.z > -18) {
+            const dx = c.x - mouse.x * 12;
+            const dy = c.y - mouse.y * 8;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 6 && dist > 0.1) {
+              const force = (1 - dist / 6) * 0.3;
+              nudgeX = (dx / dist) * force;
+              nudgeY = (dy / dist) * force;
+            }
+          }
+
+          dummy.position.set(c.x + swayX + nudgeX, c.y + nudgeY, c.z);
+          dummy.rotation.set(currentRotX, currentRotY, currentRotZ);
+          dummy.scale.set(c.scale, c.scale, 1);
+          dummy.updateMatrix();
+
+          instancedCardsMesh?.setMatrixAt(i, dummy.matrix);
+        }
+
+        if (instancedCardsMesh) {
+          instancedCardsMesh.instanceMatrix.needsUpdate = true;
+        }
+
+        // Dust drift
+        if (dustPoints) {
+          dustPoints.rotation.y = time * 0.012;
+          dustPoints.rotation.x = Math.sin(time * 0.008) * 0.05;
+        }
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    };
+
+    initScene();
+
+    // Resize handler
     const handleResize = () => {
-      if (!container || !renderer) return;
-      width = container.clientWidth || window.innerWidth;
-      height = container.clientHeight || window.innerHeight;
-      camera.aspect = width / height;
+      if (!renderer || !camera) return;
+      const nw = window.innerWidth;
+      const nh = window.innerHeight;
+      camera.aspect = nw / nh;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      renderer.setSize(nw, nh);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Tab Visibility API (Pause when tab is hidden, resume when visible)
-    let animationFrameId: number;
-    let isTabVisible = document.visibilityState === 'visible';
-    let lastTime = performance.now();
-    let frameCount = 0;
-    let lastFpsUpdate = lastTime;
-
+    // Visibility API (pause when tab hidden to save GPU cycles)
     const handleVisibilityChange = () => {
-      isTabVisible = document.visibilityState === 'visible';
+      if (document.hidden) {
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      } else {
+        lastTime = performance.now();
+        if (!isPaused && !prefersReducedMotion) {
+          animationFrameId = requestAnimationFrame(animateLoopResume);
+        }
+      }
     };
+
+    const animateLoopResume = () => {
+      // Trigger requestAnimationFrame resume
+      lastTime = performance.now();
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Core Continuous Render Loop
-    const animate = (currentTime: number) => {
-      animationFrameId = requestAnimationFrame(animate);
-
-      if (!isTabVisible || paused) {
-        return;
-      }
-
-      // FPS Tracking
-      frameCount++;
-      if (currentTime - lastFpsUpdate > 1000) {
-        const measuredFps = Math.round((frameCount * 1000) / (currentTime - lastFpsUpdate));
-        setFps(measuredFps);
-        frameCount = 0;
-        lastFpsUpdate = currentTime;
-      }
-
-      // Camera Parallax & Scroll Drift
-      mouse.x += (mouse.targetX - mouse.x) * 0.05;
-      mouse.y += (mouse.targetY - mouse.y) * 0.05;
-
-      camera.position.x = mouse.x;
-      camera.position.y = mouse.y - targetScrollOffset * 0.3;
-      camera.lookAt(0, -targetScrollOffset * 0.3, 0);
-
-      // Particle Position Updates & Bounding Containment
-      const posAttr = particlesGeometry.attributes.position as THREE.BufferAttribute;
-      const positions = posAttr.array as Float32Array;
-
-      let lineIndex = 0;
-      const distThreshold = config.connectDistance;
-      const distThresholdSq = distThreshold * distThreshold;
-
-      for (let i = 0; i < count; i++) {
-        const i3 = i * 3;
-
-        positions[i3] += particleVelocities[i3];
-        positions[i3 + 1] += particleVelocities[i3 + 1];
-        positions[i3 + 2] += particleVelocities[i3 + 2];
-
-        // Soft rebound inside frustum bounds
-        if (Math.abs(positions[i3]) > bounds.x) {
-          particleVelocities[i3] *= -1;
-          positions[i3] = Math.sign(positions[i3]) * bounds.x;
-        }
-        if (Math.abs(positions[i3 + 1]) > bounds.y) {
-          particleVelocities[i3 + 1] *= -1;
-          positions[i3 + 1] = Math.sign(positions[i3 + 1]) * bounds.y;
-        }
-        if (Math.abs(positions[i3 + 2]) > bounds.z) {
-          particleVelocities[i3 + 2] *= -1;
-          positions[i3 + 2] = Math.sign(positions[i3 + 2]) * bounds.z;
-        }
-
-        // Constellation lines connection calculation (subsampled for 60 FPS performance)
-        if (i % 2 === 0) {
-          for (let j = i + 1; j < Math.min(i + 45, count); j++) {
-            if (lineIndex >= maxConnections) break;
-
-            const j3 = j * 3;
-            const dx = positions[i3] - positions[j3];
-            const dy = positions[i3 + 1] - positions[j3 + 1];
-            const dz = positions[i3 + 2] - positions[j3 + 2];
-            const distSq = dx * dx + dy * dy + dz * dz;
-
-            if (distSq < distThresholdSq) {
-              const alpha = (1 - Math.sqrt(distSq) / distThreshold) * 0.65 * config.intensity;
-              const l6 = lineIndex * 6;
-
-              linePositions[l6] = positions[i3];
-              linePositions[l6 + 1] = positions[i3 + 1];
-              linePositions[l6 + 2] = positions[i3 + 2];
-
-              linePositions[l6 + 3] = positions[j3];
-              linePositions[l6 + 4] = positions[j3 + 1];
-              linePositions[l6 + 5] = positions[j3 + 2];
-
-              lineColors[l6] = secCol.r * alpha;
-              lineColors[l6 + 1] = secCol.g * alpha;
-              lineColors[l6 + 2] = secCol.b * alpha;
-              lineColors[l6 + 3] = primaryCol.r * alpha;
-              lineColors[l6 + 4] = primaryCol.g * alpha;
-              lineColors[l6 + 5] = primaryCol.b * alpha;
-
-              lineIndex++;
-            }
-          }
-        }
-      }
-
-      posAttr.needsUpdate = true;
-
-      const linePosAttr = linesGeometry.attributes.position as THREE.BufferAttribute;
-      const lineColorAttr = linesGeometry.attributes.color as THREE.BufferAttribute;
-      linePosAttr.needsUpdate = true;
-      lineColorAttr.needsUpdate = true;
-      linesGeometry.setDrawRange(0, lineIndex * 2);
-
-      if (renderer) {
-        renderer.render(scene, camera);
-      }
-    };
-
-    // Start render loop immediately
-    animationFrameId = requestAnimationFrame(animate);
-
-    // Comprehensive Resource Disposal Lifecycle
+    // Clean up
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('mousemove', handlePointerMove);
+      destroyed = true;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
 
-      particlesGeometry.dispose();
-      linesGeometry.dispose();
-      particlesMaterial.dispose();
-      particleTexture.dispose();
-      linesMaterial.dispose();
+      if (instancedCardsMesh) {
+        instancedCardsMesh.geometry.dispose();
+        if (Array.isArray(instancedCardsMesh.material)) {
+          instancedCardsMesh.material.forEach((m) => m.dispose());
+        } else {
+          instancedCardsMesh.material.dispose();
+        }
+      }
+
+      if (dustPoints) {
+        dustPoints.geometry.dispose();
+        (dustPoints.material as THREE.Material).dispose();
+      }
+
+      if (atlasResult) {
+        atlasResult.texture.dispose();
+      }
 
       if (renderer) {
         renderer.dispose();
-        if (renderer.domElement && renderer.domElement.parentNode) {
-          renderer.domElement.parentNode.removeChild(renderer.domElement);
+        if (renderer.domElement && renderer.domElement.parentElement) {
+          renderer.domElement.parentElement.removeChild(renderer.domElement);
         }
       }
     };
-  }, [webGLSupported, isReducedMotion, paused, config.particleCount, config.speed, config.intensity, config.particleSize]);
+  }, [userConfig?.count, isPaused]);
 
-  // Fallback: If WebGL is completely unsupported
   if (!webGLSupported) {
     return (
       <div
+        className="fixed inset-0 z-0 pointer-events-none bg-[#090b11] overflow-hidden"
         aria-hidden="true"
-        className={`fixed inset-0 pointer-events-none z-0 overflow-hidden ${className}`}
-        style={{
-          background:
-            'radial-gradient(circle at 50% 20%, rgba(76, 215, 246, 0.12) 0%, rgba(16, 19, 26, 0.95) 75%), #10131a',
-        }}
       >
-        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <div className="absolute inset-0 bg-radial from-sky-950/20 via-transparent to-transparent opacity-40" />
       </div>
     );
   }
 
   return (
     <>
+      {/* 3D WebGL Canvas Layer (Fixed full-viewport, behind content) */}
       <div
+        ref={containerRef}
+        className={`fixed inset-0 z-0 pointer-events-none overflow-hidden ${className}`}
         aria-hidden="true"
-        className={`fixed inset-0 pointer-events-none z-0 overflow-hidden select-none ${className}`}
       >
-        {/* 3D WebGL Canvas Container */}
-        <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
+        {/* Soft radial vignette overlay ensuring WCAG AA contrast while preserving card visibility */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,rgba(9,11,17,0.15)_0%,rgba(9,11,17,0.55)_80%,rgba(9,11,17,0.8)_100%)]" />
 
-        {/* High-Contrast WCAG AA Protection Scrim: Gentle vignetting allowing full particle luminosity */}
-        <div
-          className="absolute inset-0 pointer-events-none z-[1]"
-          style={{
-            background:
-              'radial-gradient(circle at 50% 30%, rgba(16, 19, 26, 0.15) 0%, rgba(16, 19, 26, 0.45) 70%, rgba(16, 19, 26, 0.72) 100%)',
-          }}
-        />
-
-        {/* Subtle Ambient Scanline Grid for Systems Aesthetic */}
-        <div className="absolute inset-0 opacity-[0.018] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:5rem_5rem] pointer-events-none z-[2]" />
       </div>
 
-      {/* Accessible Background Controls (Floating micro-pill for toggling pause) */}
-      <div className="fixed bottom-4 left-4 z-50 pointer-events-auto opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
+      {/* Accessible Control: Pause/Resume Toggle (OUTSIDE aria-hidden canvas wrapper) */}
+      <div className="fixed bottom-5 left-5 z-40 hidden sm:flex items-center gap-2">
         <button
-          type="button"
-          onClick={() => {
-            if (onTogglePause) onTogglePause();
-            else setInternalPaused((prev) => !prev);
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md border border-white/10 text-[10px] font-mono text-outline hover:text-primary transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-          title={paused ? 'Resume 3D Ambient Constellation' : 'Pause 3D Ambient Constellation'}
-          aria-label={paused ? 'Resume 3D background animation' : 'Pause 3D background animation'}
+          onClick={togglePause}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d1017]/85 backdrop-blur-md border border-white/[0.08] hover:border-sky-400/40 text-[11px] font-mono text-slate-400 hover:text-white transition-all shadow-lg cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
+          title={isPaused ? 'Resume 3D Background' : 'Pause 3D Background'}
+          aria-label={isPaused ? 'Resume 3D animations' : 'Pause 3D animations'}
         >
-          {paused ? <Play className="w-3.5 h-3.5" aria-hidden="true" /> : <Pause className="w-3.5 h-3.5" aria-hidden="true" />}
-          <span>{paused ? 'RESUME 3D' : `${fps} FPS`}</span>
+          {isPaused ? (
+            <>
+              <Play className="w-3 h-3 text-emerald-400" />
+              <span>Resume 3D</span>
+            </>
+          ) : (
+            <>
+              <Pause className="w-3 h-3 text-sky-400" />
+              <span>Pause 3D</span>
+            </>
+          )}
         </button>
+
+        {/* Debug HUD Overlay (?bg=debug) */}
+        {showDebug && (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/90 border border-sky-500/30 text-[11px] font-mono text-sky-300 shadow-xl">
+            <Activity className="w-3 h-3 text-sky-400 animate-pulse" />
+            <span>{fps} FPS</span>
+            <span className="text-slate-600">|</span>
+            <span>{drawCalls} Draw Calls</span>
+            <span className="text-slate-600">|</span>
+            <span className="uppercase">{qualityTier} Tier</span>
+            <span className="text-slate-600">|</span>
+            <span>2048x1024 Atlas</span>
+          </div>
+        )}
       </div>
     </>
   );
