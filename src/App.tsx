@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import { ChevronUp } from 'lucide-react';
 import { TabType, Project } from './types';
 import { PERSONAL_INFO } from './data/portfolioData';
 import { Header } from './components/Header';
@@ -330,9 +331,7 @@ export default function App() {
             >
               {/* Subtle radial inner glow backdrop */}
               <div className="absolute inset-0 rounded-full bg-primary/10 group-hover:bg-primary/25 transition-colors pointer-events-none" />
-              <span className="material-symbols-outlined text-[22px] sm:text-[24px] group-hover:-translate-y-0.5 transition-transform duration-200 relative z-10">
-                keyboard_arrow_up
-              </span>
+              <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-y-0.5 transition-transform duration-200 relative z-10" />
             </motion.button>
           )}
         </AnimatePresence>

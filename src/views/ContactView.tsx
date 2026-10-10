@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { PERSONAL_INFO } from '../data/portfolioData';
+import { AppIcon } from '../components/AppIcon';
 
 interface ContactViewProps {
   avatarUrl: string;
@@ -116,12 +117,12 @@ export const ContactView: React.FC<ContactViewProps> = ({
             />
             <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary rounded-full ring-2 ring-surface"></span>
             <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <span className="material-symbols-outlined text-[16px]">photo_camera</span>
+              <AppIcon name="photo_camera" className="w-4 h-4" />
             </div>
           </div>
 
           <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
-            <span className="material-symbols-outlined text-[18px]">cell_tower</span>
+            <AppIcon name="cell_tower" className="w-[18px] h-[18px]" />
             <span className="font-code-sm text-xs tracking-wide">PORTFOLIO_COMMS // V2.4</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight mb-1.5">
@@ -144,7 +145,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-primary border border-white/5">
-                <span className="material-symbols-outlined text-[20px]">alternate_email</span>
+                <AppIcon name="alternate_email" className="w-5 h-5" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
@@ -161,14 +162,14 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 onClick={() => handleCopy(PERSONAL_INFO.email, 'Email')}
                 title="Copy Email"
               >
-                <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                <AppIcon name="content_copy" className="w-[18px] h-[18px]" />
               </button>
               <a
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary font-code-sm text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity"
                 href={`mailto:${PERSONAL_INFO.email}`}
               >
                 <span>Send</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_outward</span>
+                <AppIcon name="arrow_outward" className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -177,7 +178,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary border border-white/5">
-                <span className="material-symbols-outlined text-[20px]">phone_iphone</span>
+                <AppIcon name="phone_iphone" className="w-5 h-5" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
@@ -194,7 +195,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 onClick={() => handleCopy(PERSONAL_INFO.phone, 'Phone number')}
                 title="Copy Number"
               >
-                <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                <AppIcon name="content_copy" className="w-[18px] h-[18px]" />
               </button>
               <a
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-on-secondary font-code-sm text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity"
@@ -203,7 +204,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 target="_blank"
               >
                 <span>Chat</span>
-                <span className="material-symbols-outlined text-[16px]">chat</span>
+                <AppIcon name="chat" className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -212,7 +213,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-tertiary border border-white/5">
-                <span className="material-symbols-outlined text-[20px]">pin_drop</span>
+                <AppIcon name="pin_drop" className="w-5 h-5" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
@@ -228,7 +229,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
               </div>
             </div>
             <div className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0 border border-white/5">
-              <span className="material-symbols-outlined text-[18px]">public</span>
+              <AppIcon name="public" className="w-[18px] h-[18px]" />
             </div>
           </div>
         </motion.div>
@@ -243,9 +244,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">
-                send_time_extension
-              </span>
+              <AppIcon name="send_time_extension" className="w-5 h-5 text-primary" />
               <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold tracking-tight">
                 Quick Message
               </h2>
@@ -266,9 +265,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 <span className="text-error font-code-sm">*</span>
               </label>
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px] pointer-events-none">
-                  badge
-                </span>
+                <AppIcon name="badge" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <input
                   className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/40 border border-white/5"
                   value={formData.name}
@@ -287,9 +284,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 <span className="text-error font-code-sm">*</span>
               </label>
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px] pointer-events-none">
-                  mail
-                </span>
+                <AppIcon name="mail" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <input
                   className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/40 border border-white/5"
                   value={formData.email}
@@ -305,9 +300,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
             <div className="flex flex-col gap-1">
               <label className="font-code-sm text-xs text-on-surface-variant">Subject / Role Type</label>
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px] pointer-events-none">
-                  tune
-                </span>
+                <AppIcon name="tune" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <select
                   className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-8 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all appearance-none border border-white/5"
                   value={formData.subject}
@@ -322,9 +315,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   </option>
                   <option value="General Greetings">General Coffee Chat</option>
                 </select>
-                <span className="material-symbols-outlined absolute right-3 text-on-surface-variant text-[18px] pointer-events-none">
-                  expand_more
-                </span>
+                <AppIcon name="expand_more" className="w-[18px] h-[18px] absolute right-3 text-on-surface-variant pointer-events-none" />
               </div>
             </div>
 
@@ -354,9 +345,10 @@ export const ContactView: React.FC<ContactViewProps> = ({
               disabled={isSubmitting}
               type="submit"
             >
-              <span className="material-symbols-outlined text-[18px]">
-                {submitSuccess ? 'check_circle' : 'send'}
-              </span>
+              <AppIcon
+                name={submitSuccess ? 'check_circle' : 'send'}
+                className="w-[18px] h-[18px]"
+              />
               <span>
                 {isSubmitting
                   ? 'Dispatching...'
@@ -378,7 +370,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         >
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-[22px]">description</span>
+              <AppIcon name="description" className="w-[22px] h-[22px]" />
             </div>
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
@@ -403,13 +395,13 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 Full-Stack &amp; Frontend Focus • 142 KB
               </span>
             </div>
-            <span className="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+            <AppIcon name="check_circle" className="w-5 h-5 text-secondary" />
           </div>
           <button
             onClick={onOpenResume}
             className="w-full py-2.5 px-4 rounded-lg bg-surface-container hover:bg-surface-bright text-primary font-code-md text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm border border-white/5 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
+            <AppIcon name="download" className="w-[18px] h-[18px]" />
             <span>Download Shawon's Full Resume</span>
           </button>
         </motion.div>
@@ -438,23 +430,24 @@ export const ContactView: React.FC<ContactViewProps> = ({
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-primary border border-white/5">
-                  <span className="material-symbols-outlined text-[20px]">hub</span>
+                  <AppIcon name="hub" className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="font-headline-md text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">
                       LinkedIn
                     </span>
-                    <span className="material-symbols-outlined text-primary text-[14px]">verified</span>
+                    <AppIcon name="verified" className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <span className="font-code-sm text-xs text-on-surface-variant truncate">
                     Connect &amp; Message directly
                   </span>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-[18px] group-hover:translate-x-0.5 transition-transform">
-                arrow_forward
-              </span>
+              <AppIcon
+                name="arrow_forward"
+                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-transform"
+              />
             </a>
 
             {/* GitHub */}
@@ -466,7 +459,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-secondary border border-white/5">
-                  <span className="material-symbols-outlined text-[20px]">terminal</span>
+                  <AppIcon name="terminal" className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1.5">
@@ -482,9 +475,10 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   </span>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-secondary text-[18px] group-hover:translate-x-0.5 transition-transform">
-                arrow_forward
-              </span>
+              <AppIcon
+                name="arrow_forward"
+                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-secondary group-hover:translate-x-0.5 transition-transform"
+              />
             </a>
 
             {/* Portfolio / Live App */}
@@ -496,7 +490,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-tertiary border border-white/5">
-                  <span className="material-symbols-outlined text-[20px]">web</span>
+                  <AppIcon name="web" className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-1.5">
@@ -512,9 +506,10 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   </span>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary text-[18px] group-hover:translate-x-0.5 transition-transform">
-                arrow_forward
-              </span>
+              <AppIcon
+                name="arrow_forward"
+                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-tertiary group-hover:translate-x-0.5 transition-transform"
+              />
             </a>
           </div>
         </motion.div>

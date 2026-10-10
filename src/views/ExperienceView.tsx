@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TabType } from '../types';
 import { WORK_EXPERIENCE, EDUCATION_LIST, CERTIFICATES } from '../data/portfolioData';
+import { AppIcon } from '../components/AppIcon';
 
 interface ExperienceViewProps {
   onNavigate: (tab: TabType) => void;
@@ -25,7 +26,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
       <div className="relative px-4 sm:px-6 pt-4 pb-2 overflow-hidden">
         <div className="flex items-center gap-2 mb-2">
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-primary border border-white/5">
-            <span className="material-symbols-outlined text-[15px]">timeline</span>
+            <AppIcon name="timeline" className="w-[15px] h-[15px]" />
           </span>
           <span className="font-status-label text-[10px] sm:text-[11px] text-primary uppercase tracking-wider font-semibold">
             Career Telemetry &amp; Degrees
@@ -76,7 +77,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">hub</span>
+            <AppIcon name="hub" className="w-4 h-4" />
             <span>Overview</span>
           </button>
           <button
@@ -87,7 +88,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">terminal</span>
+            <AppIcon name="terminal" className="w-4 h-4" />
             <span>Work</span>
           </button>
           <button
@@ -98,7 +99,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[16px]">school</span>
+            <AppIcon name="school" className="w-4 h-4" />
             <span>Academy</span>
           </button>
         </div>
@@ -152,11 +153,11 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                     </h3>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
                       <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                        <AppIcon name="calendar_month" className="w-3.5 h-3.5" />
                         <span>{exp.period}</span>
                       </span>
                       <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">pin_drop</span>
+                        <AppIcon name="pin_drop" className="w-3.5 h-3.5" />
                         <span>{exp.location}</span>
                       </span>
                     </div>
@@ -182,7 +183,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                             m.color === 'text-secondary' ? 'bg-secondary/15 text-secondary' : 'bg-primary/15 text-primary'
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[18px]">{m.icon}</span>
+                          <AppIcon name={m.icon} className="w-[18px] h-[18px]" />
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="font-status-label text-[9px] text-on-surface-variant uppercase tracking-wider">
@@ -200,9 +201,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                   <div className="flex flex-col gap-2 pt-1">
                     {exp.achievements.map((item, aIdx) => (
                       <div key={aIdx} className="flex items-start gap-2.5">
-                        <span className="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">
-                          check_circle
-                        </span>
+                        <AppIcon name="check_circle" className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                         <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant leading-relaxed">
                           {item}
                         </p>
@@ -253,7 +252,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 shadow-sm border border-white/5">
-                  <span className="material-symbols-outlined text-[24px]">account_balance</span>
+                  <AppIcon name="account_balance" className="w-6 h-6" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-status-label text-[10px] text-primary uppercase font-bold tracking-wider">
@@ -274,7 +273,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                 <span className="font-code-sm text-xs text-on-surface-variant flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                  <AppIcon name="calendar_today" className="w-3.5 h-3.5" />
                   <span>Jan 2022 – Feb 2026</span>
                 </span>
                 <div className="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-0.5 rounded-full border border-white/5">
@@ -315,7 +314,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                    <AppIcon name="verified_user" className="w-[18px] h-[18px]" />
                   </span>
                   <div className="flex flex-col">
                     <span className="font-status-label text-[10px] text-secondary uppercase font-bold">
@@ -340,7 +339,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-secondary font-code-sm text-xs font-medium">
-                <span className="material-symbols-outlined text-[14px]">star</span> Perfect Score Achiever
+                <AppIcon name="star" className="w-3.5 h-3.5" /> Perfect Score Achiever
               </div>
             </div>
 
@@ -349,7 +348,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-tertiary/15 text-tertiary flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[18px]">military_tech</span>
+                    <AppIcon name="military_tech" className="w-[18px] h-[18px]" />
                   </span>
                   <div className="flex flex-col">
                     <span className="font-status-label text-[10px] text-tertiary uppercase font-bold">
@@ -374,7 +373,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 </div>
               </div>
               <div className="flex items-center gap-1.5 text-tertiary font-code-sm text-xs font-medium">
-                <span className="material-symbols-outlined text-[14px]">star</span> Perfect Score Achiever
+                <AppIcon name="star" className="w-3.5 h-3.5" /> Perfect Score Achiever
               </div>
             </div>
           </div>
@@ -385,7 +384,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
       <div className="px-4 sm:px-6 flex flex-col gap-3 mt-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] text-primary">workspace_premium</span>
+            <AppIcon name="workspace_premium" className="w-5 h-5 text-primary" />
             <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
               Verified Certificates
             </h2>
@@ -401,7 +400,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
             className="bg-surface-container rounded-2xl p-4 shadow-md flex items-center gap-3.5 border border-white/5 hover:border-primary/20 transition-colors"
           >
             <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary shrink-0 shadow-inner border border-white/5">
-              <span className="material-symbols-outlined text-[24px]">{cert.icon}</span>
+              <AppIcon name={cert.icon} className="w-6 h-6" />
             </div>
             <div className="flex flex-col flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
@@ -416,7 +415,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 {cert.issuer}
               </p>
               <span className="font-code-sm text-xs text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">event_available</span>
+                <AppIcon name="event_available" className="w-3.5 h-3.5" />
                 <span>{cert.completedDate}</span>
               </span>
             </div>
@@ -444,7 +443,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
               }`}
             >
               <span>run verify</span>
-              <span className="material-symbols-outlined text-[14px]">play_arrow</span>
+              <AppIcon name="play_arrow" className="w-3.5 h-3.5" />
             </button>
           </div>
 

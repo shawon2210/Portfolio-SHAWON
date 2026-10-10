@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Blocks, Clock, X, BookOpen, Check, Copy, Rocket, Code2 } from 'lucide-react';
 import { Project } from '../types';
+import { AppIcon } from './AppIcon';
 
 interface ProjectDetailModalProps {
   project: Project | null;
@@ -49,14 +51,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-primary text-[22px]">code_blocks</span>
+            <Blocks className="text-primary w-5 h-5 shrink-0" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-code-sm text-xs text-primary font-bold uppercase tracking-wider">
                   {project.flagshipNumber || 'Project Architecture'}
                 </span>
                 <span className="text-on-surface-variant text-[11px] font-code-sm flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[13px] text-secondary">schedule</span>
+                  <Clock className="w-3.5 h-3.5 text-secondary" />
                   <span>{readingTimeMinutes} min read</span>
                 </span>
               </div>
@@ -74,7 +76,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             onClick={onClose}
             className="p-2 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -114,7 +116,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             <div className="flex items-center justify-between mb-1">
               <h3 className="font-semibold text-on-surface text-base">Summary</h3>
               <span className="font-code-sm text-[11px] text-on-surface-variant flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px] text-primary">menu_book</span>
+                <BookOpen className="w-3.5 h-3.5 text-primary" />
                 <span>Est. {readingTimeMinutes} min read</span>
               </span>
             </div>
@@ -149,9 +151,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <ul className="space-y-1.5 text-xs text-on-surface-variant">
                   {project.architectureDetails.keyDecisions.map((decision, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">
-                        check
-                      </span>
+                      <Check className="text-secondary w-4 h-4 shrink-0 mt-0.5" />
                       <span>{decision}</span>
                     </li>
                   ))}
@@ -171,9 +171,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   key={idx}
                   className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface-container-low border border-white/5 text-xs"
                 >
-                  <span className="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">
-                    {h.icon}
-                  </span>
+                  <AppIcon name={h.icon} className="text-primary w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     {h.title && (
                       <span className="font-semibold text-on-surface mr-1">{h.title}:</span>
@@ -213,7 +211,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               className="p-1.5 rounded text-on-surface-variant hover:text-primary transition-colors shrink-0"
               title="Copy Clone Command"
             >
-              <span className="material-symbols-outlined text-[16px]">content_copy</span>
+              <Copy className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -228,7 +226,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-code-sm text-xs font-semibold transition-all shadow-sm shadow-primary/20"
               >
-                <span className="material-symbols-outlined text-[16px]">rocket_launch</span>
+                <Rocket className="w-4 h-4" />
                 <span>Open Live App</span>
               </a>
             )}
@@ -238,7 +236,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-bright text-on-surface font-code-sm text-xs font-semibold transition-colors border border-white/5"
             >
-              <span className="material-symbols-outlined text-[16px]">code</span>
+              <Code2 className="w-4 h-4" />
               <span>GitHub Repo</span>
             </a>
           </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { Play, Pause } from 'lucide-react';
 
 interface TechCanvas3DProps {
   className?: string;
@@ -308,9 +309,7 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
             }`}
             title={isRotating ? 'Pause rotation' : 'Resume rotation'}
           >
-            <span className="material-symbols-outlined text-[16px]">
-              {isRotating ? 'pause' : 'play_arrow'}
-            </span>
+            {isRotating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
