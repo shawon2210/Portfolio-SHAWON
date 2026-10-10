@@ -44,6 +44,11 @@ const PrintablePortfolio = lazy(() =>
 // Code-generated 3D background scene, lazy-loaded to prevent blocking initial paint/LCP
 const BackgroundScene = lazy(() => import('./components/BackgroundScene'));
 
+const DevUiShowcase = lazy(() =>
+  import('./views/DevUiShowcase').then((m) => ({ default: m.DevUiShowcase }))
+);
+
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeProjectCategory, setActiveProjectCategory] = useState<string>('all');
@@ -94,9 +99,47 @@ export default function App() {
     }
   });
 
+  // DEV-only UI Showcase toggle (?dev=ui or #dev-ui or /dev/ui)
+  const [isDevUi, setIsDevUi] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const h = window.location.hash.toLowerCase();
+    const p = window.location.pathname.toLowerCase();
+    const s = window.location.search.toLowerCase();
+    return (
+      h === '#dev-ui' ||
+      h === '#dev/ui' ||
+      p.endsWith('/dev/ui') ||
+      p.endsWith('/dev-ui') ||
+      s.includes('dev=ui')
+    );
+  });
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const h = window.location.hash.toLowerCase();
+      const p = window.location.pathname.toLowerCase();
+      const s = window.location.search.toLowerCase();
+      setIsDevUi(
+        h === '#dev-ui' ||
+        h === '#dev/ui' ||
+        p.endsWith('/dev/ui') ||
+        p.endsWith('/dev-ui') ||
+        s.includes('dev=ui')
+      );
+    };
+
+    window.addEventListener('hashchange', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlChange);
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, []);
+
   // Scroll-Spy: detect which section is currently visible in the viewport
   useEffect(() => {
     const sectionIds: TabType[] = ['home', 'projects', 'experience', 'contact'];
+
 
     const handleScrollSpy = () => {
       if (isProgrammaticScrollRef.current) return;
@@ -256,6 +299,20 @@ export default function App() {
       window.print();
     }, 200);
   };
+
+  if (isDevUi) {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+            Loading Design System Showcase...
+          </div>
+        }
+      >
+        <DevUiShowcase />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-transparent text-on-surface flex flex-col font-sans selection:bg-primary/20 selection:text-primary">

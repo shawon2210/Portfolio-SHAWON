@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
 @theme {
+  /* Phase 1 Design System Tokens */
+  --color-canvas: #090b11;
+  --color-surface-glass: rgba(255, 255, 255, 0.03);
+  --color-surface-glass-hover: rgba(255, 255, 255, 0.06);
+  --color-border-glass: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(56, 189, 248, 0.35);
+  --color-accent: #38bdf8;
+  --color-availability: #34d399;
+  --color-heading: #e2e8f0;
+  --color-body: #94a3b8;
+
   --color-surface: #10131a;
   --color-surface-dim: #10131a;
   --color-surface-bright: #363941;
@@ -45,7 +56,7 @@
   --color-tertiary-fixed-dim: #adc6ff;
   --color-on-tertiary-fixed: #001a42;
   --color-on-tertiary-fixed-variant: #004395;
-  --color-background: #10131a;
+  --color-background: #090b11;
   --color-on-background: #e1e2ec;
   --color-surface-variant: #32353d;
 
@@ -72,8 +83,8 @@
   html {
     margin: 0;
     padding: 0;
-    background-color: #10131a;
-    color: #e1e2ec;
+    background-color: #090b11;
+    color: #e2e8f0;
     font-family: 'Plus Jakarta Sans', sans-serif;
     min-height: 100vh;
   }
@@ -377,4 +388,18 @@
     margin-top: 14pt;
   }
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee linear infinite;
+}
+
 
