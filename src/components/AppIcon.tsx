@@ -125,6 +125,7 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   search: Search,
   security: ShieldCheck,
   send: Send,
+  send_time_extension: Send,
   speed: Gauge,
   star: Star,
   stars: Star,
