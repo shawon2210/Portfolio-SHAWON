@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
       role="banner"
     >
       <div
-        className={`max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 transition-all duration-300 ${
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex items-center justify-between gap-3 transition-all duration-300 ${
           scrolled
             ? 'bg-[#090b11]/85 backdrop-blur-2xl border border-white/[0.08] rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] mx-3 sm:mx-6 px-4 py-2'
             : 'bg-transparent'

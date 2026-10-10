@@ -17,7 +17,7 @@ export const Section: React.FC<SectionProps> = ({
   return (
     <Component
       id={id}
-      className={`relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16 lg:py-20 ${className}`}
+      className={`relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 py-12 sm:py-16 lg:py-20 ${className}`}
       {...props}
     >
       {children}

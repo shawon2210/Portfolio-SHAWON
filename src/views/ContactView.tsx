@@ -94,7 +94,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full pb-20 max-w-4xl mx-auto">
+    <div className="flex flex-col w-full pb-20 max-w-7xl mx-auto">
       {/* Decorative Atmospheric Ambient Light */}
       <div className="relative w-full overflow-hidden px-4 sm:px-6 pt-4">
         <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>

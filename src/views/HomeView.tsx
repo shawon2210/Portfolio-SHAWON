@@ -100,14 +100,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 minimal verified presence links.
           Right: Showpiece TechCanvas3D in an editorial glass frame (clamped DPR 1.5, paused offscreen).
       ========================================================================= */}
-      <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between px-4 sm:px-6 lg:px-12 xl:px-16 pt-20 sm:pt-24 pb-8 sm:pb-12">
+      <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between px-4 sm:px-6 lg:px-10 xl:px-12 pt-20 sm:pt-24 pb-8 sm:pb-12">
         {/* Soft aurora ambient highlight (complements 3D background without muddying) */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-25">
           <div className="absolute top-12 left-1/4 w-[32rem] h-[32rem] bg-sky-500/15 rounded-full blur-[120px]" />
         </div>
 
         {/* Main Editorial Hero Split Grid */}
-        <div className="relative z-20 max-w-6xl w-full mx-auto my-auto py-6 sm:py-10">
+        <div className="relative z-20 max-w-7xl w-full mx-auto my-auto py-6 sm:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Column: Narrative, Identity, Headline, Dynamic Role, and CTAs */}
             <motion.div
@@ -282,7 +282,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       ========================================================================= */}
       <div
         ref={blueprintRef}
-        className="flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-16 sm:pt-20 lg:pt-24 pb-20 sm:pb-24 lg:pb-28 scroll-mt-20 sm:scroll-mt-24 lg:scroll-mt-28"
+        className="flex flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pt-16 sm:pt-20 lg:pt-24 pb-20 sm:pb-24 lg:pb-28 scroll-mt-20 sm:scroll-mt-24 lg:scroll-mt-28"
       >
         {/* Professional Summary Panel (Engineering Blueprint) */}
         <motion.div

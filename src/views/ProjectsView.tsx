@@ -72,7 +72,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const specializedProjects = filteredProjects.filter((p) => !p.isFlagship);
 
   return (
-    <div className="flex flex-col w-full pb-24 max-w-5xl mx-auto px-4 sm:px-6">
+    <div className="flex flex-col w-full pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
       {/* Editorial Header */}
       <div className="relative w-full pt-8 sm:pt-12 pb-6">
         <motion.div
