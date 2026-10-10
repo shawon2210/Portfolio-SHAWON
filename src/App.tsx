@@ -83,10 +83,11 @@ export default function App() {
     restDelta: 0.001,
   });
 
-  // Custom avatar with localStorage persistence
+  // Custom avatar with localStorage persistence (v2 cache-busted)
   const [avatarUrl, setAvatarUrl] = useState<string>(() => {
     try {
-      const stored = localStorage.getItem('shawon_portfolio_custom_avatar');
+      localStorage.removeItem('shawon_portfolio_custom_avatar');
+      const stored = localStorage.getItem('shawon_portfolio_custom_avatar_v2');
       return stored || PERSONAL_INFO.portraitUrl;
     } catch {
       return PERSONAL_INFO.portraitUrl;
@@ -231,7 +232,7 @@ export default function App() {
   const handleUpdateAvatar = (newUrl: string) => {
     setAvatarUrl(newUrl);
     try {
-      localStorage.setItem('shawon_portfolio_custom_avatar', newUrl);
+      localStorage.setItem('shawon_portfolio_custom_avatar_v2', newUrl);
     } catch (e) {
       console.warn('Unable to save avatar to localStorage:', e);
     }
@@ -241,6 +242,7 @@ export default function App() {
   const handleResetAvatar = () => {
     setAvatarUrl(PERSONAL_INFO.portraitUrl);
     try {
+      localStorage.removeItem('shawon_portfolio_custom_avatar_v2');
       localStorage.removeItem('shawon_portfolio_custom_avatar');
     } catch (e) {
       console.warn('Unable to remove avatar from localStorage:', e);

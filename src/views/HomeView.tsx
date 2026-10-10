@@ -133,15 +133,38 @@ export const HomeView: React.FC<HomeViewProps> = ({
               animate="visible"
               className="lg:col-span-7 flex flex-col items-start text-left w-full"
             >
-              {/* Professional Category Indicator */}
-              <div className="inline-flex items-center gap-2 mb-3">
-                <span className="font-code-sm text-primary uppercase font-bold text-xs tracking-wider">
-                  Full-Stack Software Engineer
-                </span>
-                <div className="h-[1px] w-8 bg-primary/40" />
-                <span className="font-code-sm text-on-surface-variant text-xs">
-                  AI Systems &bull; High-Scale Web
-                </span>
+              {/* Responsive Author Profile Identity Lockup */}
+              <div className="flex items-center gap-4 sm:gap-5 mb-5 sm:mb-6">
+                <div className="relative shrink-0 group">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-2xl bg-surface-container-high transition-transform duration-300 group-hover:scale-105">
+                    <img
+                      src={avatarUrl}
+                      alt={PERSONAL_INFO.name}
+                      className="w-full h-full object-cover object-top filter contrast-[1.03]"
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#090b11] border border-white/10 flex items-center gap-1.5 shadow-md">
+                    <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                    <span className="text-[10px] text-secondary font-bold font-status-label uppercase tracking-wider">
+                      Active
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col min-w-0">
+                  <div className="inline-flex items-center gap-2">
+                    <span className="font-code-sm text-primary uppercase font-bold text-xs tracking-wider">
+                      Full-Stack Software Engineer
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm text-on-surface-variant font-medium mt-0.5">
+                    AI Systems &bull; High-Scale Distributed Web
+                  </span>
+                  <span className="text-[11px] text-secondary font-code-sm flex items-center gap-1.5 mt-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                    <span>Open for Full-Time Roles &bull; Dhaka / Remote</span>
+                  </span>
+                </div>
               </div>
 
               {/* Candidate Name Heading */}
