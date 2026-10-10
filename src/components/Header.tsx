@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Desktop Navigation links */}
-        <nav className="hidden md:flex items-center gap-1 bg-surface-container-low/70 px-2 py-1 rounded-full border border-white/5">
+        <nav className="hidden lg:flex items-center gap-1 bg-surface-container-low/70 px-2 py-1 rounded-full border border-white/5">
           <button
             onClick={() => onSelectTab('home')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOpenResume}
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
+            className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
             title="Inspect CV Resume"
           >
             <FileText className="w-4 h-4" />
@@ -143,20 +143,30 @@ export const Header: React.FC<HeaderProps> = ({
             <Terminal className="w-5 h-5" />
           </button>
 
-          <button
-            onClick={onOpenUploadModal}
-            className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 group cursor-pointer"
-            title="Upload / Change Profile Photo"
-          >
-            <img
-              alt="MD Shawon Molla Profile"
-              className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 group-hover:ring-primary transition-all flex-shrink-0"
-              src={avatarUrl}
-            />
-            <span className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <Camera className="w-3.5 h-3.5" />
-            </span>
-          </button>
+          {import.meta.env.DEV ? (
+            <button
+              onClick={onOpenUploadModal}
+              className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 group cursor-pointer"
+              title="Upload / Change Profile Photo"
+            >
+              <img
+                alt="MD Shawon Molla Profile"
+                className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 group-hover:ring-primary transition-all flex-shrink-0"
+                src={avatarUrl}
+              />
+              <span className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                <Camera className="w-3.5 h-3.5" />
+              </span>
+            </button>
+          ) : (
+            <div className="relative rounded-full flex-shrink-0">
+              <img
+                alt="MD Shawon Molla Profile"
+                className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 flex-shrink-0"
+                src={avatarUrl}
+              />
+            </div>
+          )}
         </div>
       </div>
     </header>

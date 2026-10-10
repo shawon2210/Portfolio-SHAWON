@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Blocks, Clock, X, BookOpen, Check, Copy, Rocket, Code2 } from 'lucide-react';
 import { Project } from '../types';
 import { AppIcon } from './AppIcon';
+import { useModalA11y } from '../hooks/useModalA11y';
 
 interface ProjectDetailModalProps {
   project: Project | null;
@@ -15,6 +16,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onShowToast,
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  useModalA11y(!!project, onClose);
 
   if (!project) return null;
 
@@ -46,7 +48,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-modal-title"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
       <div className="relative w-full max-w-2xl max-h-[90vh] bg-surface-container rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">
@@ -62,7 +70,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                   <span>{readingTimeMinutes} min read</span>
                 </span>
               </div>
-              <h2 className="font-headline-md text-base sm:text-lg font-bold text-on-surface mt-0.5">
+              <h2 id="project-modal-title" className="font-headline-md text-base sm:text-lg font-bold text-on-surface mt-0.5">
                 {project.title}
               </h2>
               <div className="flex items-center gap-1.5 text-on-surface-variant font-code-sm text-[11px] mt-0.5">

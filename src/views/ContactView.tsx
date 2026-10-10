@@ -22,6 +22,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
     subject: 'Full-Time SWE Role (Frontend/Full-Stack)',
     message: '',
   });
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -32,11 +33,22 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
+    const newErrors: { name?: string; email?: string; message?: string } = {};
+    if (!formData.name.trim()) newErrors.name = 'Please provide your name.';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Please provide your email address.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+    if (!formData.message.trim()) newErrors.message = 'Please enter a message.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       onShowToast('Please fill in all required fields.');
       return;
     }
 
+    setErrors({});
     setIsSubmitting(true);
 
     setTimeout(() => {
@@ -69,7 +81,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' as const },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
     },
   };
 
@@ -106,9 +118,9 @@ export const ContactView: React.FC<ContactViewProps> = ({
           className="relative z-10 text-center flex flex-col items-center mb-6"
         >
           <div
-            onClick={onOpenUploadModal}
-            className="relative mb-3 cursor-pointer group"
-            title="Click to change photo"
+            onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+            className={`relative mb-3 ${import.meta.env.DEV ? 'cursor-pointer group' : ''}`}
+            title={import.meta.env.DEV ? 'Click to change photo' : undefined}
           >
             <img
               src={avatarUrl}
@@ -116,9 +128,11 @@ export const ContactView: React.FC<ContactViewProps> = ({
               className="w-16 h-16 rounded-full object-cover object-top ring-2 ring-primary/40 shadow-xl group-hover:ring-primary transition-all"
             />
             <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary rounded-full ring-2 ring-surface"></span>
-            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <AppIcon name="photo_camera" className="w-4 h-4" />
-            </div>
+            {import.meta.env.DEV && (
+              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                <AppIcon name="photo_camera" className="w-4 h-4" />
+              </div>
+            )}
           </div>
 
           <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
@@ -260,48 +274,78 @@ export const ContactView: React.FC<ContactViewProps> = ({
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
             {/* Full Name */}
             <div className="flex flex-col gap-1">
-              <label className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
+              <label htmlFor="contact-name" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
                 <span>Your Name</span>
                 <span className="text-error font-code-sm">*</span>
               </label>
               <div className="relative flex items-center">
                 <AppIcon name="badge" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <input
-                  className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/40 border border-white/5"
+                  id="contact-name"
+                  name="name"
+                  className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 border ${
+                    errors.name ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
+                  }`}
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                  }}
+                  aria-invalid={errors.name ? 'true' : 'false'}
+                  aria-describedby={errors.name ? 'contact-name-error' : undefined}
                   placeholder="e.g. Sarah Jenkins"
                   required
                   type="text"
                 />
               </div>
+              {errors.name && (
+                <span id="contact-name-error" className="text-[11px] text-error font-code-sm" role="alert">
+                  {errors.name}
+                </span>
+              )}
             </div>
 
             {/* Email Address */}
             <div className="flex flex-col gap-1">
-              <label className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
+              <label htmlFor="contact-email" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
                 <span>Email Address</span>
                 <span className="text-error font-code-sm">*</span>
               </label>
               <div className="relative flex items-center">
                 <AppIcon name="mail" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <input
-                  className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/40 border border-white/5"
+                  id="contact-email"
+                  name="email"
+                  className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 border ${
+                    errors.email ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
+                  }`}
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                  }}
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                  aria-describedby={errors.email ? 'contact-email-error' : undefined}
                   placeholder="sarah@company.com"
                   required
                   type="email"
                 />
               </div>
+              {errors.email && (
+                <span id="contact-email-error" className="text-[11px] text-error font-code-sm" role="alert">
+                  {errors.email}
+                </span>
+              )}
             </div>
 
             {/* Subject Dropdown */}
             <div className="flex flex-col gap-1">
-              <label className="font-code-sm text-xs text-on-surface-variant">Subject / Role Type</label>
+              <label htmlFor="contact-subject" className="font-code-sm text-xs text-on-surface-variant">Subject / Role Type</label>
               <div className="relative flex items-center">
                 <AppIcon name="tune" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
                 <select
+                  id="contact-subject"
+                  name="subject"
                   className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-8 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all appearance-none border border-white/5"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -321,18 +365,32 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
             {/* Message Body */}
             <div className="flex flex-col gap-1">
-              <label className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
+              <label htmlFor="contact-message" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
                 <span>Message Brief</span>
                 <span className="text-error font-code-sm">*</span>
               </label>
               <textarea
-                className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm p-3 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/40 resize-none border border-white/5"
+                id="contact-message"
+                name="message"
+                className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm p-3 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 resize-none border ${
+                  errors.message ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
+                }`}
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, message: e.target.value });
+                  if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
+                }}
+                aria-invalid={errors.message ? 'true' : 'false'}
+                aria-describedby={errors.message ? 'contact-message-error' : undefined}
                 placeholder="Tell Shawon about your product stack, interview timeline, or engineering goals..."
                 required
                 rows={3}
               ></textarea>
+              {errors.message && (
+                <span id="contact-message-error" className="text-[11px] text-error font-code-sm" role="alert">
+                  {errors.message}
+                </span>
+              )}
             </div>
 
             {/* Submit Button */}

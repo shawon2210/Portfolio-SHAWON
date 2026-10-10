@@ -11,16 +11,35 @@ import { PERSONAL_INFO } from './data/portfolioData';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { Toast } from './components/Toast';
-import { ResumeModal } from './components/ResumeModal';
-import { ProjectDetailModal } from './components/ProjectDetailModal';
-import { TerminalModal } from './components/TerminalModal';
-import { ImageUploadModal } from './components/ImageUploadModal';
-import { PrintablePortfolio } from './components/PrintablePortfolio';
 import { HomeView } from './views/HomeView';
-import { ProjectsView } from './views/ProjectsView';
-import { ExperienceView } from './views/ExperienceView';
-import { ContactView } from './views/ContactView';
 import { updateSectionSEO, updateProjectSEO, ProjectCategoryKey } from './utils/seo';
+
+// Lazy-loaded secondary views and interactive modals to minimize initial JS bundle
+const ProjectsView = lazy(() =>
+  import('./views/ProjectsView').then((m) => ({ default: m.ProjectsView }))
+);
+const ExperienceView = lazy(() =>
+  import('./views/ExperienceView').then((m) => ({ default: m.ExperienceView }))
+);
+const ContactView = lazy(() =>
+  import('./views/ContactView').then((m) => ({ default: m.ContactView }))
+);
+
+const ResumeModal = lazy(() =>
+  import('./components/ResumeModal').then((m) => ({ default: m.ResumeModal }))
+);
+const ProjectDetailModal = lazy(() =>
+  import('./components/ProjectDetailModal').then((m) => ({ default: m.ProjectDetailModal }))
+);
+const TerminalModal = lazy(() =>
+  import('./components/TerminalModal').then((m) => ({ default: m.TerminalModal }))
+);
+const ImageUploadModal = lazy(() =>
+  import('./components/ImageUploadModal').then((m) => ({ default: m.ImageUploadModal }))
+);
+const PrintablePortfolio = lazy(() =>
+  import('./components/PrintablePortfolio').then((m) => ({ default: m.PrintablePortfolio }))
+);
 
 // Code-generated 3D background scene, lazy-loaded to prevent blocking initial paint/LCP
 const BackgroundScene = lazy(() => import('./components/BackgroundScene'));
@@ -279,35 +298,41 @@ export default function App() {
           </section>
 
           <section id="projects" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
-            <ProjectsView
-              onNavigate={handleTabChange}
-              onSelectProject={(project) => setSelectedProject(project)}
-              onShowToast={showToast}
-              activeCategory={activeProjectCategory}
-              onCategoryChange={(cat) => {
-                setActiveProjectCategory(cat);
-                activeProjectCategoryRef.current = cat;
-                if (activeTab === 'projects') {
-                  updateSectionSEO('projects', cat);
-                }
-              }}
-            />
+            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading projects catalog...</div>}>
+              <ProjectsView
+                onNavigate={handleTabChange}
+                onSelectProject={(project) => setSelectedProject(project)}
+                onShowToast={showToast}
+                activeCategory={activeProjectCategory}
+                onCategoryChange={(cat) => {
+                  setActiveProjectCategory(cat);
+                  activeProjectCategoryRef.current = cat;
+                  if (activeTab === 'projects') {
+                    updateSectionSEO('projects', cat);
+                  }
+                }}
+              />
+            </Suspense>
           </section>
 
           <section id="experience" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
-            <ExperienceView
-              onNavigate={handleTabChange}
-              onShowToast={showToast}
-            />
+            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading experience...</div>}>
+              <ExperienceView
+                onNavigate={handleTabChange}
+                onShowToast={showToast}
+              />
+            </Suspense>
           </section>
 
           <section id="contact" className="scroll-mt-16 w-full border-t border-white/5 pb-16 sm:pb-0 bg-transparent">
-            <ContactView
-              avatarUrl={avatarUrl}
-              onOpenResume={() => setIsResumeOpen(true)}
-              onOpenUploadModal={() => setIsUploadModalOpen(true)}
-              onShowToast={showToast}
-            />
+            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
+              <ContactView
+                avatarUrl={avatarUrl}
+                onOpenResume={() => setIsResumeOpen(true)}
+                onOpenUploadModal={() => setIsUploadModalOpen(true)}
+                onShowToast={showToast}
+              />
+            </Suspense>
           </section>
         </main>
 
@@ -337,39 +362,49 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* Interactive Modals */}
-      <ResumeModal
-        isOpen={isResumeOpen}
-        avatarUrl={avatarUrl}
-        onClose={() => setIsResumeOpen(false)}
-        onOpenUploadModal={() => setIsUploadModalOpen(true)}
-        onShowToast={showToast}
-      />
+      {/* Interactive Modals - Lazy Loaded & Suspended */}
+      <Suspense fallback={null}>
+        {isResumeOpen && (
+          <ResumeModal
+            isOpen={isResumeOpen}
+            avatarUrl={avatarUrl}
+            onClose={() => setIsResumeOpen(false)}
+            onOpenUploadModal={() => setIsUploadModalOpen(true)}
+            onShowToast={showToast}
+          />
+        )}
 
-      <ProjectDetailModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-        onShowToast={showToast}
-      />
+        {selectedProject && (
+          <ProjectDetailModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onShowToast={showToast}
+          />
+        )}
 
-      <TerminalModal
-        isOpen={isTerminalOpen}
-        onClose={() => setIsTerminalOpen(false)}
-        onNavigate={handleTabChange}
-        onShowToast={showToast}
-      />
+        {isTerminalOpen && (
+          <TerminalModal
+            isOpen={isTerminalOpen}
+            onClose={() => setIsTerminalOpen(false)}
+            onNavigate={handleTabChange}
+            onShowToast={showToast}
+          />
+        )}
 
-      <ImageUploadModal
-        isOpen={isUploadModalOpen}
-        currentAvatar={avatarUrl}
-        onClose={() => setIsUploadModalOpen(false)}
-        onUpdateAvatar={handleUpdateAvatar}
-        onResetAvatar={handleResetAvatar}
-        onShowToast={showToast}
-      />
+        {isUploadModalOpen && (
+          <ImageUploadModal
+            isOpen={isUploadModalOpen}
+            currentAvatar={avatarUrl}
+            onClose={() => setIsUploadModalOpen(false)}
+            onUpdateAvatar={handleUpdateAvatar}
+            onResetAvatar={handleResetAvatar}
+            onShowToast={showToast}
+          />
+        )}
 
-      {/* Simplified, Clean Print-Optimized View (Active during @media print) */}
-      <PrintablePortfolio />
+        {/* Simplified, Clean Print-Optimized View (Active during @media print) */}
+        <PrintablePortfolio />
+      </Suspense>
     </div>
   );
 }
