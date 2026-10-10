@@ -143,20 +143,30 @@ export const Header: React.FC<HeaderProps> = ({
             <Terminal className="w-5 h-5" />
           </button>
 
-          <button
-            onClick={onOpenUploadModal}
-            className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 group cursor-pointer"
-            title="Upload / Change Profile Photo"
-          >
-            <img
-              alt="MD Shawon Molla Profile"
-              className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 group-hover:ring-primary transition-all flex-shrink-0"
-              src={avatarUrl}
-            />
-            <span className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <Camera className="w-3.5 h-3.5" />
-            </span>
-          </button>
+          {import.meta.env.DEV ? (
+            <button
+              onClick={onOpenUploadModal}
+              className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 group cursor-pointer"
+              title="Upload / Change Profile Photo"
+            >
+              <img
+                alt="MD Shawon Molla Profile"
+                className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 group-hover:ring-primary transition-all flex-shrink-0"
+                src={avatarUrl}
+              />
+              <span className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                <Camera className="w-3.5 h-3.5" />
+              </span>
+            </button>
+          ) : (
+            <div className="relative rounded-full flex-shrink-0">
+              <img
+                alt="MD Shawon Molla Profile"
+                className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-primary/40 flex-shrink-0"
+                src={avatarUrl}
+              />
+            </div>
+          )}
         </div>
       </div>
     </header>

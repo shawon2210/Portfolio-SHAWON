@@ -101,18 +101,20 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center sm:items-start gap-4">
                 <div
-                  onClick={onOpenUploadModal}
-                  className="relative group cursor-pointer shrink-0"
-                  title="Click to change photo"
+                  onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+                  className={`relative shrink-0 ${import.meta.env.DEV ? 'group cursor-pointer' : ''}`}
+                  title={import.meta.env.DEV ? 'Click to change photo' : undefined}
                 >
                   <img
                     src={avatarUrl}
                     alt={PERSONAL_INFO.name}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover object-top ring-2 ring-primary/40 shadow-lg group-hover:ring-primary transition-all"
                   />
-                  <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                    <Camera className="w-4 h-4" />
-                  </div>
+                  {import.meta.env.DEV && (
+                    <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface">

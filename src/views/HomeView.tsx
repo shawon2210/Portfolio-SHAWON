@@ -155,29 +155,35 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="relative z-20 max-w-6xl w-full mx-auto my-auto py-2 sm:py-4">
           {/* Mobile Profile Banner (Visible on < lg screens for immediate personal connection & responsive flow) */}
           <div className="lg:hidden mb-6 p-4 rounded-2xl bg-surface-container-high/80 backdrop-blur-xl border border-white/15 shadow-xl flex items-center gap-4">
-            <div className="relative group shrink-0">
+            <div className="relative shrink-0">
               <div
-                onClick={onOpenUploadModal}
-                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-2 ring-primary/50 shadow-md cursor-pointer bg-surface-container-lowest"
-                title="Change Photo"
+                onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-2 ring-primary/50 shadow-md bg-surface-container-lowest ${
+                  import.meta.env.DEV ? 'group cursor-pointer' : ''
+                }`}
+                title={import.meta.env.DEV ? 'Change Photo' : undefined}
               >
                 <img
                   src={avatarUrl}
                   alt="MD Shawon Molla"
                   className="w-full h-full object-cover object-top filter contrast-[1.03]"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                  <AppIcon name="photo_camera" className="w-5 h-5" />
-                </div>
+                {import.meta.env.DEV && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                    <AppIcon name="photo_camera" className="w-5 h-5" />
+                  </div>
+                )}
               </div>
-              <button
-                onClick={onOpenUploadModal}
-                className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-surface-container-high text-primary border border-white/20 flex items-center justify-center shadow transition-all cursor-pointer hover:bg-primary hover:text-on-primary"
-                title="Upload Photo"
-                aria-label="Upload photo"
-              >
-                <AppIcon name="upload" className="w-3.5 h-3.5" />
-              </button>
+              {import.meta.env.DEV && (
+                <button
+                  onClick={onOpenUploadModal}
+                  className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-surface-container-high text-primary border border-white/20 flex items-center justify-center shadow transition-all cursor-pointer hover:bg-primary hover:text-on-primary"
+                  title="Upload Photo"
+                  aria-label="Upload photo"
+                >
+                  <AppIcon name="upload" className="w-3.5 h-3.5" />
+                </button>
+              )}
               <div className="absolute -bottom-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-surface-container-lowest border border-white/15 flex items-center gap-1 shadow">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
                 <span className="font-status-label text-[9px] text-secondary font-bold uppercase">
@@ -196,23 +202,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <p className="text-xs text-on-surface-variant font-code-sm truncate">
                 Full-Stack Developer &bull; AI Systems
               </p>
-              <div className="flex items-center gap-2 mt-1">
-                <button
-                  onClick={onOpenUploadModal}
-                  className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-code-sm cursor-pointer"
-                >
-                  <AppIcon name="photo_camera" className="w-3.5 h-3.5" />
-                  <span>Change Photo</span>
-                </button>
-                <span className="text-white/20">&bull;</span>
-                <button
-                  onClick={onOpenUploadModal}
-                  className="inline-flex items-center gap-1 text-[11px] text-secondary hover:underline font-code-sm cursor-pointer"
-                >
-                  <AppIcon name="upload" className="w-3.5 h-3.5" />
-                  <span>Upload</span>
-                </button>
-              </div>
+              {import.meta.env.DEV && (
+                <div className="flex items-center gap-2 mt-1">
+                  <button
+                    onClick={onOpenUploadModal}
+                    className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-code-sm cursor-pointer"
+                  >
+                    <AppIcon name="photo_camera" className="w-3.5 h-3.5" />
+                    <span>Change Photo</span>
+                  </button>
+                  <span className="text-white/20">&bull;</span>
+                  <button
+                    onClick={onOpenUploadModal}
+                    className="inline-flex items-center gap-1 text-[11px] text-secondary hover:underline font-code-sm cursor-pointer"
+                  >
+                    <AppIcon name="upload" className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                  </button>
+                </div>
+              )}
 
               {/* Mobile Quick Telemetry */}
               <div className="grid grid-cols-3 gap-1.5 mt-2 pt-2 border-t border-white/10">
@@ -386,11 +394,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 {/* Portrait Container with Interactive Upload Trigger */}
-                <div className="relative group mb-4">
+                <div className={`relative mb-4 ${import.meta.env.DEV ? 'group' : ''}`}>
                   <div
-                    onClick={onOpenUploadModal}
-                    className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl overflow-hidden ring-4 ring-primary/40 shadow-2xl group-hover:ring-primary transition-all duration-300 cursor-pointer bg-surface-container-lowest"
-                    title="Click to upload/change photo"
+                    onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+                    className={`relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl overflow-hidden ring-4 ring-primary/40 shadow-2xl transition-all duration-300 bg-surface-container-lowest ${
+                      import.meta.env.DEV ? 'group-hover:ring-primary cursor-pointer' : ''
+                    }`}
+                    title={import.meta.env.DEV ? 'Click to upload/change photo' : undefined}
                   >
                     <img
                       src={avatarUrl}
@@ -400,21 +410,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
                     {/* Hover Camera Overlay */}
-                    <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity text-primary font-code-sm text-[11px]">
-                      <AppIcon name="photo_camera" className="w-[26px] h-[26px]" />
-                      <span>Change Photo</span>
-                    </div>
+                    {import.meta.env.DEV && (
+                      <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity text-primary font-code-sm text-[11px]">
+                        <AppIcon name="photo_camera" className="w-[26px] h-[26px]" />
+                        <span>Change Photo</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Quick Upload Badge Button */}
-                  <button
-                    onClick={onOpenUploadModal}
-                    className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary border border-white/15 flex items-center justify-center shadow-lg transition-all cursor-pointer"
-                    title="Upload custom photo"
-                    aria-label="Upload photo"
-                  >
-                    <AppIcon name="upload" className="w-4 h-4" />
-                  </button>
+                  {import.meta.env.DEV && (
+                    <button
+                      onClick={onOpenUploadModal}
+                      className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-surface-container-high hover:bg-primary hover:text-on-primary text-primary border border-white/15 flex items-center justify-center shadow-lg transition-all cursor-pointer"
+                      title="Upload custom photo"
+                      aria-label="Upload photo"
+                    >
+                      <AppIcon name="upload" className="w-4 h-4" />
+                    </button>
+                  )}
 
                   {/* Online Status Marker */}
                   <div className="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md border border-white/15 flex items-center gap-1.5 shadow-lg">

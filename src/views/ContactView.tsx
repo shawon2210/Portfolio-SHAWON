@@ -118,9 +118,9 @@ export const ContactView: React.FC<ContactViewProps> = ({
           className="relative z-10 text-center flex flex-col items-center mb-6"
         >
           <div
-            onClick={onOpenUploadModal}
-            className="relative mb-3 cursor-pointer group"
-            title="Click to change photo"
+            onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+            className={`relative mb-3 ${import.meta.env.DEV ? 'cursor-pointer group' : ''}`}
+            title={import.meta.env.DEV ? 'Click to change photo' : undefined}
           >
             <img
               src={avatarUrl}
@@ -128,9 +128,11 @@ export const ContactView: React.FC<ContactViewProps> = ({
               className="w-16 h-16 rounded-full object-cover object-top ring-2 ring-primary/40 shadow-xl group-hover:ring-primary transition-all"
             />
             <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary rounded-full ring-2 ring-surface"></span>
-            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <AppIcon name="photo_camera" className="w-4 h-4" />
-            </div>
+            {import.meta.env.DEV && (
+              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
+                <AppIcon name="photo_camera" className="w-4 h-4" />
+              </div>
+            )}
           </div>
 
           <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
