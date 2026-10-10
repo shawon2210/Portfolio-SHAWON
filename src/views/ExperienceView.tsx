@@ -132,7 +132,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({ onShowToast }) =
                 <div className="absolute -left-6 top-1.5 w-5 h-5 rounded-full bg-surface flex items-center justify-center">
                   <div
                     className={`w-3 h-3 rounded-full ${
-                      idx === 0 ? 'bg-primary shadow-[0_0_10px_#06b6d4]' : 'bg-secondary shadow-[0_0_10px_#4edea3]'
+                      idx === 0 ? 'bg-primary ring-4 ring-primary/20' : 'bg-secondary ring-4 ring-secondary/20'
                     }`}
                   ></div>
                 </div>

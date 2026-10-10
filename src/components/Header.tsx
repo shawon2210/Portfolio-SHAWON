@@ -1,7 +1,8 @@
 import React from 'react';
-import { Printer, FileText, Terminal, Camera } from 'lucide-react';
+import { FileText, Terminal, Camera } from 'lucide-react';
 import { TabType } from '../types';
 import { PERSONAL_INFO } from '../data/portfolioData';
+import { AppIcon } from './AppIcon';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -117,30 +118,32 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
           <button
-            onClick={onPrintPortfolio}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-on-surface hover:text-primary border border-white/10 transition-colors cursor-pointer"
-            title="Print Portfolio Dossier (Projects & Experience)"
-          >
-            <Printer className="w-4 h-4" />
-            <span className="hidden sm:inline">Print Portfolio</span>
-          </button>
-
-          <button
             onClick={onOpenResume}
-            className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 hover:border-primary/40 transition-all cursor-pointer shadow-sm"
             title="Inspect CV Resume"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-3.5 h-3.5" />
             <span>CV Resume</span>
           </button>
 
+          <a
+            href={PERSONAL_INFO.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            title="GitHub Profile"
+            aria-label="GitHub Profile"
+          >
+            <AppIcon name="code" className="w-4 h-4" />
+          </a>
+
           <button
             onClick={onOpenTerminal}
-            className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all"
             title="Launch Terminal CLI"
             aria-label="Launch interactive terminal"
           >
-            <Terminal className="w-5 h-5" />
+            <Terminal className="w-4 h-4" />
           </button>
 
           {import.meta.env.DEV ? (

@@ -192,7 +192,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="relative w-full h-44 bg-surface-container-high overflow-hidden">
                 {project.imageUrl && (
                   <img
-                    className="w-full h-full object-cover opacity-60 mix-blend-luminosity group-hover:opacity-80 group-hover:scale-102 transition-all duration-500"
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
                     alt={project.title}
                     src={project.imageUrl}
                   />

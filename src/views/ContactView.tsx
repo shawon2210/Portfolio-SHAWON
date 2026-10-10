@@ -137,13 +137,13 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
           <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
             <AppIcon name="cell_tower" className="w-[18px] h-[18px]" />
-            <span className="font-code-sm text-xs tracking-wide">PORTFOLIO_COMMS // V2.4</span>
+            <span className="font-code-sm text-xs tracking-wider uppercase font-semibold">Direct Communication</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight mb-1.5">
             Get In Touch
           </h1>
           <p className="font-body-md text-xs sm:text-sm text-on-surface-variant max-w-sm leading-relaxed">
-            Open to Junior Software Engineer, Full-Stack, and Frontend roles. Let's build something remarkable.
+            Open to Software Engineer, Full-Stack, and AI integration roles. Let's discuss your team's engineering goals.
           </p>
         </motion.div>
 

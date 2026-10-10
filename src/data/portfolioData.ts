@@ -4,7 +4,7 @@ export const PERSONAL_INFO = {
   name: 'MD SHAWON MOLLA',
   shortName: 'Shawon Molla',
   domain: 'Shawon.dev',
-  title: 'Junior Software Engineer · Full-Stack Developer · AI-Integrated Web Applications',
+  title: 'Full-Stack Software Engineer · AI Systems Architecture',
   location: 'Dhaka, Bangladesh',
   email: '22103330@iubat.edu',
   phone: '+880 1987-407441',
