@@ -1,5 +1,6 @@
 import React from 'react';
 import { TabType } from '../types';
+import { AppIcon } from './AppIcon';
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -30,7 +31,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
+              <AppIcon name={item.icon} className="w-5 h-5" />
               <span className="font-status-label text-[11px] leading-tight">{item.label}</span>
             </button>
           );

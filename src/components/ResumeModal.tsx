@@ -1,4 +1,16 @@
 import React, { useState } from 'react';
+import {
+  FileText,
+  Printer,
+  X,
+  Camera,
+  Mail,
+  Briefcase,
+  GraduationCap,
+  Terminal,
+  Award,
+  Send,
+} from 'lucide-react';
 import { PERSONAL_INFO, WORK_EXPERIENCE, EDUCATION_LIST, CERTIFICATES, SKILL_CATEGORIES } from '../data/portfolioData';
 
 interface ResumeModalProps {
@@ -43,7 +55,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
         {/* Modal Top Bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-primary text-[22px]">description</span>
+            <FileText className="text-primary w-5 h-5" />
             <div>
               <h2 className="font-headline-md text-base sm:text-lg font-bold text-on-surface">
                 Curriculum Vitae — MD Shawon Molla
@@ -59,14 +71,14 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
               className="p-2 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface hover:text-primary transition-colors cursor-pointer"
               title="Print / Save as PDF"
             >
-              <span className="material-symbols-outlined text-[18px]">print</span>
+              <Printer className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
               className="p-2 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
               title="Close"
             >
-              <span className="material-symbols-outlined text-[18px]">close</span>
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -99,7 +111,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover object-top ring-2 ring-primary/40 shadow-lg group-hover:ring-primary transition-all"
                   />
                   <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                    <span className="material-symbols-outlined text-[18px]">photo_camera</span>
+                    <Camera className="w-4 h-4" />
                   </div>
                 </div>
                 <div>
@@ -121,7 +133,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
                   href={`mailto:${PERSONAL_INFO.email}`}
                   className="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-code-sm text-xs font-semibold hover:bg-primary-container transition-colors inline-flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[14px]">mail</span>
+                  <Mail className="w-3.5 h-3.5" />
                   <span>Contact</span>
                 </a>
                 <button
@@ -140,7 +152,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
           {/* Experience */}
           <div>
             <h3 className="font-code-md text-primary font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">work</span>
+              <Briefcase className="w-4 h-4" />
               <span>Work &amp; Apprenticeship</span>
             </h3>
             <div className="space-y-4">
@@ -166,7 +178,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
           {/* Education */}
           <div>
             <h3 className="font-code-md text-primary font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">school</span>
+              <GraduationCap className="w-4 h-4" />
               <span>Academic Credentials</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -187,7 +199,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
           {/* Skills Breakdown */}
           <div>
             <h3 className="font-code-md text-primary font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">terminal</span>
+              <Terminal className="w-4 h-4" />
               <span>Technical Stack &amp; Tooling</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -205,7 +217,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
           {/* Certificates */}
           <div>
             <h3 className="font-code-md text-primary font-bold uppercase tracking-wider text-xs mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">verified</span>
+              <Award className="w-4 h-4" />
               <span>Certificates</span>
             </h3>
             <div className="space-y-2">
@@ -230,7 +242,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
               href={`mailto:${PERSONAL_INFO.email}?subject=Interview%20Request%20-%20MD%20Shawon%20Molla`}
               className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-code-sm text-xs font-semibold transition-colors flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[16px]">send</span>
+              <Send className="w-4 h-4" />
               <span>Send Interview Invite</span>
             </a>
           </div>

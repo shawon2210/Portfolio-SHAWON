@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { Play, Pause } from 'lucide-react';
 
 export interface BackgroundSceneConfig {
   /** Particle count (default: 1800 to ensure high density and visibility) */
@@ -469,9 +470,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           title={paused ? 'Resume 3D Ambient Constellation' : 'Pause 3D Ambient Constellation'}
           aria-label={paused ? 'Resume 3D background' : 'Pause 3D background'}
         >
-          <span className="material-symbols-outlined text-[13px]">
-            {paused ? 'play_arrow' : 'pause'}
-          </span>
+          {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           <span>{paused ? 'RESUME 3D' : `${fps} FPS`}</span>
         </button>
       </div>

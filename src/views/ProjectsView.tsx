@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TabType, Project } from '../types';
 import { PROJECTS } from '../data/portfolioData';
 import { updateSectionSEO, ProjectCategoryKey } from '../utils/seo';
+import { AppIcon } from '../components/AppIcon';
 
 interface ProjectsViewProps {
   onNavigate: (tab: TabType) => void;
@@ -95,7 +96,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         >
           <div className="flex items-center gap-1.5">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-container-high text-primary border border-white/5">
-              <span className="material-symbols-outlined text-[14px]">terminal</span>
+              <AppIcon name="terminal" className="w-3.5 h-3.5" />
             </span>
             <span className="font-status-label text-[10px] sm:text-[11px] text-primary tracking-wider uppercase font-semibold">
               Systems Catalog • 2024-2025
@@ -148,9 +149,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
           {/* Quick Search */}
           <div className="relative flex items-center min-w-[200px]">
-            <span className="material-symbols-outlined absolute left-2.5 text-[16px] text-on-surface-variant pointer-events-none">
-              search
-            </span>
+            <AppIcon
+              name="search"
+              className="absolute left-2.5 w-4 h-4 text-on-surface-variant pointer-events-none"
+            />
             <input
               type="text"
               value={searchQuery}
@@ -163,7 +165,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 text-on-surface-variant hover:text-on-surface cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[14px]">close</span>
+                <AppIcon name="close" className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -259,9 +261,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="flex flex-col gap-2 pt-1">
                   {project.highlights.map((highlight, hIdx) => (
                     <div key={hIdx} className="flex items-start gap-2">
-                      <span className="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">
-                        {highlight.icon}
-                      </span>
+                      <AppIcon name={highlight.icon} className="text-primary w-[18px] h-[18px] shrink-0 mt-0.5" />
                       <p className="font-body-sm text-xs sm:text-sm text-on-surface leading-snug">
                         {highlight.title && (
                           <strong className="font-semibold text-on-surface mr-1">
@@ -292,7 +292,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     onClick={() => onSelectProject(project)}
                     className="flex-1 min-w-[140px] flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-bright text-on-surface font-code-md text-xs sm:text-sm font-semibold transition-all active:scale-[0.98] border border-white/5 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[17px]">code</span>
+                    <AppIcon name="code" className="w-[17px] h-[17px]" />
                     <span>Architecture</span>
                   </button>
 
@@ -304,7 +304,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       rel="noopener noreferrer"
                       title="Open Live Deployed App"
                     >
-                      <span className="material-symbols-outlined text-[16px]">rocket_launch</span>
+                      <AppIcon name="rocket_launch" className="w-4 h-4" />
                       <span>Live App</span>
                     </a>
                   )}
@@ -316,7 +316,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     rel="noopener noreferrer"
                     title="Open GitHub Repository"
                   >
-                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                    <AppIcon name="open_in_new" className="w-[18px] h-[18px]" />
                   </a>
                 </div>
               </div>
@@ -334,7 +334,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             className="flex items-center justify-between pt-2 pb-1"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">inventory_2</span>
+              <AppIcon name="inventory_2" className="text-primary w-5 h-5" />
               <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
                 Specialized Modules
               </h3>
@@ -394,7 +394,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
                 <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/5 bg-surface-container/40 -mx-4 -mb-4 p-3 rounded-b-xl gap-2">
                   <span className="font-status-label text-xs text-on-surface-variant flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">dns</span>{' '}
+                    <AppIcon name="dns" className="w-3.5 h-3.5" />{' '}
                     {project.versionOrEndpoint}
                   </span>
                   <div className="flex items-center gap-3">
@@ -406,7 +406,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         target="_blank"
                         title="Open Live App"
                       >
-                        <span className="material-symbols-outlined text-[14px]">rocket_launch</span>
+                        <AppIcon name="rocket_launch" className="w-3.5 h-3.5" />
                         <span>Live Demo</span>
                       </a>
                     )}
@@ -417,7 +417,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       target="_blank"
                     >
                       <span>Code</span>
-                      <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                      <AppIcon name="open_in_new" className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 </div>
@@ -433,7 +433,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center p-8 bg-surface-container-low rounded-xl text-center my-4 border border-white/5"
           >
-            <span className="material-symbols-outlined text-outline text-[40px] mb-2">code_off</span>
+            <AppIcon name="code_off" className="text-outline w-10 h-10 mb-2" />
             <h4 className="font-headline-md text-base sm:text-lg text-on-surface font-semibold">
               No Systems Found
             </h4>
@@ -461,7 +461,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           className="mt-4 p-4 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container flex flex-col gap-3 shadow-lg border border-white/5"
         >
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary text-[20px]">hub</span>
+            <AppIcon name="hub" className="text-secondary w-5 h-5" />
             <span className="font-code-sm text-xs text-secondary font-bold uppercase tracking-wider">
               Need Custom Architecture?
             </span>
@@ -474,7 +474,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-primary text-on-primary font-code-md text-xs sm:text-sm font-bold transition-all active:scale-[0.98] shadow-md shadow-primary/20 cursor-pointer"
           >
             <span>Initialize Discussion</span>
-            <span className="material-symbols-outlined text-[18px]">terminal</span>
+            <AppIcon name="terminal" className="w-[18px] h-[18px]" />
           </button>
         </motion.div>
       </div>
