@@ -1,0 +1,380 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #10131a;
+  --color-surface-dim: #10131a;
+  --color-surface-bright: #363941;
+  --color-surface-container-lowest: #0b0e15;
+  --color-surface-container-low: #191b23;
+  --color-surface-container: #1d1f27;
+  --color-surface-container-high: #272a32;
+  --color-surface-container-highest: #32353d;
+  --color-on-surface: #e1e2ec;
+  --color-on-surface-variant: #bcc9cd;
+  --color-inverse-surface: #e1e2ec;
+  --color-inverse-on-surface: #2d3038;
+  --color-outline: #869397;
+  --color-outline-variant: #3d494c;
+  --color-surface-tint: #4cd7f6;
+  --color-primary: #4cd7f6;
+  --color-on-primary: #003640;
+  --color-primary-container: #06b6d4;
+  --color-on-primary-container: #00424f;
+  --color-inverse-primary: #00687a;
+  --color-secondary: #4edea3;
+  --color-on-secondary: #003824;
+  --color-secondary-container: #00a572;
+  --color-on-secondary-container: #00311f;
+  --color-tertiary: #adc6ff;
+  --color-on-tertiary: #002e6a;
+  --color-tertiary-container: #78a5ff;
+  --color-on-tertiary-container: #00397f;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-primary-fixed: #acedff;
+  --color-primary-fixed-dim: #4cd7f6;
+  --color-on-primary-fixed: #001f26;
+  --color-on-primary-fixed-variant: #004e5c;
+  --color-secondary-fixed: #6ffbbe;
+  --color-secondary-fixed-dim: #4edea3;
+  --color-on-secondary-fixed: #002113;
+  --color-on-secondary-fixed-variant: #005236;
+  --color-tertiary-fixed: #d8e2ff;
+  --color-tertiary-fixed-dim: #adc6ff;
+  --color-on-tertiary-fixed: #001a42;
+  --color-on-tertiary-fixed-variant: #004395;
+  --color-background: #10131a;
+  --color-on-background: #e1e2ec;
+  --color-surface-variant: #32353d;
+
+  --font-display-xl: 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg: 'Plus Jakarta Sans', sans-serif;
+  --font-headline-md: 'Plus Jakarta Sans', sans-serif;
+  --font-body-lg: 'Plus Jakarta Sans', sans-serif;
+  --font-body-md: 'Plus Jakarta Sans', sans-serif;
+  --font-body-sm: 'Plus Jakarta Sans', sans-serif;
+  --font-code-md: 'JetBrains Mono', monospace;
+  --font-code-sm: 'JetBrains Mono', monospace;
+  --font-status-label: 'JetBrains Mono', monospace;
+
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+}
+
+@layer base {
+  html {
+    margin: 0;
+    padding: 0;
+    background-color: #10131a;
+    color: #e1e2ec;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: transparent !important;
+    color: #e1e2ec;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+  }
+  
+  #root {
+    background-color: transparent;
+    min-height: 100vh;
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Custom scrollbar and utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.font-code-sm {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+
+.font-code-md {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+}
+
+.font-status-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+}
+
+/* Print-optimized styling */
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  /* Hide interactive screens, navigations, modals, 3D canvases, and video */
+  header,
+  nav,
+  main,
+  #copy-toast,
+  .no-print,
+  video,
+  canvas {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.4 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 12pt;
+    margin-bottom: 14pt;
+  }
+
+  .print-name {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0 0 2pt 0;
+  }
+
+  .print-title {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #0284c7;
+    margin: 0 0 4pt 0;
+  }
+
+  .print-meta-row {
+    font-size: 8.5pt;
+    color: #475569;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6pt;
+    margin-top: 2pt;
+  }
+
+  .print-section {
+    margin-bottom: 14pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-section.page-break-before {
+    page-break-before: auto;
+  }
+
+  .print-section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 3pt;
+    margin: 0 0 8pt 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .print-summary {
+    font-size: 9.5pt;
+    color: #334155;
+    margin: 0;
+  }
+
+  .print-projects-grid,
+  .print-experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8pt;
+  }
+
+  .print-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 4pt;
+    padding: 6pt 8pt;
+    background: #f8fafc;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 3pt;
+  }
+
+  .print-card-badge {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #0284c7;
+    text-transform: uppercase;
+    display: block;
+  }
+
+  .print-card-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .print-card-status,
+  .print-period {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .print-card-tagline {
+    font-size: 8.5pt;
+    color: #334155;
+    margin: 2pt 0;
+  }
+
+  .print-metrics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6pt;
+    margin: 3pt 0;
+    font-size: 8pt;
+  }
+
+  .print-metric-chip {
+    background: #e2e8f0;
+    padding: 1pt 4pt;
+    border-radius: 2pt;
+    color: #1e293b;
+  }
+
+  .print-bullet-list {
+    margin: 3pt 0 4pt 12pt;
+    padding: 0;
+    font-size: 8pt;
+    color: #334155;
+  }
+
+  .print-bullet-list li {
+    margin-bottom: 2pt;
+  }
+
+  .print-stack-row {
+    font-size: 7.5pt;
+    color: #475569;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 2pt;
+    margin-top: 3pt;
+  }
+
+  .print-stack-label {
+    font-weight: 700;
+    margin-right: 3pt;
+  }
+
+  .print-company {
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: #0369a1;
+  }
+
+  .print-education-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6pt;
+  }
+
+  .print-edu-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 4pt;
+    padding: 5pt 7pt;
+    break-inside: avoid;
+  }
+
+  .print-edu-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .print-edu-inst {
+    font-size: 8pt;
+    color: #475569;
+    margin: 1pt 0 0 0;
+  }
+
+  .print-edu-grade {
+    text-align: right;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #047857;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .print-curricula {
+    font-size: 7.5pt;
+    color: #64748b;
+    margin: 2pt 0 0 0;
+  }
+
+  .print-certs-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3pt;
+    font-size: 8pt;
+    color: #334155;
+  }
+
+  .print-doc-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8pt;
+    margin-top: 14pt;
+  }
+}
+
