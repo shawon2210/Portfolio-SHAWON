@@ -1,8 +1,10 @@
-import React, { useRef, useState, lazy, Suspense } from 'react';
-import { motion } from 'motion/react';
+import React, { useRef, useState, useEffect, lazy, Suspense } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowRight, FileText, Github, Linkedin, Mail, Check, Copy, ChevronDown } from 'lucide-react';
 import { TabType, Project } from '../types';
 import { PERSONAL_INFO, SKILL_CATEGORIES } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
+import { Badge, SplitText, MagneticButton } from '../components/primitives';
 
 const TechCanvas3D = lazy(() =>
   import('../components/TechCanvas3D').then((m) => ({ default: m.TechCanvas3D }))
@@ -24,20 +26,29 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenUploadModal,
   onShowToast,
 }) => {
-  const [copiedSnippet, setCopiedSnippet] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const blueprintRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic verified role rotation
+  const roles = [
+    'Full-Stack Software Engineer',
+    'AI Systems Architecture',
+    'Distributed Cloud Platforms',
+  ];
+  const [roleIndex, setRoleIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRoleIndex((prev) => (prev + 1) % roles.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [roles.length]);
+
 
   const handleScrollToBlueprint = () => {
     blueprintRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleCopySnippet = () => {
-    navigator.clipboard.writeText(PERSONAL_INFO.codeFocus);
-    setCopiedSnippet(true);
-    onShowToast('Focus snippet copied to clipboard');
-    setTimeout(() => setCopiedSnippet(false), 2000);
-  };
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
@@ -82,184 +93,152 @@ export const HomeView: React.FC<HomeViewProps> = ({
           Left: Clear positioning, concise value proposition, 2 primary CTAs, social links
           Right: Interactive 3D Spatial Architecture Canvas (TechCanvas3D)
       ========================================================================= */}
+      {/* =========================================================================
+          PHASE 4: EDITORIAL SPLIT HERO SECTION
+          Left: Availability pill, Author Portrait, Name once with SplitText, Dynamic Rotating Role,
+                2-sentence value proposition, exactly 2 CTAs (Explore Projects shimmer + Inspect CV Resume),
+                minimal verified presence links.
+          Right: Showpiece TechCanvas3D in an editorial glass frame (clamped DPR 1.5, paused offscreen).
+      ========================================================================= */}
       <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between px-4 sm:px-6 lg:px-12 xl:px-16 pt-20 sm:pt-24 pb-8 sm:pb-12">
-        {/* Subtle ethereal aurora glow (transparent, zero muddying scrims) */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-30">
-          <div className="absolute top-10 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl" />
+        {/* Soft aurora ambient highlight (complements 3D background without muddying) */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-25">
+          <div className="absolute top-12 left-1/4 w-[32rem] h-[32rem] bg-sky-500/15 rounded-full blur-[120px]" />
         </div>
 
-
-        {/* Minimal Live Status Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="relative z-20 max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8"
-        >
-          {/* Availability Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high/80 backdrop-blur-xl shadow-sm border border-white/10">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary" />
-            </span>
-            <span className="font-status-label text-secondary text-[11px] sm:text-xs font-semibold tracking-wide uppercase">
-              {PERSONAL_INFO.statusPill} &bull; Dhaka / Remote
-            </span>
-          </div>
-
-          {/* Quick Location & Direct GitHub Indicator */}
-          <div className="hidden sm:flex items-center gap-2">
-            <a
-              href={PERSONAL_INFO.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low/80 backdrop-blur-md text-on-surface-variant hover:text-primary font-code-sm text-xs border border-white/10 hover:border-primary/30 transition-all"
-            >
-              <AppIcon name="code" className="w-3.5 h-3.5 text-primary" />
-              <span>github.com/shawon2210</span>
-              <AppIcon name="open_in_new" className="w-3 h-3 opacity-60" />
-            </a>
-          </div>
-        </motion.div>
-
-        {/* Main Hero Split Grid: Clear Narrative on Left, Interactive 3D on Right */}
-        <div className="relative z-20 max-w-6xl w-full mx-auto my-auto py-4 sm:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            {/* Left Column: Core Positioning, Headline, and Actions */}
+        {/* Main Editorial Hero Split Grid */}
+        <div className="relative z-20 max-w-6xl w-full mx-auto my-auto py-6 sm:py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Column: Narrative, Identity, Headline, Dynamic Role, and CTAs */}
             <motion.div
               variants={fadeInVariants}
               initial="hidden"
               animate="visible"
-              className="lg:col-span-7 flex flex-col items-start text-left w-full"
+              className="lg:col-span-7 flex flex-col items-start text-left w-full space-y-6"
             >
-              {/* Responsive Author Profile Identity Lockup */}
-              <div className="flex items-center gap-4 sm:gap-5 mb-5 sm:mb-6">
+              {/* Top Meta Lockup: Author Portrait + Status Pill */}
+              <div className="flex items-center gap-4">
                 <div
                   onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
                   className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
-                  title={import.meta.env.DEV ? 'Click to upload/change profile photo' : undefined}
+                  title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-2xl bg-surface-container-high transition-transform duration-300 group-hover:scale-105">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden ring-2 ring-sky-400/30 shadow-2xl bg-white/[0.04] transition-all duration-300 group-hover:ring-sky-400/60 group-hover:scale-105">
                     <img
                       src={avatarUrl}
                       alt={PERSONAL_INFO.name}
                       className="w-full h-full object-cover object-top filter contrast-[1.03]"
                     />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-[#090b11] border border-white/10 flex items-center gap-1.5 shadow-md">
-                    <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                    <span className="text-[10px] text-secondary font-bold font-status-label uppercase tracking-wider">
-                      Active
-                    </span>
-                  </div>
+                  <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 ring-2 ring-[#090b11]" />
+                  </span>
                 </div>
 
-
-                <div className="flex flex-col min-w-0">
-                  <div className="inline-flex items-center gap-2">
-                    <span className="font-code-sm text-primary uppercase font-bold text-xs tracking-wider">
-                      Full-Stack Software Engineer
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm text-on-surface-variant font-medium mt-0.5">
-                    AI Systems &bull; High-Scale Distributed Web
-                  </span>
-                  <span className="text-[11px] text-secondary font-code-sm flex items-center gap-1.5 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                    <span>Open for Full-Time Roles &bull; Dhaka / Remote</span>
+                <div className="flex flex-col items-start gap-1.5">
+                  <Badge variant="availability" pulse>
+                    {PERSONAL_INFO.statusPill}
+                  </Badge>
+                  <span className="text-xs font-mono text-slate-400">
+                    {PERSONAL_INFO.location} &bull; Remote Available
                   </span>
                 </div>
               </div>
 
-              {/* Candidate Name Heading */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-on-surface tracking-tight leading-[1.05] mb-4">
-                MD Shawon{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-fixed to-secondary">
-                  Molla
-                </span>
-              </h1>
+              {/* Candidate Headline — NAME APPEARS ONCE */}
+              <div className="space-y-2">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.08]">
+                  <SplitText text="MD Shawon Molla" />
+                </h1>
 
-              {/* Value Proposition Statement */}
-              <p className="font-body-md text-base sm:text-lg text-on-surface-variant leading-relaxed mb-6 max-w-xl">
-                Building high-concurrency web platforms, distributed backend services, and autonomous AI pipelines with clean architecture and mathematical precision.
+                {/* Dynamic Rotating Role Line */}
+                <div className="h-7 sm:h-8 flex items-center overflow-hidden">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={roleIndex}
+                      initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="font-mono text-sm sm:text-base font-semibold text-sky-400 flex items-center gap-2"
+                    >
+                      <span className="text-slate-500 font-normal">&gt;</span>
+                      <span>{roles[roleIndex]}</span>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* 2-Sentence Value Proposition */}
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                Building high-concurrency web platforms, distributed backend services, and autonomous AI pipelines. Focused on clean architecture, performance optimization, and scalable engineering.
               </p>
 
-              {/* Terminal Snippet Box */}
-              <div className="w-full max-w-lg p-2.5 sm:p-3 rounded-xl bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between gap-2 shadow-inner border border-white/10 mb-6">
-                <div className="flex items-center gap-2 min-w-0">
-                  <AppIcon name="terminal" className="w-4 h-4 text-primary shrink-0" />
-                  <span className="font-code-sm text-xs sm:text-[13px] text-on-surface-variant truncate">
-                    {PERSONAL_INFO.codeFocus}
-                  </span>
-                </div>
-                <button
-                  onClick={handleCopySnippet}
-                  className="p-1.5 rounded-md hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors flex-shrink-0 cursor-pointer"
-                  title="Copy snippet"
-                  aria-label="Copy focus snippet"
-                >
-                  <AppIcon name={copiedSnippet ? 'check' : 'content_copy'} className="w-4 h-4" />
-                </button>
-              </div>
-
               {/* Exactly 2 Primary High-Contrast Actions */}
-              <div className="w-full flex flex-wrap items-center gap-3 mb-6">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                {/* Primary CTA with Shimmer Effect */}
+                <MagneticButton
                   onClick={() => onNavigate('projects')}
-                  className="h-11 px-5 sm:px-6 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-md font-semibold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(76,215,246,0.35)] transition-all cursor-pointer text-sm"
+                  className="relative group overflow-hidden px-6 py-3 rounded-xl bg-sky-400 text-slate-950 font-semibold text-sm shadow-[0_0_24px_rgba(56,189,248,0.35)] hover:bg-sky-300 transition-all duration-300 flex items-center gap-2 cursor-pointer"
                 >
-                  <span>Explore Projects</span>
-                  <AppIcon name="arrow_forward" className="w-4 h-4" />
-                </motion.button>
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                  <span className="relative z-10 flex items-center gap-2">
+                    <span>Explore Projects</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </MagneticButton>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                {/* Secondary CTA */}
+                <MagneticButton
                   onClick={onOpenResume}
-                  className="h-11 px-5 sm:px-6 rounded-lg bg-surface-container-high/90 hover:bg-surface-bright text-on-surface font-body-md font-medium flex items-center justify-center gap-2 transition-all border border-white/15 cursor-pointer text-sm backdrop-blur-md"
+                  className="px-5 py-3 rounded-xl bg-white/[0.04] text-slate-200 hover:text-white hover:bg-white/[0.08] font-medium text-sm border border-white/[0.1] hover:border-white/[0.2] transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
                 >
-                  <AppIcon name="download" className="w-4 h-4 text-primary" />
+                  <FileText className="w-4 h-4 text-sky-400" />
                   <span>Inspect CV Resume</span>
-                </motion.button>
+                </MagneticButton>
               </div>
 
-              {/* Verified Presence Links */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              {/* Verified Minimal Presence Links */}
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 <a
-                  className="h-8 px-3 rounded-full bg-surface-container-high/70 backdrop-blur-md text-on-surface hover:text-primary font-code-sm text-xs flex items-center gap-1.5 border border-white/10 hover:border-primary/30 transition-all"
                   href={PERSONAL_INFO.githubUrl}
-                  rel="noopener noreferrer"
                   target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
+                  title="GitHub Profile"
                 >
-                  <AppIcon name="code" className="w-3.5 h-3.5 text-primary" />
+                  <Github className="w-3.5 h-3.5 text-sky-400" />
                   <span>GitHub</span>
-                  <AppIcon name="open_in_new" className="w-3 h-3 opacity-50" />
                 </a>
 
                 <a
-                  className="h-8 px-3 rounded-full bg-surface-container-high/70 backdrop-blur-md text-on-surface hover:text-primary font-code-sm text-xs flex items-center gap-1.5 border border-white/10 hover:border-primary/30 transition-all"
                   href={PERSONAL_INFO.linkedinUrl}
-                  rel="noopener noreferrer"
                   target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
+                  title="LinkedIn Profile"
                 >
-                  <AppIcon name="badge" className="w-3.5 h-3.5 text-tertiary" />
+                  <Linkedin className="w-3.5 h-3.5 text-violet-400" />
                   <span>LinkedIn</span>
-                  <AppIcon name="open_in_new" className="w-3 h-3 opacity-50" />
                 </a>
 
                 <button
                   onClick={handleCopyEmail}
-                  className="h-8 px-3 rounded-full bg-surface-container-high/70 backdrop-blur-md text-on-surface hover:text-secondary font-code-sm text-xs flex items-center gap-1.5 border border-white/10 hover:border-secondary/30 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer"
+                  title="Copy email to clipboard"
                 >
-                  <AppIcon name={copiedEmail ? 'check' : 'alternate_email'} className="w-3.5 h-3.5 text-secondary" />
+                  {copiedEmail ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5 text-emerald-400" />
+                  )}
                   <span>{copiedEmail ? 'Copied' : PERSONAL_INFO.email}</span>
                 </button>
               </div>
             </motion.div>
 
-            {/* Right Column: Interactive 3D Spatial Canvas Showpiece */}
+            {/* Right Column: 3D Spatial Architecture Showpiece */}
             <motion.div
               variants={fadeInVariants}
               initial="hidden"
@@ -267,10 +246,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               transition={{ delay: 0.15 }}
               className="hidden lg:flex lg:col-span-5 flex-col items-center justify-center w-full"
             >
-              <div className="w-full max-w-md flex flex-col gap-3">
+              <div className="w-full max-w-md p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-sm shadow-2xl">
                 <Suspense
                   fallback={
-                    <div className="h-[360px] w-full rounded-2xl bg-surface-container-low/50 animate-pulse border border-white/5 flex items-center justify-center text-on-surface-variant font-code-sm text-xs">
+                    <div className="h-[360px] w-full rounded-xl bg-white/[0.02] animate-pulse border border-white/5 flex items-center justify-center text-slate-500 font-mono text-xs">
                       Initializing 3D Spatial Canvas...
                     </div>
                   }
@@ -286,15 +265,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="relative z-20 w-full flex justify-center pt-4 sm:pt-6">
           <button
             onClick={handleScrollToBlueprint}
-            className="flex flex-col items-center gap-1 text-on-surface-variant/70 hover:text-primary transition-colors cursor-pointer group"
+            className="flex flex-col items-center gap-1 text-slate-500 hover:text-sky-400 transition-colors cursor-pointer group"
           >
-            <span className="font-code-sm text-[11px] tracking-widest uppercase">
+            <span className="font-mono text-[11px] tracking-widest uppercase">
               Explore Technical Capabilities
             </span>
-            <AppIcon name="keyboard_arrow_down" className="w-5 h-5 animate-bounce text-primary" />
+            <ChevronDown className="w-4 h-4 animate-bounce text-sky-400" />
           </button>
         </div>
       </section>
+
 
       {/* =========================================================================
           SECTION 2: SYSTEMS BLUEPRINT & TECHNICAL STACK

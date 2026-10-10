@@ -24,7 +24,7 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
 
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x10131a, 0.08);
+    scene.fog = new THREE.FogExp2('#090b11', 0.08);
 
     const width = container.clientWidth || 320;
     const height = container.clientHeight || 240;
@@ -34,13 +34,14 @@ export const TechCanvas3D: React.FC<TechCanvas3DProps> = ({
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
+      antialias: window.devicePixelRatio < 1.5,
       powerPreference: 'high-performance',
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     container.appendChild(renderer.domElement);
+
 
     // Group for all rotating elements
     const systemGroup = new THREE.Group();
