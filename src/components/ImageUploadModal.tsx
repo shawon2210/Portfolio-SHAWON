@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { Camera, X, Upload, Info, Check } from 'lucide-react';
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -90,7 +91,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
         {/* Modal Top Bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">
           <div className="flex items-center gap-2.5">
-            <span className="material-symbols-outlined text-primary text-[22px]">photo_camera</span>
+            <Camera className="text-primary w-5 h-5" />
             <div>
               <h2 className="font-headline-md text-base sm:text-lg font-bold text-on-surface">
                 Upload Custom Photo
@@ -104,7 +105,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
             onClick={onClose}
             className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -145,9 +146,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
               className="hidden"
               onChange={handleFileChange}
             />
-            <span className="material-symbols-outlined text-primary text-[28px]">
-              cloud_upload
-            </span>
+            <Upload className="text-primary w-7 h-7" />
             <div className="flex flex-col gap-0.5">
               <span className="font-body-md text-xs sm:text-sm font-semibold text-on-surface">
                 Click to browse or drag &amp; drop
@@ -160,9 +159,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
 
           {/* Helper details */}
           <div className="w-full p-3 rounded-lg bg-surface-container-low border border-white/5 flex items-start gap-2.5 text-xs text-on-surface-variant">
-            <span className="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">
-              info
-            </span>
+            <Info className="text-primary w-4 h-4 shrink-0 mt-0.5" />
             <span>
               Your uploaded photo is preserved in your browser's local storage and reflected in the Hero, Resume, Header, and Contact sections.
             </span>
@@ -194,7 +191,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                   : 'bg-surface-container-highest text-on-surface-variant/40 cursor-not-allowed'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px]">check</span>
+              <Check className="w-4 h-4" />
               <span>Apply Photo</span>
             </button>
           </div>

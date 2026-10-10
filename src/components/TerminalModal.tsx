@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { TabType } from '../types';
 
@@ -152,7 +153,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
             onClick={onClose}
             className="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">close</span>
+            <X className="w-4 h-4" />
           </button>
         </div>
 

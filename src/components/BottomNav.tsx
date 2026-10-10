@@ -1,5 +1,6 @@
 import React from 'react';
 import { TabType } from '../types';
+import { AppIcon } from './AppIcon';
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -15,7 +16,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.35)] border-t border-white/5">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.35)] border-t border-white/5">
       <div className="max-w-md mx-auto flex justify-around items-center h-16 px-4">
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
@@ -30,7 +31,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
                   : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
+              <AppIcon name={item.icon} className="w-5 h-5" />
               <span className="font-status-label text-[11px] leading-tight">{item.label}</span>
             </button>
           );

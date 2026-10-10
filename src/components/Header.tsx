@@ -1,4 +1,5 @@
 import React from 'react';
+import { Printer, FileText, Terminal, Camera } from 'lucide-react';
 import { TabType } from '../types';
 import { PERSONAL_INFO } from '../data/portfolioData';
 
@@ -120,7 +121,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-on-surface hover:text-primary border border-white/10 transition-colors cursor-pointer"
             title="Print Portfolio Dossier (Projects & Experience)"
           >
-            <span className="material-symbols-outlined text-[16px]">print</span>
+            <Printer className="w-4 h-4" />
             <span className="hidden sm:inline">Print Portfolio</span>
           </button>
 
@@ -129,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-primary/20 transition-colors cursor-pointer"
             title="Inspect CV Resume"
           >
-            <span className="material-symbols-outlined text-[16px]">description</span>
+            <FileText className="w-4 h-4" />
             <span>CV Resume</span>
           </button>
 
@@ -139,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Launch Terminal CLI"
             aria-label="Launch interactive terminal"
           >
-            <span className="material-symbols-outlined text-[20px]">terminal</span>
+            <Terminal className="w-5 h-5" />
           </button>
 
           <button
@@ -153,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
               src={avatarUrl}
             />
             <span className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-              <span className="material-symbols-outlined text-[14px]">photo_camera</span>
+              <Camera className="w-3.5 h-3.5" />
             </span>
           </button>
         </div>

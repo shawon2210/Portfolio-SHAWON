@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { TabType, Project } from '../types';
 import { PERSONAL_INFO, PROJECTS, SKILL_CATEGORIES } from '../data/portfolioData';
 import { TechCanvas3D } from '../components/TechCanvas3D';
+import { AppIcon } from '../components/AppIcon';
 
 interface HomeViewProps {
   avatarUrl: string;
@@ -144,7 +145,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
 
             <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-low/90 backdrop-blur-md text-on-surface-variant font-code-sm text-[11px] sm:text-xs border border-white/10">
-              <span className="material-symbols-outlined text-[14px] text-primary">location_on</span>
+              <AppIcon name="location_on" className="w-3.5 h-3.5 text-primary" />
               <span>Dhaka, Bangladesh</span>
             </div>
           </div>
@@ -166,7 +167,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="w-full h-full object-cover object-top filter contrast-[1.03]"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                  <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+                  <AppIcon name="photo_camera" className="w-5 h-5" />
                 </div>
               </div>
               <button
@@ -175,7 +176,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 title="Upload Photo"
                 aria-label="Upload photo"
               >
-                <span className="material-symbols-outlined text-[13px]">upload</span>
+                <AppIcon name="upload" className="w-3.5 h-3.5" />
               </button>
               <div className="absolute -bottom-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-surface-container-lowest border border-white/15 flex items-center gap-1 shadow">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
@@ -200,7 +201,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={onOpenUploadModal}
                   className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-code-sm cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[13px]">photo_camera</span>
+                  <AppIcon name="photo_camera" className="w-3.5 h-3.5" />
                   <span>Change Photo</span>
                 </button>
                 <span className="text-white/20">&bull;</span>
@@ -208,7 +209,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={onOpenUploadModal}
                   className="inline-flex items-center gap-1 text-[11px] text-secondary hover:underline font-code-sm cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[13px]">upload</span>
+                  <AppIcon name="upload" className="w-3.5 h-3.5" />
                   <span>Upload</span>
                 </button>
               </div>
@@ -277,7 +278,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {/* Interactive Terminal Focus Code Snippet */}
               <div className="w-full max-w-xl p-2.5 sm:p-3 rounded-xl bg-surface-container-lowest/85 backdrop-blur-md flex items-center justify-between gap-2 shadow-inner border border-white/10 mb-5">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="material-symbols-outlined text-primary text-[18px]">terminal</span>
+                  <AppIcon name="terminal" className="w-4 h-4 text-primary shrink-0" />
                   <span className="font-code-sm text-xs sm:text-[13px] text-on-surface-variant truncate">
                     {PERSONAL_INFO.codeFocus}
                   </span>
@@ -288,9 +289,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   title="Copy snippet"
                   aria-label="Copy focus snippet"
                 >
-                  <span className="material-symbols-outlined text-[16px]">
-                    {copiedSnippet ? 'check' : 'content_copy'}
-                  </span>
+                  <AppIcon name={copiedSnippet ? 'check' : 'content_copy'} className="w-4 h-4" />
                 </button>
               </div>
 
@@ -303,7 +302,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="h-11 px-4 sm:px-5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-md font-semibold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(76,215,246,0.35)] transition-all cursor-pointer text-xs sm:text-sm grow sm:grow-0"
                 >
                   <span>Explore Projects</span>
-                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  <AppIcon name="arrow_forward" className="w-4 h-4" />
                 </motion.button>
 
                 <motion.button
@@ -312,7 +311,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={onOpenResume}
                   className="h-11 px-4 sm:px-5 rounded-lg bg-surface-container-high/90 hover:bg-surface-bright text-on-surface font-body-md font-medium flex items-center justify-center gap-2 transition-all border border-white/15 cursor-pointer text-xs sm:text-sm backdrop-blur-md grow sm:grow-0"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-primary">download</span>
+                  <AppIcon name="download" className="w-4 h-4 text-primary" />
                   <span>Inspect CV Resume</span>
                 </motion.button>
 
@@ -322,7 +321,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onClick={() => onNavigate('contact')}
                   className="h-11 px-3.5 sm:px-4 rounded-lg bg-surface-container-low/80 hover:bg-surface-container text-on-surface-variant hover:text-primary font-body-sm font-medium flex items-center justify-center gap-1.5 transition-colors border border-white/10 cursor-pointer text-xs sm:text-sm backdrop-blur-md grow sm:grow-0"
                 >
-                  <span className="material-symbols-outlined text-[16px] text-secondary">mail</span>
+                  <AppIcon name="mail" className="w-4 h-4 text-secondary" />
                   <span>Initiate Collaboration &amp; Contact</span>
                 </motion.button>
               </div>
@@ -335,9 +334,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span className="material-symbols-outlined text-[14px] text-primary">code</span>
+                  <AppIcon name="code" className="w-3.5 h-3.5 text-primary" />
                   <span>github.com/shawon2210</span>
-                  <span className="material-symbols-outlined text-[12px] text-on-surface-variant">open_in_new</span>
+                  <AppIcon name="open_in_new" className="w-3 h-3 text-on-surface-variant" />
                 </a>
 
                 <a
@@ -346,9 +345,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span className="material-symbols-outlined text-[14px] text-tertiary">badge</span>
+                  <AppIcon name="badge" className="w-3.5 h-3.5 text-tertiary" />
                   <span>linkedin.com/in/shawon</span>
-                  <span className="material-symbols-outlined text-[12px] text-on-surface-variant">open_in_new</span>
+                  <AppIcon name="open_in_new" className="w-3 h-3 text-on-surface-variant" />
                 </a>
 
                 <a
@@ -357,9 +356,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span className="material-symbols-outlined text-[14px] text-secondary">rocket_launch</span>
+                  <AppIcon name="rocket_launch" className="w-3.5 h-3.5 text-secondary" />
                   <span>oddboundary.lovable.app</span>
-                  <span className="material-symbols-outlined text-[12px] text-on-surface-variant">open_in_new</span>
+                  <AppIcon name="open_in_new" className="w-3 h-3 text-on-surface-variant" />
                 </a>
               </div>
             </motion.div>
@@ -402,7 +401,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                     {/* Hover Camera Overlay */}
                     <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity text-primary font-code-sm text-[11px]">
-                      <span className="material-symbols-outlined text-[26px]">photo_camera</span>
+                      <AppIcon name="photo_camera" className="w-[26px] h-[26px]" />
                       <span>Change Photo</span>
                     </div>
                   </div>
@@ -414,7 +413,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     title="Upload custom photo"
                     aria-label="Upload photo"
                   >
-                    <span className="material-symbols-outlined text-[16px]">upload</span>
+                    <AppIcon name="upload" className="w-4 h-4" />
                   </button>
 
                   {/* Online Status Marker */}
@@ -454,16 +453,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     onClick={() => onNavigate('contact')}
                     className="py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-code-sm text-xs font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[15px]">send</span>
+                    <AppIcon name="send" className="w-[15px] h-[15px]" />
                     <span>Interview</span>
                   </button>
                   <button
                     onClick={handleCopyEmail}
                     className="py-2 px-3 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-code-sm text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer border border-white/10"
                   >
-                    <span className="material-symbols-outlined text-[15px]">
-                      {copiedEmail ? 'check' : 'content_copy'}
-                    </span>
+                    {copiedEmail ? (
+                      <AppIcon name="check" className="w-[15px] h-[15px]" />
+                    ) : (
+                      <AppIcon name="content_copy" className="w-[15px] h-[15px]" />
+                    )}
                     <span>{copiedEmail ? 'Copied' : 'Email'}</span>
                   </button>
                 </div>
@@ -481,9 +482,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <span className="font-code-sm text-[11px] tracking-widest uppercase">
               Scroll For System Blueprint
             </span>
-            <span className="material-symbols-outlined text-[20px] animate-bounce text-primary">
-              keyboard_arrow_down
-            </span>
+            <AppIcon name="keyboard_arrow_down" className="w-5 h-5 animate-bounce text-primary" />
           </button>
         </div>
       </section>
@@ -505,7 +504,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <div className="flex items-center justify-between mb-2.5 px-1">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[20px]">view_in_ar</span>
+              <AppIcon name="view_in_ar" className="text-primary w-5 h-5" />
               <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
                 Interactive 3D System Lattice
               </h2>
@@ -556,7 +555,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-primary">3+</span>
-                <span className="material-symbols-outlined text-[16px] text-primary">rocket</span>
+                <AppIcon name="rocket" className="w-4 h-4 text-primary" />
               </div>
               <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
                 Production Apps Shipped
@@ -569,7 +568,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-secondary">97</span>
-                <span className="material-symbols-outlined text-[16px] text-secondary">schema</span>
+                <AppIcon name="schema" className="w-4 h-4 text-secondary" />
               </div>
               <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
                 Tables Schema Scaled
@@ -582,7 +581,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-tertiary">+27</span>
-                <span className="material-symbols-outlined text-[16px] text-tertiary">speed</span>
+                <AppIcon name="speed" className="w-4 h-4 text-tertiary" />
               </div>
               <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
                 Lighthouse Score Gain
@@ -595,7 +594,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <div className="flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-primary-fixed">91+</span>
-                <span className="material-symbols-outlined text-[16px] text-primary-fixed">verified</span>
+                <AppIcon name="verified" className="w-4 h-4 text-primary-fixed" />
               </div>
               <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
                 Automated Tests Written
@@ -614,7 +613,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-[20px]">stars</span>
+              <AppIcon name="stars" className="text-primary w-5 h-5" />
               <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
                 Flagship Engineering
               </h2>
@@ -624,7 +623,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               className="font-code-sm text-xs text-primary hover:text-primary-fixed transition-colors flex items-center gap-0.5 cursor-pointer"
             >
               <span>Explore all 6+</span>
-              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              <AppIcon name="arrow_forward" className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -648,7 +647,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </span>
               </div>
               <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md flex items-center gap-1 text-on-surface font-code-sm text-xs">
-                <span className="material-symbols-outlined text-[14px] text-primary">speed</span>
+                <AppIcon name="speed" className="w-3.5 h-3.5 text-primary" />
                 <span>99.9% Uptime</span>
               </div>
             </div>
@@ -693,9 +692,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="font-code-md text-xs sm:text-sm text-primary hover:text-primary-fixed flex items-center gap-1 font-semibold group cursor-pointer"
                 >
                   <span>Inspect Case Study &amp; Metrics</span>
-                  <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">
-                    arrow_forward
-                  </span>
+                  <AppIcon
+                    name="arrow_forward"
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  />
                 </button>
                 <div className="flex items-center gap-2">
                   {amarShopProject.liveUrl && (
@@ -706,25 +706,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-primary/15 hover:bg-primary/25 text-primary text-xs font-code-sm font-semibold transition-colors border border-primary/20"
                       title="Open Live App"
                     >
-                      <span className="material-symbols-outlined text-[15px]">rocket_launch</span>
+                      <AppIcon name="rocket_launch" className="w-3.5 h-3.5" />
                       <span>Live App</span>
                     </a>
                   )}
                   <button
                     onClick={() => onSelectProject(amarShopProject)}
-                    className="material-symbols-outlined text-on-surface-variant text-[20px] hover:text-primary transition-colors cursor-pointer"
+                    className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer flex items-center justify-center"
                     title="Quick inspect"
                   >
-                    visibility
+                    <AppIcon name="visibility" className="w-5 h-5" />
                   </button>
                   <a
                     href="https://github.com/shawon2210/AMAR-Shop"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="material-symbols-outlined text-on-surface-variant text-[20px] hover:text-primary transition-colors cursor-pointer"
+                    className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer flex items-center justify-center"
                     title="View source"
                   >
-                    terminal
+                    <AppIcon name="terminal" className="w-5 h-5" />
                   </a>
                 </div>
               </div>
@@ -742,7 +742,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-[22px]">developer_board</span>
+              <AppIcon name="developer_board" className="text-secondary w-5 h-5" />
               <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
                 Technical Stack
               </h2>
@@ -767,7 +767,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
-                      <span className="material-symbols-outlined text-[18px]">{category.icon}</span>
+                      <AppIcon name={category.icon} className="w-[18px] h-[18px]" />
                     </div>
                     <span className="font-headline-md text-sm sm:text-base font-semibold text-on-surface">
                       {category.name}
@@ -802,7 +802,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-[24px]">handshake</span>
+              <AppIcon name="handshake" className="text-secondary w-6 h-6" />
               <span className="font-headline-md text-base font-bold text-on-surface">
                 Hiring for your team?
               </span>
@@ -819,16 +819,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => onNavigate('contact')}
               className="flex-1 h-10 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm font-semibold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">chat</span>
+              <AppIcon name="chat" className="w-[18px] h-[18px]" />
               <span>Schedule an Interview</span>
             </button>
             <button
               onClick={handleCopyEmail}
               className="h-10 px-3.5 rounded-lg bg-surface-container-highest text-on-surface hover:text-primary font-code-sm text-xs flex items-center justify-center gap-1.5 transition-colors border border-white/5 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[16px]">
-                {copiedEmail ? 'check' : 'content_copy'}
-              </span>
+              {copiedEmail ? (
+                <AppIcon name="check" className="w-4 h-4" />
+              ) : (
+                <AppIcon name="content_copy" className="w-4 h-4" />
+              )}
               <span>{copiedEmail ? 'Copied!' : 'Email'}</span>
             </button>
           </div>
