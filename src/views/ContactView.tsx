@@ -1,21 +1,65 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Github,
+  Globe,
+  Copy,
+  Check,
+  ArrowUpRight,
+  Send,
+  FileText,
+  MessageSquare,
+} from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
-import { AppIcon } from '../components/AppIcon';
+import { GlassCard, Badge, Section } from '../components/primitives';
+import { MOTION_EASING, MOTION_DURATIONS, MOTION_STAGGER } from '../lib/motion';
 
 interface ContactViewProps {
-  avatarUrl: string;
+  avatarUrl?: string; // kept for App.tsx compat; not rendered here
   onOpenResume: () => void;
-  onOpenUploadModal: () => void;
+  onOpenUploadModal?: () => void; // kept for App.tsx compat
   onShowToast: (msg: string) => void;
 }
 
+/* ─── motion variants ─── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION_DURATIONS.base, ease: MOTION_EASING },
+  },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: MOTION_STAGGER * 2 } },
+};
+
+/* ─── copy-trigger hook ─── */
+function useCopy(label: string, onShowToast: (m: string) => void) {
+  const [copied, setCopied] = useState(false);
+  const trigger = (text: string) => {
+    navigator.clipboard.writeText(text).catch(() => {});
+    onShowToast(`${label} copied!`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return { copied, trigger };
+}
+
 export const ContactView: React.FC<ContactViewProps> = ({
-  avatarUrl,
   onOpenResume,
-  onOpenUploadModal,
   onShowToast,
 }) => {
+  /* ── copy triggers ── */
+  const emailCopy = useCopy('Email', onShowToast);
+  const phoneCopy = useCopy('Phone', onShowToast);
+
+  /* ── form state ── */
   const [honeypot, setHoneypot] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -23,18 +67,18 @@ export const ContactView: React.FC<ContactViewProps> = ({
     subject: 'Full-Time SWE Role (Frontend/Full-Stack)',
     message: '',
   });
-  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    message?: string;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    onShowToast(`${label} copied to clipboard!`);
-  };
-
+  /* ── validation & submit ── */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { name?: string; email?: string; message?: string } = {};
+    const newErrors: typeof errors = {};
     if (!formData.name.trim()) newErrors.name = 'Please provide your name.';
     if (!formData.email.trim()) {
       newErrors.email = 'Please provide your email address.';
@@ -42,20 +86,15 @@ export const ContactView: React.FC<ContactViewProps> = ({
       newErrors.email = 'Please enter a valid email address.';
     }
     if (!formData.message.trim()) newErrors.message = 'Please enter a message.';
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       onShowToast('Please fill in all required fields.');
       return;
     }
-
     if (honeypot) {
-      // Bot caught in honeypot trap, silently succeed
-      setIsSubmitting(false);
       setSubmitSuccess(true);
       return;
     }
-
     setErrors({});
     setIsSubmitting(true);
 
@@ -63,14 +102,11 @@ export const ContactView: React.FC<ContactViewProps> = ({
       setIsSubmitting(false);
       setSubmitSuccess(true);
       onShowToast(`Thank you, ${formData.name}! Message queued.`);
-
-      // Launch mailto fallback
       const mailtoUrl = `mailto:${PERSONAL_INFO.email}?subject=${encodeURIComponent(
         `${formData.subject} from ${formData.name}`
       )}&body=${encodeURIComponent(
         `From: ${formData.name} <${formData.email}>\nSubject: ${formData.subject}\n\nMessage:\n${formData.message}`
       )}`;
-
       setTimeout(() => {
         window.location.href = mailtoUrl;
         setFormData({
@@ -80,553 +116,535 @@ export const ContactView: React.FC<ContactViewProps> = ({
           message: '',
         });
         setSubmitSuccess(false);
-      }, 1000);
+      }, 1200);
     }, 700);
   };
 
-  const fadeInVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-    },
-  };
-
   return (
-    <div className="flex flex-col w-full pb-20 max-w-7xl mx-auto">
-      {/* Decorative Atmospheric Ambient Light */}
-      <div className="relative w-full overflow-hidden px-4 sm:px-6 pt-4">
-        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute top-28 right-0 w-44 h-44 bg-secondary/10 rounded-full blur-2xl pointer-events-none"></div>
+    <Section className="pb-24">
+      {/* ── Section header ── */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="mb-10 text-center"
+      >
+        <Badge variant="accent" className="mb-4 mx-auto">
+          <MessageSquare className="w-3 h-3" />
+          <span>Contact</span>
+        </Badge>
 
-        {/* Availability Status Pill */}
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.025em] text-[#e2e8f0] mb-3">
+          Let's Work Together
+        </h2>
+        <p className="text-[#94a3b8] max-w-md mx-auto text-sm sm:text-base leading-[1.65]">
+          Open to full-time software engineering roles, contract projects, and
+          technical collaborations. Reach out via any channel below.
+        </p>
+      </motion.div>
+
+      {/* ── Two-column layout on ≥ lg ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8 items-start">
+
+        {/* Left col — channels (2 columns on lg) */}
         <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10 flex items-center justify-center mb-4"
-        >
-          <div className="inline-flex items-center gap-1.5 bg-surface-container-high/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-sm border border-white/5 text-center">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-            </span>
-            <span className="font-status-label text-[10px] sm:text-[11px] text-secondary uppercase tracking-wider font-semibold">
-              {PERSONAL_INFO.availabilityDetails}
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Header Block with Executive Mini-Card */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10 text-center flex flex-col items-center mb-6"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-surface-container-high border border-white/10 flex items-center justify-center text-primary mb-3 shadow-lg">
-            <AppIcon name="mail" className="w-6 h-6" />
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 mb-1.5 text-primary">
-            <AppIcon name="cell_tower" className="w-[18px] h-[18px]" />
-            <span className="font-code-sm text-xs tracking-wider uppercase font-semibold">Direct Communication</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight mb-1.5">
-            Get In Touch
-          </h1>
-          <p className="font-body-md text-xs sm:text-sm text-on-surface-variant max-w-sm leading-relaxed">
-            Open to Software Engineer, Full-Stack, and AI integration roles. Let's discuss your team's engineering goals.
-          </p>
-        </motion.div>
-
-        {/* Direct Contact Cards (Vertical Bento Stack) */}
-        <motion.div
-          variants={fadeInVariants}
+          variants={stagger}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="relative z-10 flex flex-col gap-2.5 mb-6"
+          className="lg:col-span-2 flex flex-col gap-4"
         >
-          {/* Email Card */}
-          <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-primary border border-white/5">
-                <AppIcon name="alternate_email" className="w-5 h-5" />
+          {/* ── Email card ── */}
+          <motion.div variants={fadeUp}>
+            <GlassCard interactive className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-sky-400" />
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-[#94a3b8] mb-0.5">
                   Primary Email
                 </span>
-                <span className="font-code-md text-xs sm:text-sm text-on-surface font-semibold truncate select-all">
+                <span className="text-sm font-semibold text-[#e2e8f0] truncate select-all font-mono">
                   {PERSONAL_INFO.email}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <button
-                className="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors border border-white/5 cursor-pointer"
-                onClick={() => handleCopy(PERSONAL_INFO.email, 'Email')}
-                title="Copy Email"
-              >
-                <AppIcon name="content_copy" className="w-[18px] h-[18px]" />
-              </button>
-              <a
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary font-code-sm text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity"
-                href={`mailto:${PERSONAL_INFO.email}`}
-              >
-                <span>Send</span>
-                <AppIcon name="arrow_outward" className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-
-          {/* Phone & WhatsApp Card */}
-          <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary border border-white/5">
-                <AppIcon name="phone_iphone" className="w-5 h-5" />
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => emailCopy.trigger(PERSONAL_INFO.email)}
+                  aria-label="Copy email address"
+                  className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 flex items-center justify-center text-[#94a3b8] hover:text-sky-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {emailCopy.copied ? (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Check className="w-4 h-4 text-emerald-400" />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="copy"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+                <a
+                  href={`mailto:${PERSONAL_INFO.email}`}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold hover:bg-sky-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                >
+                  Send <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
+            </GlassCard>
+          </motion.div>
+
+          {/* ── Phone / WhatsApp card ── */}
+          <motion.div variants={fadeUp}>
+            <GlassCard interactive className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-[#94a3b8] mb-0.5">
                   Call / WhatsApp
                 </span>
-                <span className="font-code-md text-xs sm:text-sm text-on-surface font-semibold truncate">
+                <span className="text-sm font-semibold text-[#e2e8f0] truncate font-mono">
                   {PERSONAL_INFO.phone}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <button
-                className="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-secondary transition-colors border border-white/5 cursor-pointer"
-                onClick={() => handleCopy(PERSONAL_INFO.phone, 'Phone number')}
-                title="Copy Number"
-              >
-                <AppIcon name="content_copy" className="w-[18px] h-[18px]" />
-              </button>
-              <a
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-on-secondary font-code-sm text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity"
-                href={PERSONAL_INFO.whatsAppUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <span>Chat</span>
-                <AppIcon name="chat" className="w-4 h-4" />
-              </a>
-            </div>
-          </div>
-
-          {/* Location & Telemetry Card */}
-          <div className="bg-surface-container-high rounded-xl p-4 shadow-md flex items-center justify-between gap-3 border border-white/5">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-tertiary border border-white/5">
-                <AppIcon name="pin_drop" className="w-5 h-5" />
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => phoneCopy.trigger(PERSONAL_INFO.phone)}
+                  aria-label="Copy phone number"
+                  className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-emerald-400/35 hover:bg-emerald-400/5 flex items-center justify-center text-[#94a3b8] hover:text-emerald-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {phoneCopy.copied ? (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Check className="w-4 h-4 text-emerald-400" />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="copy"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+                <a
+                  href={PERSONAL_INFO.whatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                >
+                  Chat <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-code-sm text-[11px] text-on-surface-variant uppercase tracking-wider">
+            </GlassCard>
+          </motion.div>
+
+          {/* ── Location card ── */}
+          <motion.div variants={fadeUp}>
+            <GlassCard className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-violet-400" />
+              </div>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-[#94a3b8] mb-0.5">
                   Base Location
                 </span>
-                <span className="font-body-md text-xs sm:text-sm text-on-surface font-semibold truncate">
+                <span className="text-sm font-semibold text-[#e2e8f0] truncate">
                   {PERSONAL_INFO.location}
                 </span>
-                <span className="font-code-sm text-[11px] text-secondary flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
-                  <span>Open worldwide (Remote / On-site)</span>
+                <span className="font-mono text-[11px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                  Remote / On-site · Worldwide
                 </span>
               </div>
-            </div>
-            <div className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0 border border-white/5">
-              <AppIcon name="public" className="w-[18px] h-[18px]" />
-            </div>
-          </div>
-        </motion.div>
+            </GlassCard>
+          </motion.div>
 
-        {/* Quick Message Form Section */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="relative z-10 bg-surface-container rounded-xl p-4 sm:p-5 shadow-lg mb-6 border border-white/5"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <AppIcon name="send_time_extension" className="w-5 h-5 text-primary" />
-              <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold tracking-tight">
-                Quick Message
-              </h2>
-            </div>
-            <span className="font-code-sm text-xs text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
-              Encrypted
-            </span>
-          </div>
-          <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant mb-4">
-            Drop a fast proposal, recruitment interview request, or inquiry directly into Shawon's priority inbox.
-          </p>
-
-          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            {/* Honeypot anti-spam field */}
-            <div className="hidden" aria-hidden="true">
-              <input
-                type="text"
-                name="_gotcha"
-                tabIndex={-1}
-                autoComplete="off"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-              />
-            </div>
-
-            {/* Full Name */}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="contact-name" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
-                <span>Your Name</span>
-                <span className="text-error font-code-sm">*</span>
-              </label>
-              <div className="relative flex items-center">
-                <AppIcon name="badge" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
-                <input
-                  id="contact-name"
-                  name="name"
-                  className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 border ${
-                    errors.name ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
-                  }`}
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData({ ...formData, name: e.target.value });
-                    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-                  }}
-                  aria-invalid={errors.name ? 'true' : 'false'}
-                  aria-describedby={errors.name ? 'contact-name-error' : undefined}
-                  placeholder="e.g. Sarah Jenkins"
-                  required
-                  type="text"
-                />
-              </div>
-              {errors.name && (
-                <span id="contact-name-error" className="text-[11px] text-error font-code-sm" role="alert">
-                  {errors.name}
-                </span>
-              )}
-            </div>
-
-            {/* Email Address */}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="contact-email" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
-                <span>Email Address</span>
-                <span className="text-error font-code-sm">*</span>
-              </label>
-              <div className="relative flex items-center">
-                <AppIcon name="mail" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
-                <input
-                  id="contact-email"
-                  name="email"
-                  className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-3 py-2.5 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 border ${
-                    errors.email ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
-                  }`}
-                  value={formData.email}
-                  onChange={(e) => {
-                    setFormData({ ...formData, email: e.target.value });
-                    if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-                  }}
-                  aria-invalid={errors.email ? 'true' : 'false'}
-                  aria-describedby={errors.email ? 'contact-email-error' : undefined}
-                  placeholder="sarah@company.com"
-                  required
-                  type="email"
-                />
-              </div>
-              {errors.email && (
-                <span id="contact-email-error" className="text-[11px] text-error font-code-sm" role="alert">
-                  {errors.email}
-                </span>
-              )}
-            </div>
-
-            {/* Subject Dropdown */}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="contact-subject" className="font-code-sm text-xs text-on-surface-variant">Subject / Role Type</label>
-              <div className="relative flex items-center">
-                <AppIcon name="tune" className="w-[18px] h-[18px] absolute left-3 text-on-surface-variant pointer-events-none" />
-                <select
-                  id="contact-subject"
-                  name="subject"
-                  className="w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm pl-10 pr-8 py-2.5 rounded-lg outline-none focus:ring-1 focus:ring-primary transition-all appearance-none border border-white/5"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                >
-                  <option value="Full-Time SWE Role (Frontend/Full-Stack)">
-                    Full-Time SWE Role (Frontend/Full-Stack)
-                  </option>
-                  <option value="Contract / Milestone Project">Contract / Milestone Project</option>
-                  <option value="Technical Collaboration / Open Source">
-                    Technical Collaboration / Open Source
-                  </option>
-                  <option value="General Greetings">General Coffee Chat</option>
-                </select>
-                <AppIcon name="expand_more" className="w-[18px] h-[18px] absolute right-3 text-on-surface-variant pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Message Body */}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="contact-message" className="font-code-sm text-xs text-on-surface-variant flex items-center justify-between">
-                <span>Message Brief</span>
-                <span className="text-error font-code-sm">*</span>
-              </label>
-              <textarea
-                id="contact-message"
-                name="message"
-                className={`w-full bg-surface-container-low text-on-surface font-body-sm text-xs sm:text-sm p-3 rounded-lg outline-none focus:ring-1 transition-all placeholder:text-on-surface-variant/40 resize-none border ${
-                  errors.message ? 'border-error focus:ring-error' : 'border-white/5 focus:ring-primary'
-                }`}
-                value={formData.message}
-                onChange={(e) => {
-                  setFormData({ ...formData, message: e.target.value });
-                  if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
-                }}
-                aria-invalid={errors.message ? 'true' : 'false'}
-                aria-describedby={errors.message ? 'contact-message-error' : undefined}
-                placeholder="Tell Shawon about your product stack, interview timeline, or engineering goals..."
-                required
-                rows={3}
-              ></textarea>
-              {errors.message && (
-                <span id="contact-message-error" className="text-[11px] text-error font-code-sm" role="alert">
-                  {errors.message}
-                </span>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              className={`mt-1 w-full py-3 px-4 rounded-lg font-headline-md text-xs sm:text-sm font-bold shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer ${
-                submitSuccess
-                  ? 'bg-secondary text-on-secondary'
-                  : 'bg-primary text-on-primary hover:bg-primary-container shadow-cyan-500/20'
-              }`}
-              disabled={isSubmitting}
-              type="submit"
-            >
-              <AppIcon
-                name={submitSuccess ? 'check_circle' : 'send'}
-                className="w-[18px] h-[18px]"
-              />
-              <span>
-                {isSubmitting
-                  ? 'Dispatching...'
-                  : submitSuccess
-                  ? 'Message Queued!'
-                  : 'Send Message'}
-              </span>
-            </button>
-          </form>
-        </motion.div>
-
-        {/* Resume Download & Quick Links Box */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="relative z-10 bg-surface-container-high rounded-xl p-4 sm:p-5 shadow-md mb-6 border border-white/5"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
-              <AppIcon name="description" className="w-[22px] h-[22px]" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h3 className="font-headline-md text-sm sm:text-base text-on-surface font-bold truncate">
-                  Curriculum Vitae
-                </h3>
-                <span className="font-code-sm text-[10px] text-primary bg-surface-container px-2 py-0.5 rounded border border-white/5">
-                  PDF
-                </span>
-              </div>
-              <span className="font-body-sm text-xs text-on-surface-variant">
-                Updated for 2025 • Full Technical Profile
-              </span>
-            </div>
-          </div>
-          <div className="bg-surface-container-lowest/60 rounded-lg p-3 flex items-center justify-between gap-2 mb-4 border border-white/5">
-            <div className="flex flex-col">
-              <span className="font-code-sm text-xs text-on-surface font-medium truncate">
-                MD_Shawon_Molla_Resume.pdf
-              </span>
-              <span className="font-status-label text-[10px] text-on-surface-variant">
-                Full-Stack &amp; Frontend Focus • 142 KB
-              </span>
-            </div>
-            <AppIcon name="check_circle" className="w-5 h-5 text-secondary" />
-          </div>
-          <button
-            onClick={onOpenResume}
-            className="w-full py-2.5 px-4 rounded-lg bg-surface-container hover:bg-surface-bright text-primary font-code-md text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm border border-white/5 cursor-pointer"
-          >
-            <AppIcon name="download" className="w-[18px] h-[18px]" />
-            <span>Download Shawon's Full Resume</span>
-          </button>
-        </motion.div>
-
-        {/* Professional Channels & Profiles */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="relative z-10 mb-6"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-headline-md text-base sm:text-lg text-on-surface font-bold tracking-tight">
+          {/* ── Verified channels ── */}
+          <motion.div variants={fadeUp} className="flex flex-col gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[#94a3b8] px-1">
               Verified Channels
-            </h3>
-            <span className="font-code-sm text-xs text-on-surface-variant">Live Profiles</span>
-          </div>
-          <div className="flex flex-col gap-2">
+            </span>
+
             {/* LinkedIn */}
             <a
-              className="group bg-surface-container p-3 sm:p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:bg-surface-container-high transition-colors border border-white/5"
               href={PERSONAL_INFO.linkedinUrl}
-              rel="noopener noreferrer"
               target="_blank"
+              rel="noopener noreferrer"
+              className="group"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-primary border border-white/5">
-                  <AppIcon name="hub" className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-headline-md text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">
+              <GlassCard interactive className="p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
+                    <Linkedin className="w-4.5 h-4.5 text-sky-400" style={{ width: 18, height: 18 }} />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-[#e2e8f0] group-hover:text-sky-400 transition-colors">
                       LinkedIn
                     </span>
-                    <AppIcon name="verified" className="w-3.5 h-3.5 text-primary" />
+                    <span className="font-mono text-[11px] text-[#94a3b8] truncate">
+                      Connect &amp; message directly
+                    </span>
                   </div>
-                  <span className="font-code-sm text-xs text-on-surface-variant truncate">
-                    Connect &amp; Message directly
-                  </span>
                 </div>
-              </div>
-              <AppIcon
-                name="arrow_forward"
-                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-primary group-hover:translate-x-0.5 transition-transform"
-              />
+                <ArrowUpRight className="w-4 h-4 text-[#94a3b8] group-hover:text-sky-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
+              </GlassCard>
             </a>
 
             {/* GitHub */}
             <a
-              className="group bg-surface-container p-3 sm:p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:bg-surface-container-high transition-colors border border-white/5"
               href={PERSONAL_INFO.githubUrl}
-              rel="noopener noreferrer"
               target="_blank"
+              rel="noopener noreferrer"
+              className="group"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-secondary border border-white/5">
-                  <AppIcon name="terminal" className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-headline-md text-sm font-semibold text-on-surface group-hover:text-secondary transition-colors">
+              <GlassCard interactive className="p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                    <Github className="w-4.5 h-4.5 text-[#e2e8f0]" style={{ width: 18, height: 18 }} />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-[#e2e8f0] group-hover:text-[#38bdf8] transition-colors">
                       GitHub
                     </span>
-                    <span className="font-code-sm text-[10px] text-secondary bg-secondary/10 px-1.5 py-0.2 rounded">
-                      20+ Repos
+                    <span className="font-mono text-[11px] text-[#94a3b8] truncate">
+                      Repos, commits &amp; open source
                     </span>
                   </div>
-                  <span className="font-code-sm text-xs text-on-surface-variant truncate">
-                    Explore recent commits &amp; algorithms
-                  </span>
                 </div>
-              </div>
-              <AppIcon
-                name="arrow_forward"
-                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-secondary group-hover:translate-x-0.5 transition-transform"
-              />
+                <ArrowUpRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#38bdf8] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
+              </GlassCard>
             </a>
 
-            {/* Portfolio / Live App */}
+            {/* Live App */}
             <a
-              className="group bg-surface-container p-3 sm:p-3.5 rounded-xl flex items-center justify-between shadow-sm hover:bg-surface-container-high transition-colors border border-white/5"
               href={PERSONAL_INFO.liveAppUrl}
-              rel="noopener noreferrer"
               target="_blank"
+              rel="noopener noreferrer"
+              className="group"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center flex-shrink-0 text-tertiary border border-white/5">
-                  <AppIcon name="web" className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-headline-md text-sm font-semibold text-on-surface group-hover:text-tertiary transition-colors">
+              <GlassCard interactive className="p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <Globe className="w-4.5 h-4.5 text-amber-400" style={{ width: 18, height: 18 }} />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-[#e2e8f0] group-hover:text-amber-400 transition-colors">
                       Odd Boundary
                     </span>
-                    <span className="font-code-sm text-[10px] text-tertiary bg-tertiary/10 px-1.5 py-0.2 rounded">
-                      Live Web App
+                    <span className="font-mono text-[11px] text-[#94a3b8] truncate">
+                      oddboundary.lovable.app
                     </span>
                   </div>
-                  <span className="font-code-sm text-xs text-on-surface-variant truncate">
-                    oddboundary.lovable.app
-                  </span>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#94a3b8] group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
+              </GlassCard>
+            </a>
+          </motion.div>
+
+          {/* ── Resume quick-access ── */}
+          <motion.div variants={fadeUp}>
+            <GlassCard className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4.5 h-4.5 text-sky-400" style={{ width: 18, height: 18 }} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#e2e8f0]">Curriculum Vitae</p>
+                  <p className="font-mono text-[11px] text-[#94a3b8]">Full technical profile · PDF</p>
                 </div>
               </div>
-              <AppIcon
-                name="arrow_forward"
-                className="w-[18px] h-[18px] text-on-surface-variant group-hover:text-tertiary group-hover:translate-x-0.5 transition-transform"
-              />
-            </a>
-          </div>
+              <button
+                onClick={onOpenResume}
+                className="w-full py-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 text-sky-400 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              >
+                <FileText className="w-4 h-4" />
+                View / Download Resume
+              </button>
+            </GlassCard>
+          </motion.div>
         </motion.div>
 
-        {/* Interactive Workspace Terminal Card */}
+        {/* Right col — contact form (3 of 5 columns on lg) */}
         <motion.div
-          variants={fadeInVariants}
+          variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="relative z-10 bg-surface-container-lowest rounded-xl p-4 mb-6 shadow-inner font-code-sm border border-white/5 text-xs"
+          className="lg:col-span-3"
         >
-          <div className="flex items-center justify-between pb-2 mb-2 text-on-surface-variant border-b border-white/5">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-error"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-tertiary-container"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-secondary"></div>
-              <span className="ml-2 font-code-sm text-on-surface-variant">
-                bash // contact.session
-              </span>
+          <GlassCard className="p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <Send className="w-4 h-4 text-sky-400" />
+              <h3 className="text-base font-bold text-[#e2e8f0] tracking-[-0.02em]">
+                Send a Message
+              </h3>
             </div>
-            <span className="text-secondary font-code-sm">200 OK</span>
-          </div>
-          <div className="text-on-surface-variant leading-relaxed">
-            <p className="text-on-surface-variant/70">
-              <span className="text-secondary">$</span> ssh visitor@shawon.dev
+            <p className="text-[#94a3b8] text-sm mb-5 leading-[1.65]">
+              Drop a proposal, recruitment request, or collaboration inquiry —
+              I'll respond within 24 hours.
             </p>
-            <p className="text-on-surface-variant/70">
-              <span className="text-secondary">$</span> cat handshake_spec.json
-            </p>
-            <pre className="text-primary mt-1 font-code-sm whitespace-pre-wrap leading-tight text-xs bg-surface-container-low/50 p-2.5 rounded border border-white/5">
-{`{
-  "status": "ready_for_interviews",
-  "timezone": "UTC+6 (Flexible overlap)",
-  "preferred_stack": ["React", "TypeScript", "Node.js", "Tailwind"]
-}`}
-            </pre>
-          </div>
-        </motion.div>
 
-        {/* Clean Footer */}
-        <div className="relative z-10 pt-4 pb-6 text-center flex flex-col items-center justify-center gap-1">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
-            <span className="font-status-label text-[10px] text-on-surface-variant uppercase tracking-wider">
-              Signal Active &amp; Monitored
-            </span>
-          </div>
-          <p className="font-code-sm text-xs text-on-surface-variant">
-            Designed &amp; Built for MD Shawon Molla · Dhaka, Bangladesh
-          </p>
-        </div>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              {/* Honeypot */}
+              <div className="hidden" aria-hidden="true">
+                <input
+                  type="text"
+                  name="_gotcha"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
+              {/* Name + Email row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Name */}
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="contact-name"
+                    className="font-mono text-[11px] uppercase tracking-widest text-[#94a3b8] flex items-center justify-between"
+                  >
+                    Your Name
+                    <span className="text-red-400" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="Sarah Jenkins"
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value });
+                      if (errors.name) setErrors((p) => ({ ...p, name: undefined }));
+                    }}
+                    aria-invalid={errors.name ? 'true' : 'false'}
+                    aria-describedby={errors.name ? 'cn-err' : undefined}
+                    className={`w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
+                      errors.name
+                        ? 'border-red-500/60 focus:ring-red-500/30'
+                        : 'border-white/[0.08] focus:border-sky-400/40 focus:ring-sky-400/20'
+                    }`}
+                  />
+                  {errors.name && (
+                    <span id="cn-err" role="alert" className="font-mono text-[11px] text-red-400">
+                      {errors.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="contact-email"
+                    className="font-mono text-[11px] uppercase tracking-widest text-[#94a3b8] flex items-center justify-between"
+                  >
+                    Email Address
+                    <span className="text-red-400" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="sarah@company.com"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                    }}
+                    aria-invalid={errors.email ? 'true' : 'false'}
+                    aria-describedby={errors.email ? 'ce-err' : undefined}
+                    className={`w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
+                      errors.email
+                        ? 'border-red-500/60 focus:ring-red-500/30'
+                        : 'border-white/[0.08] focus:border-sky-400/40 focus:ring-sky-400/20'
+                    }`}
+                  />
+                  {errors.email && (
+                    <span id="ce-err" role="alert" className="font-mono text-[11px] text-red-400">
+                      {errors.email}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="contact-subject"
+                  className="font-mono text-[11px] uppercase tracking-widest text-[#94a3b8]"
+                >
+                  Subject / Inquiry Type
+                </label>
+                <select
+                  id="contact-subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className="w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border border-white/[0.08] outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20 appearance-none transition-all"
+                  style={{ backgroundImage: 'none' }}
+                >
+                  <option value="Full-Time SWE Role (Frontend/Full-Stack)">
+                    Full-Time SWE Role (Frontend / Full-Stack)
+                  </option>
+                  <option value="Contract / Milestone Project">
+                    Contract / Milestone Project
+                  </option>
+                  <option value="Technical Collaboration / Open Source">
+                    Technical Collaboration / Open Source
+                  </option>
+                  <option value="General Coffee Chat">General Coffee Chat</option>
+                </select>
+              </div>
+
+              {/* Message */}
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="contact-message"
+                  className="font-mono text-[11px] uppercase tracking-widest text-[#94a3b8] flex items-center justify-between"
+                >
+                  Message
+                  <span className="text-red-400" aria-hidden="true">*</span>
+                </label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  required
+                  rows={4}
+                  placeholder="Describe your stack, role type, or what you'd like to build together..."
+                  value={formData.message}
+                  onChange={(e) => {
+                    setFormData({ ...formData, message: e.target.value });
+                    if (errors.message) setErrors((p) => ({ ...p, message: undefined }));
+                  }}
+                  aria-invalid={errors.message ? 'true' : 'false'}
+                  aria-describedby={errors.message ? 'cm-err' : undefined}
+                  className={`w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 resize-none placeholder:text-[#94a3b8]/40 ${
+                    errors.message
+                      ? 'border-red-500/60 focus:ring-red-500/30'
+                      : 'border-white/[0.08] focus:border-sky-400/40 focus:ring-sky-400/20'
+                  }`}
+                />
+                {errors.message && (
+                  <span id="cm-err" role="alert" className="font-mono text-[11px] text-red-400">
+                    {errors.message}
+                  </span>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`relative overflow-hidden mt-1 w-full py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-60 disabled:cursor-not-allowed ${
+                  submitSuccess
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-sky-500 hover:bg-sky-400 text-white'
+                }`}
+              >
+                {/* shimmer sweep */}
+                {!submitSuccess && (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 animate-shimmer"
+                  />
+                )}
+                <AnimatePresence mode="wait" initial={false}>
+                  {submitSuccess ? (
+                    <motion.span
+                      key="success"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" /> Message Queued!
+                    </motion.span>
+                  ) : isSubmitting ? (
+                    <motion.span
+                      key="sending"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                    >
+                      Dispatching…
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="idle"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" /> Send Message
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            </form>
+          </GlassCard>
+        </motion.div>
       </div>
-    </div>
+
+      {/* ── Footer ── */}
+      <motion.footer
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="mt-16 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-[#94a3b8]"
+      >
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-mono text-[11px] uppercase tracking-widest">
+            {PERSONAL_INFO.availabilityDetails}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {/* Print access (footer only) */}
+          <button
+            onClick={() => window.print()}
+            className="font-mono text-[11px] text-[#94a3b8] hover:text-[#e2e8f0] transition-colors underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
+          >
+            Print Portfolio
+          </button>
+
+          <span className="font-mono text-[11px]">
+            © {new Date().getFullYear()} {PERSONAL_INFO.shortName}
+          </span>
+        </div>
+      </motion.footer>
+    </Section>
   );
 };
