@@ -87,6 +87,13 @@
     color: #e2e8f0;
     font-family: 'Plus Jakarta Sans', sans-serif;
     min-height: 100vh;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {

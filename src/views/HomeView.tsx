@@ -135,7 +135,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               {/* Responsive Author Profile Identity Lockup */}
               <div className="flex items-center gap-4 sm:gap-5 mb-5 sm:mb-6">
-                <div className="relative shrink-0 group">
+                <div
+                  onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+                  className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
+                  title={import.meta.env.DEV ? 'Click to upload/change profile photo' : undefined}
+                >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-2xl bg-surface-container-high transition-transform duration-300 group-hover:scale-105">
                     <img
                       src={avatarUrl}
@@ -150,6 +154,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     </span>
                   </div>
                 </div>
+
 
                 <div className="flex flex-col min-w-0">
                   <div className="inline-flex items-center gap-2">

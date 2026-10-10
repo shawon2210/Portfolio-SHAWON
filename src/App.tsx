@@ -9,10 +9,11 @@ import { ChevronUp } from 'lucide-react';
 import { TabType, Project } from './types';
 import { PERSONAL_INFO } from './data/portfolioData';
 import { Header } from './components/Header';
-import { BottomNav } from './components/BottomNav';
+import { FloatingDock } from './components/FloatingDock';
 import { Toast } from './components/Toast';
 import { HomeView } from './views/HomeView';
 import { updateSectionSEO, updateProjectSEO, ProjectCategoryKey } from './utils/seo';
+
 
 // Lazy-loaded secondary views and interactive modals to minimize initial JS bundle
 const ProjectsView = lazy(() =>
@@ -323,10 +324,10 @@ export default function App() {
 
       {/* Page Content Wrapper: relative z-1 with pointer-events-auto */}
       <div className="relative z-1 flex flex-col min-h-screen w-full bg-transparent">
-        {/* Subtle, fixed-position scroll progress bar at top of screen */}
+        {/* Scroll progress bar — fixed top, sky→emerald gradient, Phase 1 tokens */}
         <motion.div
           style={{ scaleX, transformOrigin: '0%' }}
-          className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-primary-fixed to-secondary z-[70] pointer-events-none shadow-[0_0_10px_rgba(76,215,246,0.6)]"
+          className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-sky-400 via-sky-300 to-emerald-400 z-[70] pointer-events-none shadow-[0_0_8px_rgba(56,189,248,0.55)]"
         />
 
         {/* Toast feedback */}
@@ -383,7 +384,7 @@ export default function App() {
             </Suspense>
           </section>
 
-          <section id="contact" className="scroll-mt-16 w-full border-t border-white/5 pb-16 sm:pb-0 bg-transparent">
+          <section id="contact" className="scroll-mt-16 w-full border-t border-white/5 pb-28 md:pb-0 bg-transparent">
             <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
               <ContactView
                 avatarUrl={avatarUrl}
@@ -395,8 +396,9 @@ export default function App() {
           </section>
         </main>
 
-        {/* Bottom Navigation */}
-        <BottomNav activeTab={activeTab} onSelectTab={handleTabChange} />
+        {/* Floating Dock - Mobile Navigation (md:hidden inside component) */}
+        <FloatingDock activeTab={activeTab} onSelectTab={handleTabChange} />
+
 
         {/* Floating Circular 'Scroll-To-Top' Button with Glow Effect and Smooth Transition */}
         <AnimatePresence>
