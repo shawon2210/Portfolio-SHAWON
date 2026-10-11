@@ -77,6 +77,13 @@
   --spacing-space-md: 1rem;
   --spacing-space-lg: 1.5rem;
   --spacing-space-xl: 2.5rem;
+
+  /* PHASE 5 — WCAG 2.2 AA contrast correction.
+     Tailwind's stock slate-500 (#64748b) lands at 4.12:1 on the #090b11 canvas
+     and 3.76:1 on raised surfaces (#15171d / #101218), i.e. below the 4.5:1
+     floor for body-size text. Lifting the token once fixes every muted label
+     in the app without touching individual call sites. */
+  --color-slate-500: #7e8fa4;
 }
 
 @layer base {
@@ -88,11 +95,27 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     min-height: 100vh;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* PHASE 5: the app owns programmatic scrolling, so the UA smooth-scroll
+     would fight our custom curve. Auto + reduced-motion stay instant. */
+  html.has-managed-scroll {
+    scroll-behavior: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
     }
   }
 
@@ -115,6 +138,161 @@
   }
   .pt-safe {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* ============================================================================
+   PHASE 5 — Shared micro-interaction layer
+   One place defines hover / press / focus so every surface in the portfolio
+   responds identically. Timings and curves mirror src/lib/motion.ts.
+
+   .pressable        → universal press scale (buttons, pills, chips, rows)
+   .pressable-strong → deeper press scale for large surfaces (cards, panels)
+   .focus-ring       → consistent WCAG 2.2 visible focus treatment
+
+   NOTE: no blanket `will-change` here on purpose. These classes are applied to
+   ~60 elements, and promoting each one to its own compositor layer measurably
+   hurt scroll FPS on a throttled mid-tier mobile profile. The transform
+   transition promotes on demand for the duration of the press and is released
+   afterwards, which is what the compositor does anyway.
+   ========================================================================= */
+
+@layer components {
+  :root {
+    --ease-micro: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur-instant: 150ms;
+    --dur-fast: 300ms;
+    --dur-base: 600ms;
+  }
+
+  .pressable {
+    transition-property: transform, background-color, border-color, color, opacity,
+      box-shadow, filter;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-micro);
+  }
+
+  .pressable:active {
+    transform: scale(0.96);
+    transition-duration: var(--dur-instant);
+  }
+
+  .pressable-strong {
+    transition-property: transform, background-color, border-color, color, opacity,
+      box-shadow, filter;
+    transition-duration: var(--dur-base);
+    transition-timing-function: var(--ease-cinematic);
+  }
+
+  .pressable-strong:active {
+    transform: scale(0.985);
+    transition-duration: var(--dur-fast);
+  }
+
+  /* PHASE 5: `.focus-ring` is declared UNLAYERED at the end of this file, on
+     purpose. Inside @layer it lost the cascade to the legacy
+     `focus-visible:outline-none` utilities that are still on ~40 controls, so
+     half the app showed a 1px legacy ring and half showed a 2px outline.
+     Unlayered rules win over every @layer, which is what makes the focus
+     treatment actually global. */
+
+  /* PHASE 5: the custom cursor replaces the native one only while mounted.
+     Scoped to fine pointers so hybrid devices keep their native cursor. */
+  @media (pointer: fine) {
+    html.has-custom-cursor,
+    html.has-custom-cursor * {
+      cursor: none !important;
+    }
+  }
+
+  /* Section entrances share the cinematic curve. */
+  .section-enter {
+    animation: sectionEnter var(--dur-base) var(--ease-cinematic) both;
+  }
+
+  @keyframes sectionEnter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* ============================================================================
+     PHASE 5 — Preloader
+     The intro sits on the critical path, so its name reveal and progress rail
+     are pure CSS animations: the browser composites them off the main thread
+     and React never re-renders while the curtain is up. `--pct` (0-100) is
+     written once per frame from a single rAF loop in Preloader.tsx.
+     ========================================================================= */
+  .preloader-char {
+    transform: translate3d(0, 110%, 0);
+    opacity: 0;
+    animation: preloaderCharRise 400ms var(--ease-micro) forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes preloaderCharRise {
+    to {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+  }
+
+  .preloader-rail {
+    width: calc(var(--pct, 0) * 1%);
+    will-change: width;
+  }
+
+  /* The numeric readout is a counter driven by the same variable. Kept as a
+     non-React element so the counter cannot trigger a reconciliation pass. */
+  .preloader-count::after {
+    content: counter(pct-counter, decimal-leading-zero);
+    counter-reset: pct-counter var(--pct, 0);
+  }
+
+  .preloader-count {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .preloader-body {
+    animation: preloaderBodyOut 180ms var(--ease-micro) forwards;
+  }
+
+  @keyframes preloaderBodyOut {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .preloader-exit {
+    animation: preloaderCurtainLift 380ms var(--ease-micro) forwards;
+  }
+
+  @keyframes preloaderCurtainLift {
+    to {
+      opacity: 0;
+      transform: translate3d(0, -3%, 0);
+    }
+  }
+
+  /* Reduced motion: the curtain is never painted in the first place, but if it
+     ever is (e.g. the preference flips mid-session) it must not animate. */
+  @media (prefers-reduced-motion: reduce) {
+    .preloader-char,
+    .preloader-body,
+    .preloader-exit {
+      animation: none !important;
+    }
+    .preloader-char {
+      transform: none;
+      opacity: 1;
+    }
   }
 }
 
@@ -423,3 +601,29 @@
 }
 
 
+
+/* ============================================================================
+   PHASE 5 — Global focus contract (unlayered: wins over every @layer)
+   One 2px ring with a 2px offset, using the shared accent, on every control
+   that opts in with `.focus-ring`. Declared outside `@layer` because Tailwind's
+   `focus-visible:outline-none` utilities are still present on legacy controls
+   and a layered rule would lose to them.
+   ========================================================================= */
+.focus-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #4cd7f6;
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Suppress the ring for pointer users only — keyboard focus always shows it. */
+.focus-ring:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}

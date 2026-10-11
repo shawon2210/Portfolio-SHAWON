@@ -5,12 +5,15 @@ export interface Anchor3DProps {
   name: AnchorName;
   className?: string;
   children?: React.ReactNode;
+  /** PHASE 5: contextual cursor intent, forwarded to the DOM node. */
+  dataCursor?: 'link' | 'project' | 'drag' | 'text';
 }
 
 export const Anchor3D: React.FC<Anchor3DProps> = ({
   name,
   className = '',
   children,
+  dataCursor,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -28,6 +31,7 @@ export const Anchor3D: React.FC<Anchor3DProps> = ({
     <div
       ref={ref}
       data-3d={name}
+      data-cursor={dataCursor}
       className={`relative ${className}`}
     >
       {children}

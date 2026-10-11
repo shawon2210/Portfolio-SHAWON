@@ -1,0 +1,45 @@
+# Shawon.dev
+
+> Portfolio of MD Shawon Molla — full-stack software engineer working on high-concurrency web platforms, distributed services, and AI orchestration systems.
+
+This file describes the site's purpose, structure, and key content for language models and AI agents. The site is a single-page React application; all navigation is by URL fragment, not by separate documents.
+
+## Who this is for
+
+Hiring managers, engineering leads, and technical recruiters evaluating MD Shawon Molla for full-time software engineering roles. Remote, or Dhaka, Bangladesh (UTC+6).
+
+## Sections
+
+The entire portfolio is one document. These fragment URLs address individual sections:
+
+- [`https://shawon.dev/`](https://shawon.dev/) — Hero, selected work in motion, about, core disciplines.
+- [`https://shawon.dev/#projects`](https://shawon.dev/#projects) — Case studies with architecture, telemetry metrics, and stack analysis. Filterable by category: `#projects?category=fullstack`, `#projects?category=aiml`, `#projects?category=backend`.
+- [`https://shawon.dev/#experience`](https://shawon.dev/#experience) — Engineering timeline, credentials, certifications.
+- [`https://shawon.dev/#contact`](https://shawon.dev/#contact) — Contact channels, email, and an enquiry form.
+
+## Projects
+
+- **AmarShop** — Enterprise multi-tenant commerce platform. MERN, PostgreSQL, Redis, Docker.
+- **SupportPilot AI** — Autonomous customer support infrastructure with LangChain agent orchestration and hybrid RAG retrieval.
+- **Online24Pharmacy** — Production medicine delivery system: inventory analytics, prescription management, order lifecycle.
+
+## Core disciplines
+
+Full-stack web systems · AI/ML & RAG pipelines · Backend & distributed SaaS · Cloud-native infrastructure · Database design.
+
+## Technical stack
+
+TypeScript, React, Vite, Node.js, FastAPI, PostgreSQL, Prisma, pgvector, Redis, Docker, Vitest, Three.js / WebGL, Tailwind CSS.
+
+## Contact
+
+- Email: 22103330@iubat.edu
+- GitHub: https://github.com/shawon2210
+- LinkedIn: https://linkedin.com/in/shawon
+
+## Notes
+
+- Structured data (Schema.org `@graph`) is embedded in the page head and updated per section.
+- OpenGraph and Twitter card metadata point to a 1200×630 social image at `https://shawon.dev/og-image.png`.
+- The WebGL background is decorative; all content remains available without it.
+- The site honours `prefers-reduced-motion`: all motion is removed and scrolling becomes instant.

@@ -9,6 +9,7 @@ export interface SEOConfig {
   ogDescription: string;
   ogType: string;
   ogUrl: string;
+  ogImage?: string;
   twitterTitle: string;
   twitterDescription: string;
   jsonLd: Record<string, any>;
@@ -188,80 +189,153 @@ function getCanonicalUrl(hashFragment?: string): string {
 }
 
 /**
+ * PHASE 5: absolute origin for social assets.
+ * `og:image` must be an absolute URL — a relative one is dropped by most
+ * crawlers, so this falls back to the canonical production host.
+ */
+function getOrigin(): string {
+  if (typeof window === 'undefined') return 'https://shawon.dev';
+  return window.location.origin === 'null'
+    ? 'https://shawon.dev'
+    : window.location.origin;
+}
+
+/**
  * Builds Schema.org structured data tailored to the active section and project category.
+ *
+ * PHASE 5: every payload is emitted as a single `@graph` document so crawlers get
+ * one connected entity graph (WebSite -> WebPage -> Person) instead of a series of
+ * disconnected single-object scripts. Person facts (job title, sameAs, knowsAbout,
+ * alumniOf, knowsLanguage) are hoisted onto the `Person` node that every section
+ * references by `@id`, which is how Google expects authorship to be expressed.
  */
 function buildStructuredData(section: TabType, projectCategory?: string): Record<string, any> {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shawon.dev';
+  const origin = 'https://shawon.dev';
 
-  const basePerson = {
+  const PERSON_ID = `${origin}/#person`;
+  const WEBSITE_ID = `${origin}/#website`;
+
+  const person: Record<string, any> = {
     '@type': 'Person',
+    '@id': PERSON_ID,
     name: 'MD Shawon Molla',
+    alternateName: 'Shawon Molla',
+    givenName: 'Shawon',
+    familyName: 'Molla',
     jobTitle: 'Software Engineer & Systems Architect',
-    url: baseUrl,
-    sameAs: [
-      'https://github.com/shawon2210',
-      'https://linkedin.com/in/shawon',
-      'https://oddboundary.lovable.app'
-    ],
+    description:
+      'Full-stack software engineer building high-concurrency web platforms, distributed services, and AI orchestration systems.',
+    url: `${origin}/`,
+    image: `${origin}/og-image.png`,
+    email: 'mailto:22103330@iubat.edu',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Dhaka',
+      addressCountry: 'BD',
+    },
+    knowsLanguage: ['en', 'bn'],
     knowsAbout: [
       'Full-Stack Web Development',
       'Distributed Systems Architecture',
       'Autonomous AI & LangChain RAG',
       'TypeScript & React',
-      'Node.js & Python'
-    ]
+      'Node.js & Python',
+      'PostgreSQL & Prisma',
+      'Three.js / WebGL',
+    ],
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'Independent University, Bangladesh',
+    },
+    sameAs: [
+      'https://github.com/shawon2210',
+      'https://linkedin.com/in/shawon',
+    ],
   };
+
+  const website: Record<string, any> = {
+    '@type': 'WebSite',
+    '@id': WEBSITE_ID,
+    url: `${origin}/`,
+    name: 'Shawon.dev',
+    alternateName: 'shawon.dev',
+    description:
+      'Official portfolio of MD Shawon Molla — full-stack software engineering, distributed systems, and AI orchestration.',
+    inLanguage: 'en-US',
+    publisher: { '@id': PERSON_ID },
+  };
+
+  const wrap = (pageType: string, node: Record<string, any>, title: string, description: string, url: string) => ({
+    '@context': 'https://schema.org',
+    '@graph': [
+      website,
+      person,
+      {
+        '@type': pageType,
+        '@id': `${url}#webpage`,
+        url,
+        name: title,
+        description,
+        isPartOf: { '@id': WEBSITE_ID },
+        about: { '@id': PERSON_ID },
+        inLanguage: 'en-US',
+        ...node,
+      },
+    ],
+  });
 
   if (section === 'projects') {
     const catKey = (projectCategory as ProjectCategoryKey) || 'all';
     const catInfo = PROJECT_CATEGORY_SEO[catKey] || PROJECT_CATEGORY_SEO.all;
-
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: catInfo.title,
-      description: catInfo.description,
-      url: `${baseUrl}/#projects`,
-      about: {
-        '@type': 'Thing',
-        name: catInfo.categoryName
+    const url = `${origin}/#projects`;
+    return wrap(
+      'CollectionPage',
+      {
+        mainEntity: {
+          '@type': 'ItemList',
+          name: catInfo.categoryName,
+          numberOfItems: 3,
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'AmarShop' },
+            { '@type': 'ListItem', position: 2, name: 'SupportPilot AI' },
+            { '@type': 'ListItem', position: 3, name: 'Online24Pharmacy' },
+          ],
+        },
       },
-      creator: basePerson,
-      inLanguage: 'en-US'
-    };
+      catInfo.title,
+      catInfo.description,
+      url
+    );
   }
 
   if (section === 'experience') {
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'AboutPage',
-      name: SECTION_SEO.experience.title,
-      description: SECTION_SEO.experience.description,
-      url: `${baseUrl}/#experience`,
-      mainEntity: basePerson
-    };
+    return wrap(
+      'AboutPage',
+      { mainEntity: { '@id': PERSON_ID } },
+      SECTION_SEO.experience.title,
+      SECTION_SEO.experience.description,
+      `${origin}/#experience`
+    );
   }
 
   if (section === 'contact') {
-    return {
-      '@context': 'https://schema.org',
-      '@type': 'ContactPage',
-      name: SECTION_SEO.contact.title,
-      description: SECTION_SEO.contact.description,
-      url: `${baseUrl}/#contact`,
-      mainEntity: basePerson
-    };
+    return wrap(
+      'ContactPage',
+      { mainEntity: { '@id': PERSON_ID } },
+      SECTION_SEO.contact.title,
+      SECTION_SEO.contact.description,
+      `${origin}/#contact`
+    );
   }
 
-  // Default: WebSite & ProfilePage
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'ProfilePage',
-    name: SECTION_SEO.home.title,
-    description: SECTION_SEO.home.description,
-    url: baseUrl,
-    mainEntity: basePerson
-  };
+  return wrap(
+    'ProfilePage',
+    { mainEntity: { '@id': PERSON_ID }, datePublished: '2024-01-01' },
+    SECTION_SEO.home.title,
+    SECTION_SEO.home.description,
+    `${origin}/`
+  );
 }
 
 /**
@@ -310,17 +384,34 @@ export function updateSectionSEO(
   setMetaTag('name', 'author', 'MD Shawon Molla');
 
   // 3. OpenGraph Social Cards
+  //    PHASE 5: the og:image contract is completed here (secure_url, type,
+  //    alt, locale, width/height) so every section renders the same 1200×630
+  //    card, and the card is refreshed as content changes.
+  const ogImage = customMeta?.ogImage ?? `${getOrigin()}/og-image.png`;
   setMetaTag('property', 'og:title', customMeta?.ogTitle || title);
   setMetaTag('property', 'og:description', customMeta?.ogDescription || description);
   setMetaTag('property', 'og:url', customMeta?.ogUrl || canonicalUrl);
   setMetaTag('property', 'og:type', customMeta?.ogType || 'website');
-  setMetaTag('property', 'og:site_name', 'Shawon.dev - Portfolio');
+  setMetaTag('property', 'og:site_name', 'Shawon.dev — MD Shawon Molla');
+  setMetaTag('property', 'og:locale', 'en_US');
+  setMetaTag('property', 'og:image', ogImage);
+  setMetaTag('property', 'og:image:secure_url', ogImage);
+  setMetaTag('property', 'og:image:type', 'image/png');
+  setMetaTag('property', 'og:image:width', '1200');
+  setMetaTag('property', 'og:image:height', '630');
+  setMetaTag(
+    'property',
+    'og:image:alt',
+    'MD Shawon Molla — Software Engineer & Systems Architect. Full-stack platforms, distributed services, and AI orchestration.'
+  );
 
   // 4. Twitter / X Cards
   setMetaTag('name', 'twitter:card', 'summary_large_image');
   setMetaTag('name', 'twitter:title', customMeta?.twitterTitle || title);
   setMetaTag('name', 'twitter:description', customMeta?.twitterDescription || description);
   setMetaTag('name', 'twitter:url', canonicalUrl);
+  setMetaTag('name', 'twitter:image', ogImage);
+  setMetaTag('name', 'twitter:image:alt', 'Shawon.dev — software engineering portfolio');
 
   // 5. Canonical Link
   setLinkTag('canonical', canonicalUrl);
@@ -337,8 +428,11 @@ export function updateSectionSEO(
 export function updateProjectSEO(project: Project): void {
   if (typeof document === 'undefined') return;
 
+  const origin = getOrigin();
   const title = `${project.title} – Architecture Case Study | MD Shawon Molla`;
-  const description = project.tagline || `Technical architecture, benchmark metrics, and stack analysis for ${project.title} by MD Shawon Molla.`;
+  const description =
+    project.tagline ||
+    `Technical architecture, benchmark metrics, and stack analysis for ${project.title} by MD Shawon Molla.`;
   const keywords = [
     project.title,
     ...project.techStack,
@@ -349,22 +443,67 @@ export function updateProjectSEO(project: Project): void {
 
   const canonicalUrl = getCanonicalUrl(`projects/${project.id}`);
 
+  /* PHASE 5: a full SoftwareApplication node instead of the previous
+     four-field stub — screenshots, creator, and the tech stack are what make a
+     project rich result eligible in Google and what make the card informative
+     when shared on LinkedIn / Slack. */
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: project.title,
-    operatingSystem: 'Web, Cloud',
-    applicationCategory: project.category === 'aiml'
-      ? 'ArtificialIntelligenceApplication'
-      : project.category === 'backend'
-      ? 'DeveloperApplication'
-      : 'WebApplication',
-    description: project.tagline,
-    author: {
-      '@type': 'Person',
-      name: 'MD Shawon Molla'
-    },
-    url: project.liveUrl || canonicalUrl
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': `${origin}/#person`,
+        name: 'MD Shawon Molla',
+        jobTitle: 'Software Engineer & Systems Architect',
+        url: `${origin}/`,
+        sameAs: ['https://github.com/shawon2210', 'https://linkedin.com/in/shawon'],
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${canonicalUrl}#app`,
+        name: project.title,
+        url: project.liveUrl || canonicalUrl,
+        description,
+        applicationCategory:
+          project.category === 'aiml'
+            ? 'ArtificialIntelligenceApplication'
+            : project.category === 'backend'
+            ? 'DeveloperApplication'
+            : 'WebApplication',
+        operatingSystem: 'Web, Cloud',
+        softwareRequirements: project.techStack.join(', '),
+        programmingLanguage: project.techStack.filter((t) =>
+          /TypeScript|JavaScript|Python|SQL|Go|Rust/i.test(t)
+        ),
+        author: { '@id': `${origin}/#person` },
+        creator: { '@id': `${origin}/#person` },
+        featureList: project.highlights?.slice(0, 5).map((h) => h.title ?? String(h)),
+        ...(project.imageUrl
+          ? {
+              image: project.imageUrl,
+              screenshot: project.imageUrl,
+            }
+          : {}),
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${canonicalUrl}#webpage`,
+        url: canonicalUrl,
+        name: title,
+        description,
+        isPartOf: { '@id': `${origin}/#website` },
+        mainEntity: { '@id': `${canonicalUrl}#app` },
+        about: { '@id': `${origin}/#person` },
+        inLanguage: 'en-US',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${origin}/#website`,
+        url: `${origin}/`,
+        name: 'Shawon.dev',
+        publisher: { '@id': `${origin}/#person` },
+      },
+    ],
   };
 
   updateSectionSEO('projects', project.category, {
@@ -374,8 +513,12 @@ export function updateProjectSEO(project: Project): void {
     canonicalUrl,
     ogTitle: title,
     ogDescription: description,
+    ogType: 'article',
     twitterTitle: title,
     twitterDescription: description,
+    // Prefer the project's own screenshot as the social card; fall back to the
+    // site card when a project still has no asset.
+    ogImage: project.imageUrl || `${origin}/og-image.png`,
     jsonLd
   });
 }

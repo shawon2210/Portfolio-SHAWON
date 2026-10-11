@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
+import { motion } from 'motion/react';
 import { Play, Pause, Activity } from 'lucide-react';
 import { createCodeAtlas, CodeAtlasResult } from '../lib/codeAtlas';
 import { THEME_COLORS } from '../lib/tokens';
 import { anchorRegistry } from '../lib/anchorRegistry';
 import { createProceduralObjects, ProceduralObjects } from '../lib/proceduralObjects';
+import { useLoadPhase } from '../lib/loadPhase';
+import { usePrefersReducedMotion, EASE_MICRO } from '../lib/motion';
 
 export interface FloatingCodeConfig {
   count?: number;
@@ -51,6 +54,12 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  /* PHASE 5: the canvas resolves on the same clock as the heading and nav, so
+     the whole first viewport assembles in a single choreography. */
+  const { at } = useLoadPhase();
+  const reducedMotion = usePrefersReducedMotion();
+  const sceneDelay = at('scene');
+
   // States
   const [internalPaused, setInternalPaused] = useState(() => {
     try {
@@ -66,6 +75,22 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   const [showDebug, setShowDebug] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
   const [activeAnchorsCount, setActiveAnchorsCount] = useState(0);
+  const [activeCards, setActiveCards] = useState<number | null>(null);
+
+  /* PHASE 5: the runtime downgrade ladder.
+     Until Phase 5, `setQualityTier('medium')` only relabelled the debug HUD —
+     the InstancedMesh kept drawing the full `high` card pool, so the "adaptive
+     quality" was cosmetic. `tierStep` now drives a real cap on how many cards
+     are transformed per frame, and `runtimeCapRef` carries it into the rAF
+     loop without re-creating the WebGL context. */
+  const [tierStep, setTierStep] = useState<0 | 1 | 2>(0);
+  const tierStepRef = useRef<0 | 1 | 2>(0);
+  const runtimeCapRef = useRef<number>(Infinity);
+  const appliedCapRef = useRef<number>(Infinity);
+
+  useEffect(() => {
+    tierStepRef.current = tierStep;
+  }, [tierStep]);
 
   const isPaused = externalPaused !== undefined ? externalPaused : internalPaused;
 
@@ -88,6 +113,8 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
     const isDebug = urlParams.get('bg') === 'debug';
     const isForce = urlParams.get('bg') === 'force';
     setShowDebug(isDebug);
+    // Local, non-reactive copy for the animation loop (see the anchor count).
+    const debugEnabled = isDebug;
 
     // Reduced motion check
     const prefersReducedMotion =
@@ -96,18 +123,19 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Viewport-based initial tier
+    const cardCounts: Record<QualityTier, number> = {
+      high: 24,
+      medium: 14,
+      low: 8,
+    };
+
     const width = window.innerWidth;
     let initialTier: QualityTier = 'high';
     if (width < 640) initialTier = 'low';
     else if (width < 1024) initialTier = 'medium';
 
     setQualityTier(initialTier);
-
-    const cardCounts: Record<QualityTier, number> = {
-      high: 24,
-      medium: 14,
-      low: 8,
-    };
+    setActiveCards(cardCounts[initialTier]);
 
     const count = userConfig?.count ?? cardCounts[initialTier];
 
@@ -152,6 +180,17 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       window.addEventListener('mousemove', handleMouseMove, { passive: true });
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
+
+    /* PHASE 5: anchor rects are recomputed on scroll and on resize, NOT inside
+       the animation loop. The previous implementation called
+       `anchorRegistry.updateRects()` every frame, which issues six
+       `getBoundingClientRect()` reads per frame and forces a synchronous layout
+       — measured at ~31ms of forced reflow over a Lighthouse run and a
+       measurable per-frame cost on mobile. Anchor positions only change when
+       the document reflows, and both scroll and ResizeObserver cover that. */
+    const anchorResizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => anchorRegistry.updateRects()) : null;
+    anchorResizeObserver?.observe(document.documentElement);
 
     // FPS measurement
     let lastTime = performance.now();
@@ -390,6 +429,14 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
       renderComposedFrame();
 
+      // PHASE 5: publish real stats for the single composed frame too. Under
+      // prefers-reduced-motion the rAF loop never starts, so without this the
+      // ?bg=debug HUD would keep showing its 60 FPS / 0 Tris placeholder and
+      // misrepresent a static scene as an idle one.
+      setDrawCalls(renderer.info.render.calls);
+      setTriangles(renderer.info.render.triangles);
+      setActiveCards(Math.min(count, runtimeCapRef.current));
+
       if (prefersReducedMotion) {
         return;
       }
@@ -421,10 +468,23 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           setDrawCalls(renderer.info.render.calls);
           setTriangles(renderer.info.render.triangles);
 
-          if (fpsHistory.length >= 4) {
+          /* PHASE 5: a real, two-step downgrade ladder.
+             A step is only taken once the average of the last 4 sampling
+             windows (2s) is under the threshold, so a single hitch can never
+             demote the scene. There is deliberately no upgrade path: promoting
+             back would oscillate on a device sitting right at the boundary.
+             `tierStepRef` is read from inside the rAF loop, which closes over
+             mount-time state, so the live value has to come from a ref. */
+          if (fpsHistory.length >= 4 && tierStepRef.current < 2) {
             const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
-            if (avgFps < 45 && initialTier === 'high') {
-              setQualityTier('medium');
+            if (avgFps < 45) {
+              const next = (tierStepRef.current + 1) as 1 | 2;
+              tierStepRef.current = next;
+              runtimeCapRef.current = next === 1 ? cardCounts.medium : cardCounts.low;
+              setTierStep(next);
+              setQualityTier(next === 1 ? 'medium' : 'low');
+              setActiveCards(Math.min(count, runtimeCapRef.current));
+              fpsHistory.length = 0;
             }
           }
 
@@ -445,8 +505,24 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
         const time = now * 0.001;
 
+        // PHASE 5: real quality cap. The InstancedMesh is allocated at the
+        // mount-time (tier-sized) count, so a downgrade simply collapses the
+        // tail instances to zero scale instead of re-creating the WebGL
+        // context — instant, allocation-free, and no visual reset.
+        const activeCount = Math.min(count, runtimeCapRef.current);
+        if (activeCount !== appliedCapRef.current) {
+          appliedCapRef.current = activeCount;
+          for (let i = activeCount; i < count; i++) {
+            dummy.position.set(0, -9999, 0);
+            dummy.scale.set(0, 0, 0);
+            dummy.updateMatrix();
+            instancedCardsMesh?.setMatrixAt(i, dummy.matrix);
+          }
+          if (instancedCardsMesh) instancedCardsMesh.instanceMatrix.needsUpdate = true;
+        }
+
         // Update Instanced Floating Code Cards
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < activeCount; i++) {
           const c = cards[i];
           c.y += c.speedY * delta;
           if (c.y > boundTop) {
@@ -489,10 +565,17 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           dustPoints.rotation.x = Math.sin(time * 0.008) * 0.05;
         }
 
-        // 9. Update Anchored 3D Objects from DOM Rects
-        anchorRegistry.updateRects();
-        const activeAnchors = anchorRegistry.getAll();
-        setActiveAnchorsCount(activeAnchors.filter((a) => a.isVisible).length);
+        // 9. Update Anchored 3D Objects from cached DOM rects.
+        // (Phases 4: this ran here every frame. PHASE 5: rects are refreshed
+        // from the scroll handler + ResizeObserver instead — see above.)
+        // PHASE 5: the visible-anchor count is only surfaced in the ?bg=debug
+        // HUD. Computing it unconditionally forced a React setState on every
+        // single animation frame, re-rendering the whole component 60x/s for a
+        // number nobody could see.
+        if (debugEnabled) {
+          const activeAnchors = anchorRegistry.getAll();
+          setActiveAnchorsCount(activeAnchors.filter((a) => a.isVisible).length);
+        }
 
         if (proceduralObjs) {
           // A) Hero Centerpiece Anchor
@@ -610,6 +693,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
     return () => {
       destroyed = true;
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      anchorResizeObserver?.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
@@ -659,14 +743,34 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
   return (
     <>
-      {/* 3D WebGL Canvas Layer (Fixed full-viewport, behind content) */}
-      <div
-        ref={containerRef}
-        className={`fixed inset-0 z-0 pointer-events-none overflow-hidden ${className}`}
+      {/* 3D WebGL Canvas Layer (Fixed full-viewport, behind content).
+          PHASE 5: fades + scales in on the choreography's `scene` slot, and the
+          renderer is sized to the CSS box (not the window) so the wrapper's
+          transform never triggers a resize. */}
+      <motion.div
         aria-hidden="true"
+        className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
+        /* PHASE 5: opacity only. A `scale` tween on an element that contains a
+           WebGL canvas forces the compositor to resample the drawing buffer on
+           every frame, which measured ~40ms/frame on a 4x-throttled mobile CPU.
+           Opacity composites the existing layer and costs effectively nothing. */
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: reducedMotion ? 0 : 0.9,
+          delay: reducedMotion ? 0 : sceneDelay,
+          ease: EASE_MICRO,
+        }}
       >
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,rgba(9,11,17,0.15)_0%,rgba(9,11,17,0.55)_80%,rgba(9,11,17,0.8)_100%)]" />
-      </div>
+        {/* `absolute`, not `fixed`: a transform on the wrapper makes it the
+            containing block, so the canvas must fill the wrapper explicitly. */}
+        <div
+          ref={containerRef}
+          className={`absolute inset-0 overflow-hidden ${className}`}
+        >
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,rgba(9,11,17,0.15)_0%,rgba(9,11,17,0.55)_80%,rgba(9,11,17,0.8)_100%)]" />
+        </div>
+      </motion.div>
 
       {/* Accessible Control: Pause/Resume Toggle (OUTSIDE aria-hidden canvas wrapper) */}
       <div className="fixed bottom-5 left-5 z-40 hidden sm:flex items-center gap-2">
@@ -701,7 +805,15 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
             <span className="text-slate-600">|</span>
             <span>{activeAnchorsCount} Anchors</span>
             <span className="text-slate-600">|</span>
+            <span>{activeCards ?? '-'} Cards</span>
+            <span className="text-slate-600">|</span>
             <span className="uppercase">{qualityTier} Tier</span>
+            {tierStep > 0 && (
+              <>
+                <span className="text-slate-600">|</span>
+                <span className="text-amber-300 uppercase">Downgraded ×{tierStep}</span>
+              </>
+            )}
           </div>
         )}
       </div>

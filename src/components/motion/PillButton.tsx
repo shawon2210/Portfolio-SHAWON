@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Magnet } from './Magnet';
+import { usePrefersReducedMotion, TRANSITION_INTERACTIVE } from '../../lib/motion';
 
 export interface PillButtonProps {
   children: React.ReactNode;
@@ -17,11 +18,14 @@ export const PillButton: React.FC<PillButtonProps> = ({
   className = '',
   magnetic = true,
 }) => {
+  const reducedMotion = usePrefersReducedMotion();
+
   const content = (
     <motion.span
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-mono text-xs sm:text-sm font-semibold text-white tracking-wide overflow-hidden shadow-[0_0_20px_-4px_rgba(56,189,248,0.45)] border border-sky-400/40 cursor-pointer transition-all duration-300 group ${className}`}
+      whileHover={reducedMotion ? undefined : { scale: 1.02 }}
+      whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+      transition={TRANSITION_INTERACTIVE}
+      className={`relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-mono text-xs sm:text-sm font-semibold text-white tracking-wide overflow-hidden shadow-[0_0_20px_-4px_rgba(56,189,248,0.45)] border border-sky-400/40 cursor-pointer group focus-ring ${className}`}
       style={{
         background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.9) 0%, rgba(14, 165, 233, 0.95) 50%, rgba(2, 132, 199, 1) 100%)',
       }}
@@ -43,11 +47,11 @@ export const PillButton: React.FC<PillButtonProps> = ({
   );
 
   const wrapper = href ? (
-    <a href={href} onClick={onClick} className="inline-block no-underline">
+    <a href={href} onClick={onClick} className="inline-block no-underline focus-ring">
       {content}
     </a>
   ) : (
-    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0">
+    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0 focus-ring">
       {content}
     </button>
   );
@@ -74,10 +78,13 @@ export const GhostButton: React.FC<GhostButtonProps> = ({
   className = '',
   magnetic = true,
 }) => {
+  const reducedMotion = usePrefersReducedMotion();
+
   const content = (
     <motion.span
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={reducedMotion ? undefined : { scale: 1.02 }}
+      whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+      transition={TRANSITION_INTERACTIVE}
       className={`relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-mono text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] hover:border-sky-400/30 backdrop-blur-md transition-all duration-300 cursor-pointer ${className}`}
     >
       <span className="relative z-10 flex items-center gap-2">{children}</span>
@@ -85,11 +92,11 @@ export const GhostButton: React.FC<GhostButtonProps> = ({
   );
 
   const wrapper = href ? (
-    <a href={href} onClick={onClick} className="inline-block no-underline">
+    <a href={href} onClick={onClick} className="inline-block no-underline focus-ring">
       {content}
     </a>
   ) : (
-    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0">
+    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0 focus-ring">
       {content}
     </button>
   );

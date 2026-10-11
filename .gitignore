@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 .playwright-mcp/
+
+# Phase 5 measurement screenshots (local verification artifacts)
+shots/

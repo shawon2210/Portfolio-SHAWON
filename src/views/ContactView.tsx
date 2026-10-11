@@ -146,9 +146,11 @@ export const ContactView: React.FC<ContactViewProps> = ({
         <div className="relative my-4 flex items-center justify-center">
           <Magnet padding={30} strength={0.25}>
             <div className="relative p-6 flex flex-col items-center justify-center">
+              {/* PHASE 5: drag affordance in the contextual cursor */}
               <Anchor3D
                 name="contact-globe"
                 className="w-48 h-48 sm:w-60 sm:h-60 rounded-full flex items-center justify-center relative cursor-grab active:cursor-grabbing"
+                dataCursor="drag"
               >
                 <div className="absolute inset-0 rounded-full bg-sky-500/5 blur-xl pointer-events-none" />
               </Anchor3D>

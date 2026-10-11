@@ -4,16 +4,21 @@
  */
 
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ChevronUp } from 'lucide-react';
 import { TabType, Project } from './types';
 import { PERSONAL_INFO } from './data/portfolioData';
 import { Header } from './components/Header';
 import { FloatingDock } from './components/FloatingDock';
 import { Toast } from './components/Toast';
+import { Preloader } from './components/Preloader';
+import { ScrollProgress } from './components/ScrollProgress';
 import { HomeView } from './views/HomeView';
-import { updateSectionSEO, updateProjectSEO, ProjectCategoryKey } from './utils/seo';
+import { updateSectionSEO, updateProjectSEO } from './utils/seo';
 import { MotionConfig, LazyMotion, domAnimation } from 'motion/react';
+import { LoadPhaseProvider, useLoadPhase } from './lib/loadPhase';
+import { usePrefersReducedMotion, EASE_MICRO } from './lib/motion';
+import { scrollWindowTo, cancelScrollTween, installScrollInterruption, HEADER_OFFSET } from './lib/scroll';
 
 // Lazy-loaded secondary views and interactive modals to minimize initial JS bundle
 const ProjectsView = lazy(() =>
@@ -53,8 +58,28 @@ const DevMotionShowcase = lazy(() =>
   import('./components/DevMotionShowcase').then((m) => ({ default: m.DevMotionShowcase }))
 );
 
+const CursorFollower = lazy(() =>
+  import('./components/motion/CursorFollower').then((m) => ({ default: m.CursorFollower }))
+);
+
 
 export default function App() {
+  const reducedMotion = usePrefersReducedMotion();
+
+  return (
+    <MotionConfig reducedMotion="user">
+      <LazyMotion features={domAnimation}>
+        <LoadPhaseProvider reducedMotion={reducedMotion}>
+          <PortfolioShell reducedMotion={reducedMotion} />
+        </LoadPhaseProvider>
+      </LazyMotion>
+    </MotionConfig>
+  );
+}
+
+const PortfolioShell: React.FC<{ reducedMotion: boolean }> = ({ reducedMotion }) => {
+  const { showPreloader, beginEntrance, phase } = useLoadPhase();
+
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [activeProjectCategory, setActiveProjectCategory] = useState<string>('all');
   const activeProjectCategoryRef = useRef<string>('all');
@@ -64,11 +89,23 @@ export default function App() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const isProgrammaticScrollRef = useRef(false);
 
   // Floating scroll-to-top button visibility (appears past hero section)
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // PHASE 5: the app owns programmatic scrolling — opt out of UA smooth-scroll
+  // and let our custom curve (which respects reduced motion) drive the page.
+  useEffect(() => {
+    document.documentElement.classList.add('has-managed-scroll');
+    const teardown = installScrollInterruption();
+    return () => {
+      document.documentElement.classList.remove('has-managed-scroll');
+      teardown();
+      cancelScrollTween();
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,16 +119,8 @@ export default function App() {
   }, []);
 
   const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollWindowTo(0, { reducedMotion });
   };
-
-  // Scroll Progress Tracking
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 25,
-    restDelta: 0.001,
-  });
 
   // Custom avatar with localStorage persistence (v2 cache-busted)
   const [avatarUrl, setAvatarUrl] = useState<string>(() => {
@@ -244,13 +273,16 @@ export default function App() {
     if (['home', 'projects', 'experience', 'contact'].includes(cleanHash)) {
       setActiveTab(cleanHash);
       updateSectionSEO(cleanHash, activeProjectCategoryRef.current);
+      // Wait for the preloader handoff before jumping, otherwise the deep link
+      // scrolls against a page that is still behind the curtain.
+      const jumpDelay = showPreloader ? 700 : 60;
       setTimeout(() => {
         const element = document.getElementById(cleanHash);
         if (element) {
-          const topOffset = element.getBoundingClientRect().top + window.pageYOffset - 64;
-          window.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
+          const topOffset = element.getBoundingClientRect().top + window.pageYOffset - HEADER_OFFSET;
+          scrollWindowTo(Math.max(0, topOffset), { reducedMotion });
         }
-      }, 150);
+      }, jumpDelay);
     } else {
       updateSectionSEO('home', activeProjectCategoryRef.current);
     }
@@ -283,10 +315,10 @@ export default function App() {
 
     const element = document.getElementById(tab);
     if (element) {
-      const topOffset = element.getBoundingClientRect().top + window.pageYOffset - 64;
-      window.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
+      const topOffset = element.getBoundingClientRect().top + window.pageYOffset - HEADER_OFFSET;
+      scrollWindowTo(Math.max(0, topOffset), { reducedMotion });
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollWindowTo(0, { reducedMotion });
     }
 
     setTimeout(() => {
@@ -331,63 +363,70 @@ export default function App() {
 
   if (isDevUi) {
     return (
-      <MotionConfig reducedMotion="user">
-        <LazyMotion features={domAnimation}>
-          <Suspense
-            fallback={
-              <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
-                Loading Design System Showcase...
-              </div>
-            }
-          >
-            <DevUiShowcase />
-          </Suspense>
-        </LazyMotion>
-      </MotionConfig>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+            Loading Design System Showcase...
+          </div>
+        }
+      >
+        <DevUiShowcase />
+      </Suspense>
     );
   }
 
   if (isDevMotion) {
     return (
-      <MotionConfig reducedMotion="user">
-        <LazyMotion features={domAnimation}>
-          <div className="relative min-h-screen bg-transparent">
-            <Suspense fallback={null}>
-              <BackgroundScene />
-            </Suspense>
-            <div className="relative z-1">
-              <Suspense
-                fallback={
-                  <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
-                    Loading Motion Engine Showcase...
-                  </div>
-                }
-              >
-                <DevMotionShowcase />
-              </Suspense>
-            </div>
-          </div>
-        </LazyMotion>
-      </MotionConfig>
+      <div className="relative min-h-screen bg-transparent">
+        <Suspense fallback={null}>
+          <BackgroundScene />
+        </Suspense>
+        <div className="relative z-1">
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+                Loading Motion Engine Showcase...
+              </div>
+            }
+          >
+            <DevMotionShowcase />
+          </Suspense>
+        </div>
+      </div>
     );
   }
 
   return (
-    <MotionConfig reducedMotion="user">
-      <LazyMotion features={domAnimation}>
-        <div className="relative min-h-screen bg-transparent text-on-surface flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
-      {/* Code-Generated 3D Animated Constellation Background (Canvas wrapper: fixed inset-0 z-0) */}
-      <Suspense fallback={null}>
-        <BackgroundScene />
-      </Suspense>
+    <div className="relative min-h-screen bg-transparent text-on-surface flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
+      {/* PHASE 5: skippable, once-per-session, hard-capped at 1.15s. It hands
+          off into the shared LoadPhase choreography (heading → 3D → nav). */}
+      {showPreloader && (
+        <Preloader enabled onComplete={beginEntrance} reducedMotion={reducedMotion} />
+      )}
+
+      {/* Code-Generated 3D Animated Constellation Background (Canvas wrapper: fixed inset-0 z-0)
+
+          PHASE 5: deferred until the preloader hands off. Three.js is a 537 kB
+          chunk whose module evaluation occupies the main thread for hundreds of
+          milliseconds; mounting it during the intro starved the preloader's own
+          timers and pushed the curtain from 1.0s out to ~2.1s on a 4x-throttled
+          CPU. Mounting it as the curtain lifts keeps the intro honest and the
+          scene still resolves on the choreography's `scene` slot. */}
+      {phase !== 'idle' && (
+        <Suspense fallback={null}>
+          <BackgroundScene />
+        </Suspense>
+      )}
 
       {/* Page Content Wrapper: relative z-1 with pointer-events-auto */}
       <div className="relative z-1 flex flex-col min-h-screen w-full bg-transparent">
-        {/* Scroll progress bar — fixed top, sky→emerald gradient, Phase 1 tokens */}
-        <motion.div
-          style={{ scaleX, transformOrigin: '0%' }}
-          className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-sky-400 via-sky-300 to-emerald-400 z-[70] pointer-events-none shadow-[0_0_8px_rgba(56,189,248,0.55)]"
-        />
+        {/* PHASE 5: scroll progress rail + percentage readout */}
+        <ScrollProgress showReadout />
+
+        {/* Contextual Cursor Follower — desktop only, disabled on touch/reduced motion */}
+        <Suspense fallback={null}>
+          <CursorFollower />
+        </Suspense>
 
         {/* Toast feedback */}
         <Toast message={toastMessage} />
@@ -413,6 +452,7 @@ export default function App() {
               onOpenUploadModal={() => setIsUploadModalOpen(true)}
               onSelectProject={(project) => setSelectedProject(project)}
               onShowToast={showToast}
+              reducedMotion={reducedMotion}
             />
           </section>
 
@@ -466,11 +506,11 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.5, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.5, y: 16 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.28, ease: EASE_MICRO }}
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               onClick={handleScrollToTop}
-              className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-surface-container-high/90 backdrop-blur-xl border border-white/20 text-primary hover:text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_24px_rgba(76,215,246,0.65)] hover:border-primary/60 hover:bg-surface-bright transition-all duration-300 cursor-pointer group"
+              className="fixed bottom-20 sm:bottom-8 right-4 sm:right-8 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-surface-container-high/90 backdrop-blur-xl border border-white/20 text-primary hover:text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_24px_rgba(76,215,246,0.65)] hover:border-primary/60 hover:bg-surface-bright cursor-pointer group focus-ring"
               title="Scroll to top"
               aria-label="Scroll to top of page"
             >
@@ -525,8 +565,6 @@ export default function App() {
         {/* Simplified, Clean Print-Optimized View (Active during @media print) */}
         <PrintablePortfolio />
       </Suspense>
-        </div>
-      </LazyMotion>
-    </MotionConfig>
+    </div>
   );
 }

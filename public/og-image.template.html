@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      /* PHASE 5: OG card redrawn from the live cinematic palette.
+         Mirrors index.css tokens + the hero gradient so the share card and the
+         first viewport read as the same design system. */
+      :root {
+        --canvas: #090b11;
+        --surface: #10131a;
+        --line: rgba(255, 255, 255, 0.08);
+        --sky: #38bdf8;
+        --primary: #4cd7f6;
+        --emerald: #34d399;
+        --heading: #e2e8f0;
+        --body: #94a3b8;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+      body {
+        background: var(--canvas);
+        color: var(--heading);
+        font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 62px 72px 56px;
+      }
+      .bg-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 25%, transparent 78%);
+      }
+      .aurora {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(ellipse 46% 40% at 26% 24%, rgba(76,215,246,0.20) 0%, transparent 68%),
+          radial-gradient(ellipse 42% 46% at 82% 76%, rgba(52,211,153,0.14) 0%, transparent 70%);
+      }
+      .vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 30%, rgba(9,11,17,0.86) 100%);
+      }
+      .frame {
+        position: absolute; inset: 26px;
+        border: 1px solid rgba(76,215,246,0.20);
+        border-radius: 22px;
+      }
+      .row { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; }
+
+      .brand { display: flex; align-items: center; gap: 14px; }
+      .mono {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .mono-badge {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 9px 18px; border-radius: 999px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.10);
+        font-size: 14px; letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--body);
+      }
+      .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+
+      .url { font-size: 15px; letter-spacing: 0.04em; color: var(--primary); }
+
+      .headline { position: relative; z-index: 2; }
+      .kicker {
+        display: inline-flex; align-items: center; gap: 10px;
+        margin-bottom: 20px; padding: 7px 15px; border-radius: 999px;
+        background: rgba(56,189,248,0.10);
+        border: 1px solid rgba(56,189,248,0.26);
+        font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--sky);
+      }
+      .kicker .bar { width: 26px; height: 1px; background: rgba(56,189,248,0.55); }
+      h1 {
+        font-size: 104px; font-weight: 800; line-height: 0.9;
+        letter-spacing: -0.045em; text-transform: uppercase;
+        background: linear-gradient(178deg, #f8fafc 0%, #cbd5e1 46%, #64748b 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .role {
+        margin-top: 18px;
+        font-size: 27px; font-weight: 700; letter-spacing: -0.015em;
+        background: linear-gradient(96deg, #4cd7f6 0%, #34d399 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .lede { margin-top: 16px; max-width: 760px; font-size: 17px; line-height: 1.55; color: var(--body); }
+
+      .chips { display: flex; gap: 14px; margin-top: 34px; }
+      .chip {
+        min-width: 176px; padding: 16px 20px; border-radius: 16px;
+        background: rgba(255,255,255,0.035);
+        border: 1px solid var(--line);
+      }
+      .chip .v { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+      .chip .l {
+        margin-top: 6px; font-size: 11px; font-weight: 600;
+        letter-spacing: 0.16em; text-transform: uppercase; color: var(--body);
+      }
+      .sky { color: var(--sky); }
+      .emr { color: var(--emerald); }
+      .amb { color: #fbbf24; }
+
+      /* Hero centerpiece echo — a small wireframe polyhedron on the right */
+      .mark { position: absolute; right: 96px; top: 150px; z-index: 1; opacity: 0.5; }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="aurora"></div>
+    <div class="vignette"></div>
+    <div class="frame"></div>
+
+    <svg class="mark" width="230" height="230" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+      <g stroke="#4cd7f6" stroke-opacity="0.55" stroke-width="0.9">
+        <polygon points="100,18 172,66 172,150 100,192 28,150 28,66" />
+        <polygon points="100,18 100,192" stroke-opacity="0.28" />
+        <polygon points="28,66 172,150" stroke-opacity="0.28" />
+        <polygon points="172,66 28,150" stroke-opacity="0.28" />
+        <ellipse cx="100" cy="104" rx="96" ry="34" stroke-opacity="0.35" />
+        <ellipse cx="100" cy="104" rx="96" ry="34" stroke-opacity="0.18" transform="rotate(60 100 104)" />
+        <ellipse cx="100" cy="104" rx="96" ry="34" stroke-opacity="0.18" transform="rotate(-60 100 104)" />
+      </g>
+    </svg>
+
+    <div class="row">
+      <div class="brand">
+        <span class="mono-badge mono"><span class="dot"></span>Shawon.dev</span>
+      </div>
+      <span class="url mono">https://shawon.dev</span>
+    </div>
+
+    <div class="headline">
+      <span class="kicker mono"><span class="bar"></span>Open to SWE roles · Dhaka, BD</span>
+      <h1>Shawon<br />Molla</h1>
+      <div class="role">Full-Stack Software Engineer</div>
+      <p class="lede">
+        High-concurrency web platforms, distributed microservices, and autonomous
+        AI orchestration — built for resilience and measurable performance.
+      </p>
+    </div>
+
+    <div class="row" style="align-items: flex-end">
+      <div class="chips">
+        <div class="chip">
+          <div class="v sky mono">3+</div>
+          <div class="l mono">Shipped Apps</div>
+        </div>
+        <div class="chip">
+          <div class="v emr mono">91+</div>
+          <div class="l mono">Vitest Specs</div>
+        </div>
+        <div class="chip">
+          <div class="v amb mono">6</div>
+          <div class="l mono">Core Disciplines</div>
+        </div>
+      </div>
+      <span class="mono" style="font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:var(--body);">
+        TypeScript · React · FastAPI · PostgreSQL
+      </span>
+    </div>
+  </body>
+</html>

@@ -2,25 +2,49 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://shawon.dev/</loc>
-    <lastmod>2026-10-10</lastmod>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <!--
+    PHASE 5: the app is hash-routed single-page (scroll-spy over one document),
+    so the previous ?tab=projects entries pointed at URLs that never differed
+    from the root. Each section is now published under its real, crawlable
+    fragment URL, which is what updateSectionSEO() writes into <link rel=canonical>.
+  -->
   <url>
-    <loc>https://shawon.dev/?tab=projects</loc>
-    <lastmod>2026-10-10</lastmod>
+    <loc>https://shawon.dev/#projects</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shawon.dev/?tab=experience</loc>
-    <lastmod>2026-10-10</lastmod>
+    <loc>https://shawon.dev/#projects?category=fullstack</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://shawon.dev/#projects?category=aiml</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://shawon.dev/#projects?category=backend</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://shawon.dev/#experience</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://shawon.dev/?tab=contact</loc>
-    <lastmod>2026-10-10</lastmod>
+    <loc>https://shawon.dev/#contact</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

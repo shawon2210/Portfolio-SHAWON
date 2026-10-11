@@ -114,7 +114,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <button
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.id)}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
+                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer pressable focus-ring ${
                     isActive
                       ? 'text-slate-950 font-bold'
                       : 'text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06]'
@@ -184,7 +184,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               total={flagshipProjects.length}
               topOffset={28}
             >
-              <div className="w-full rounded-[36px] sm:rounded-[48px] overflow-hidden bg-[#0e121b] border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] group">
+              <div className="w-full rounded-[36px] sm:rounded-[48px] overflow-hidden bg-[#0e121b] border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] group" data-cursor="project">
                 <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[460px] sm:min-h-[500px]">
                   {/* Left Column (40%): Editorial Context, Highlights & Actions */}
                   <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between gap-6 order-2 lg:order-1 border-t lg:border-t-0 lg:border-r border-white/10 bg-slate-950/60">
@@ -245,7 +245,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
                       <button
                         onClick={() => onSelectProject(project)}
-                        className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white font-mono text-xs font-semibold border border-white/10 transition-all cursor-pointer"
+                        className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white font-mono text-xs font-semibold border border-white/10 cursor-pointer pressable focus-ring"
                       >
                         <Code2 className="w-4 h-4 text-sky-400" />
                         <span>Inspect Architecture</span>
@@ -256,7 +256,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-mono text-xs font-bold transition-all shadow-md cursor-pointer"
+                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-mono text-xs font-bold shadow-md cursor-pointer pressable focus-ring"
                         >
                           <Rocket className="w-3.5 h-3.5" />
                           <span>Live App</span>
@@ -268,7 +268,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all"
+                        className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all pressable focus-ring"
                         title="GitHub Repo"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -282,6 +282,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <img
                         src={project.imageUrl}
                         alt={project.title}
+                        decoding="async"
+                        width={1200}
+                        height={800}
                         className="w-full h-full object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                         loading="lazy"
                       />
@@ -340,9 +343,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             <span className="font-mono text-xs text-sky-400 font-semibold">
                               {project.category === 'aiml' ? 'AI Agent' : 'MERN & Docker'}
                             </span>
-                            <h4 className="text-base font-bold text-white mt-0.5">
+                            <h3 className="text-base font-bold text-white mt-0.5">
                               {project.title}
-                            </h4>
+                            </h3>
                           </div>
 
                           <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -369,7 +372,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="flex items-center justify-between pt-4 mt-3 border-t border-white/[0.06]">
                         <button
                           onClick={() => onSelectProject(project)}
-                          className="font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer"
+                          className="font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer pressable focus-ring"
                         >
                           Inspect Code &rarr;
                         </button>

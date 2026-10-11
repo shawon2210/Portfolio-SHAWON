@@ -298,9 +298,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
                   <span className="font-mono text-[11px] text-emerald-400 uppercase font-semibold">
                     Higher Secondary Certificate
                   </span>
-                  <h4 className="text-base font-bold text-white mt-0.5">
+                  <h3 className="text-base font-bold text-white mt-0.5">
                     HSC, Science
-                  </h4>
+                  </h3>
                 </div>
                 <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
                   GPA 5.00
@@ -331,9 +331,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
                   <span className="font-mono text-[11px] text-violet-400 uppercase font-semibold">
                     Secondary School Certificate
                   </span>
-                  <h4 className="text-base font-bold text-white mt-0.5">
+                  <h3 className="text-base font-bold text-white mt-0.5">
                     SSC, Science
-                  </h4>
+                  </h3>
                 </div>
                 <span className="font-mono text-xs font-bold text-violet-400 bg-violet-500/10 border border-violet-500/25 px-2.5 py-0.5 rounded-full">
                   GPA 5.00
@@ -384,9 +384,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
 
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                  <h3 className="text-sm sm:text-base font-bold text-white truncate">
                     {cert.title}
-                  </h4>
+                  </h3>
                   <span className="font-mono text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded shrink-0">
                     {cert.duration}
                   </span>

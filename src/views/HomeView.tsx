@@ -5,6 +5,9 @@ import { TabType, Project } from '../types';
 import { PERSONAL_INFO, SKILL_CATEGORIES, PROJECTS } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
 import { Badge } from '../components/primitives';
+import { useLoadPhase } from '../lib/loadPhase';
+import { EASE_MICRO } from '../lib/motion';
+import { scrollElementTo } from '../lib/scroll';
 import {
   GradientHeading,
   PillButton,
@@ -23,6 +26,7 @@ interface HomeViewProps {
   onOpenUploadModal: () => void;
   onSelectProject: (project: Project) => void;
   onShowToast: (msg: string) => void;
+  reducedMotion?: boolean;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -32,10 +36,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenUploadModal,
   onSelectProject,
   onShowToast,
+  reducedMotion = false,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const blueprintRef = useRef<HTMLDivElement>(null);
+
+  /* PHASE 5: every hero element reads its delay from the shared choreography
+     so the heading, the 3D centerpiece and the nav resolve as one gesture. */
+  const { at, shouldAnimate } = useLoadPhase();
 
   // Dynamic verified role rotation
   const roles = [
@@ -46,18 +55,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [roleIndex, setRoleIndex] = useState(0);
 
   useEffect(() => {
+    if (reducedMotion) return;
     const timer = setInterval(() => {
       setRoleIndex((prev) => (prev + 1) % roles.length);
     }, 3200);
     return () => clearInterval(timer);
-  }, [roles.length]);
+  }, [roles.length, reducedMotion]);
 
   // Scroll cue fades out on scroll
   const { scrollY } = useScroll();
   const scrollCueOpacity = useTransform(scrollY, [0, 160], [1, 0]);
 
   const handleScrollToBlueprint = () => {
-    blueprintRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollElementTo(blueprintRef.current, { reducedMotion });
   };
 
   const handleCopyEmail = () => {
@@ -65,15 +75,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
     setCopiedEmail(true);
     onShowToast('Email copied to clipboard');
     setTimeout(() => setCopiedEmail(false), 2000);
-  };
-
-  const fadeInVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-    },
   };
 
   const staggerContainer = {
@@ -92,7 +93,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration: 0.4, ease: EASE_MICRO },
     },
   };
 
@@ -117,18 +118,29 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[42rem] h-[28rem] bg-sky-500/15 rounded-full blur-[140px]" />
         </div>
 
-        {/* Top Status & Identity Row (Entrance 0.05s) */}
-        <div className="relative z-20 w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <FadeIn delay={0.05} y={-10} className="flex items-center gap-3 sm:gap-4">
+        {/* Top Status & Identity Row — choreography slot: meta */}
+        <motion.div
+          className="relative z-20 w-full max-w-7xl mx-auto flex items-center justify-between gap-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: at('meta'), ease: EASE_MICRO }}
+        >
+          <div className="flex items-center gap-3 sm:gap-4">
             <div
               onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
               className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
               title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
             >
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden ring-2 ring-sky-400/30 shadow-2xl bg-white/[0.04] transition-all duration-300 group-hover:ring-sky-400/60 group-hover:scale-105">
+                {/* PHASE 5: intrinsic size + high fetch priority. The hero portrait
+                    is the LCP candidate, so it must not wait on layout. */}
                 <img
                   src={avatarUrl}
                   alt={PERSONAL_INFO.name}
+                  width={800}
+                  height={800}
+                  decoding="async"
+                  fetchPriority="high"
                   className="w-full h-full object-cover object-top filter contrast-[1.03]"
                 />
               </div>
@@ -146,15 +158,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {PERSONAL_INFO.location} &bull; Remote Available
               </span>
             </div>
-          </FadeIn>
+          </div>
 
           {/* Social Presence Pills */}
-          <FadeIn delay={0.1} y={-10} className="hidden sm:flex items-center gap-2">
+          <motion.div
+            className="hidden sm:flex items-center gap-2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: at('meta') + 0.05, ease: EASE_MICRO }}
+          >
             <a
               href={PERSONAL_INFO.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
             >
               <Github className="w-3.5 h-3.5 text-sky-400" />
               <span>GitHub</span>
@@ -163,58 +180,74 @@ export const HomeView: React.FC<HomeViewProps> = ({
               href={PERSONAL_INFO.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-violet-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-violet-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
             >
               <Linkedin className="w-3.5 h-3.5 text-violet-400" />
               <span>LinkedIn</span>
             </a>
             <button
               onClick={handleCopyEmail}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer pressable"
             >
               {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-emerald-400" />}
               <span>{copiedEmail ? 'Copied' : PERSONAL_INFO.email}</span>
             </button>
-          </FadeIn>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Centerpiece Stage: Giant Display Heading BEHIND 3D Core Showpiece */}
         <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8">
-          {/* Layer 0: Giant Full-Width Gradient Display Heading (behind showpiece, delay 0.15s) */}
+          {/* Layer 0: Giant Full-Width Gradient Display Heading (behind showpiece) */}
           <div className="relative z-0 w-full flex justify-center text-center overflow-hidden pointer-events-none">
             <GradientHeading
               text="SHAWON MOLLA"
               as="h1"
-              delay={0.15}
-              stagger={0.03}
-              gradient="linear-gradient(180deg, #f8fafc 0%, #64748b 70%, #334155 100%)"
-              className="text-[14vw] sm:text-[13vw] lg:text-[11.5vw] font-black tracking-[-0.04em] leading-[0.88] uppercase opacity-90"
+              delay={at('heading')}
+              stagger={shouldAnimate ? 0.022 : 0}
+              gradient="linear-gradient(180deg, #f8fafc 0%, #94a3b8 62%, #475569 100%)"
+              className="text-[14vw] sm:text-[13vw] lg:text-[11.5vw] font-black tracking-[-0.04em] leading-[0.88] uppercase"
             />
           </div>
 
-          {/* Layer 1: Centered 3D Showpiece Anchor overlapping the heading in front (delay 0.6s) */}
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <FadeIn delay={0.6} duration={0.8} y={30} blur={10}>
-              <Magnet padding={40} strength={0.3}>
-                <div className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing">
-                  {/* Anchor DOM rect projects to the 3D core in the single WebGL scene */}
-                  <Anchor3D
-                    name="hero-centerpiece"
-                    className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative"
-                  >
-                    {/* Visual aura halo ring */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />
-                  </Anchor3D>
-                </div>
-              </Magnet>
-            </FadeIn>
-          </div>
+          {/* Layer 1: Centered 3D Showpiece Anchor overlapping the heading in front */}
+          <motion.div
+            className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0, scale: 0.82, y: 30, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{
+              duration: 0.9,
+              delay: at('scene'),
+              ease: EASE_MICRO,
+            }}
+          >
+            <Magnet padding={40} strength={0.3}>
+              {/* data-cursor="drag" drives the contextual cursor's grab state */}
+              <div
+                data-cursor="drag"
+                className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing"
+              >
+                {/* Anchor DOM rect projects to the 3D core in the single WebGL scene */}
+                <Anchor3D
+                  name="hero-centerpiece"
+                  className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative"
+                >
+                  {/* Visual aura halo ring */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />
+                </Anchor3D>
+              </div>
+            </Magnet>
+          </motion.div>
         </div>
 
         {/* Bottom Hero Bar: Tagline bottom-left, CTAs bottom-right */}
         <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pt-4">
-          {/* Bottom-Left: Role Pill + Value Proposition Tagline (delay 0.35s) */}
-          <FadeIn delay={0.35} y={20} className="flex flex-col items-start space-y-2 max-w-xl">
+          {/* Bottom-Left: Role Pill + Value Proposition Tagline */}
+          <motion.div
+            className="flex flex-col items-start space-y-2 max-w-xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: at('tagline'), ease: EASE_MICRO }}
+          >
             <div className="h-7 flex items-center overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -222,10 +255,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.35, ease: EASE_MICRO }}
                   className="font-mono text-xs sm:text-sm font-semibold text-sky-400 flex items-center gap-2"
                 >
-                  <span className="text-slate-500 font-normal">&gt;</span>
+                  <span className="text-slate-400 font-normal" aria-hidden="true">
+                    &gt;
+                  </span>
                   <span>{roles[roleIndex]}</span>
                 </motion.div>
               </AnimatePresence>
@@ -233,10 +268,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg font-normal">
               High-concurrency systems, distributed microservices, and autonomous AI orchestration. Built for resilience and performance.
             </p>
-          </FadeIn>
+          </motion.div>
 
-          {/* Bottom-Right: Exactly Two CTAs (PillButton + GhostButton) (delay 0.5s) */}
-          <FadeIn delay={0.5} y={20} className="flex flex-wrap items-center gap-3">
+          {/* Bottom-Right: Exactly Two CTAs */}
+          <motion.div
+            className="flex flex-wrap items-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: at('cta'), ease: EASE_MICRO }}
+          >
             <PillButton onClick={() => onNavigate('projects')} className="group">
               <span>Explore Projects</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -246,18 +286,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <FileText className="w-4 h-4 text-sky-400" />
               <span>Inspect CV Resume</span>
             </GhostButton>
-          </FadeIn>
+          </motion.div>
         </div>
 
-        {/* Scroll Cue with useTransform Opacity Fade */}
+        {/* Scroll Cue with useTransform Opacity Fade — choreography slot: cue */}
         <motion.div
           style={{ opacity: scrollCueOpacity }}
           className="relative z-20 w-full flex justify-center pt-6 sm:pt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: at('cue') }}
         >
           <button
             onClick={handleScrollToBlueprint}
-            className="flex flex-col items-center gap-1 text-slate-500 hover:text-sky-400 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full px-3 py-1"
-            aria-label="Scroll to technical capabilities"
+            className="flex flex-col items-center gap-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full px-3 py-1 pressable"
+            /* PHASE 5: accessible name contains the visible label (a11y fix) */
+            aria-label="Explore Technical Capabilities — scroll to next section"
           >
             <span className="font-mono text-[10px] tracking-widest uppercase">
               Explore Technical Capabilities
@@ -293,7 +337,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div
                 key={`row1-${proj.id}`}
                 onClick={() => onSelectProject(proj)}
-                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02]"
+                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02] pressable-strong" data-cursor="project"
               >
                 {proj.imageUrl ? (
                   <img
@@ -311,9 +355,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <span className="text-[11px] font-mono text-sky-400 uppercase tracking-wider font-semibold">
                     {proj.flagshipNumber}
                   </span>
-                  <h4 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                  <h2 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
                     {proj.title}
-                  </h4>
+                  </h2>
                   <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
                     {proj.tagline}
                   </p>
@@ -330,7 +374,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div
                 key={`row2-${proj.id}`}
                 onClick={() => onSelectProject(proj)}
-                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02]"
+                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02] pressable-strong" data-cursor="project"
               >
                 {proj.imageUrl ? (
                   <img
@@ -348,9 +392,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">
                     {proj.badge}
                   </span>
-                  <h4 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                  <h2 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
                     {proj.title}
-                  </h4>
+                  </h2>
                   <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
                     {proj.tagline}
                   </p>
@@ -456,7 +500,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Inverted Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-8">
             <div className="space-y-2">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-sky-600">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-sky-700">
                 02 &bull; Core Disciplines
               </span>
               <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 uppercase">
@@ -478,7 +522,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start group hover:bg-slate-100/60 -mx-4 px-4 sm:-mx-6 sm:px-6 rounded-2xl transition-colors duration-300"
                 >
                   {/* Huge Numeral */}
-                  <div className="lg:col-span-2 font-mono text-4xl sm:text-6xl font-black text-slate-300 group-hover:text-sky-600 transition-colors">
+                  <div className="lg:col-span-2 font-mono text-4xl sm:text-6xl font-black text-slate-500 group-hover:text-sky-700 transition-colors">
                     {num}
                   </div>
 
@@ -499,7 +543,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {category.skills.map((skill, sIdx) => (
                       <span
                         key={sIdx}
-                        className="px-3 py-1 rounded-full bg-white text-slate-800 font-mono text-xs font-medium border border-slate-200 shadow-sm"
+                        className="px-3 py-1 rounded-full bg-white text-slate-800 font-mono text-xs font-medium border border-slate-200 shadow-sm pressable"
                       >
                         {skill}
                       </span>
@@ -513,9 +557,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Bottom Pitch inside Inverted Section */}
           <div className="pt-8 border-t border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-1 text-center sm:text-left">
-              <h4 className="text-lg font-bold text-slate-950">
+              <h3 className="text-lg font-bold text-slate-950">
                 Ready to deploy these capabilities to your engineering team?
-              </h4>
+              </h3>
               <p className="text-sm text-slate-600">
                 Full-time software engineering role &bull; Remote or Dhaka, Bangladesh
               </p>

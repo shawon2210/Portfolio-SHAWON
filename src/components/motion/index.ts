@@ -11,6 +11,6 @@ export * from './ScrollMarquee';
 export * from './ParallaxLayer';
 export * from './MaskReveal';
 export * from './StickyStack';
-export * from './CursorFollower';
+// CursorFollower excluded from barrel — lazy-loaded in App.tsx for code-splitting
 export * from './PillButton';
 export * from './Anchor3D';

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Home, Layers, Briefcase, Mail } from 'lucide-react';
 import { TabType } from '../types';
-import { MOTION_EASING, MOTION_DURATIONS } from '../lib/motion';
+import { TRANSITION_INTERACTIVE } from '../lib/motion';
 
 interface FloatingDockProps {
   activeTab: TabType;
@@ -69,9 +69,10 @@ const DockItem: React.FC<DockItemProps> = ({
     <button
       onClick={() => onSelectTab(id)}
       aria-current={isActive ? 'page' : undefined}
+      data-cursor="link"
       aria-label={label}
       title={label}
-      className={`relative flex flex-col items-center justify-center gap-0.5 px-4 py-2 rounded-xl transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 cursor-pointer ${
+      className={`relative flex flex-col items-center justify-center gap-0.5 px-4 py-2 rounded-xl transition-colors duration-200 cursor-pointer pressable focus-ring ${
         isActive
           ? 'text-slate-950'
           : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'
@@ -84,7 +85,7 @@ const DockItem: React.FC<DockItemProps> = ({
           transition={
             shouldReduceMotion
               ? { duration: 0 }
-              : { type: 'spring', stiffness: 380, damping: 32 }
+              : TRANSITION_INTERACTIVE
           }
         />
       )}
@@ -97,7 +98,7 @@ const DockItem: React.FC<DockItemProps> = ({
             ? { scale: 1.12 }
             : { scale: 1 }
         }
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        transition={shouldReduceMotion ? { duration: 0 } : TRANSITION_INTERACTIVE}
       >
         <Icon className="w-5 h-5" />
       </motion.span>

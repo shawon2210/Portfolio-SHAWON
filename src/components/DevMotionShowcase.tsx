@@ -10,11 +10,11 @@ import {
   MaskReveal,
   StickyStack,
   StickyStackItem,
-  CursorFollower,
   PillButton,
   GhostButton,
   Anchor3D,
 } from './motion';
+import { CursorFollower } from './motion/CursorFollower';
 import { Sparkles, ArrowRight, Code2, Rocket, ExternalLink } from 'lucide-react';
 
 export const DevMotionShowcase: React.FC = () => {
