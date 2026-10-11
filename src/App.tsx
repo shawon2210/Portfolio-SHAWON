@@ -13,7 +13,7 @@ import { FloatingDock } from './components/FloatingDock';
 import { Toast } from './components/Toast';
 import { HomeView } from './views/HomeView';
 import { updateSectionSEO, updateProjectSEO, ProjectCategoryKey } from './utils/seo';
-
+import { MotionConfig, LazyMotion, domAnimation } from 'motion/react';
 
 // Lazy-loaded secondary views and interactive modals to minimize initial JS bundle
 const ProjectsView = lazy(() =>
@@ -47,6 +47,10 @@ const BackgroundScene = lazy(() => import('./components/BackgroundScene'));
 
 const DevUiShowcase = lazy(() =>
   import('./views/DevUiShowcase').then((m) => ({ default: m.DevUiShowcase }))
+);
+
+const DevMotionShowcase = lazy(() =>
+  import('./components/DevMotionShowcase').then((m) => ({ default: m.DevMotionShowcase }))
 );
 
 
@@ -115,6 +119,20 @@ export default function App() {
     );
   });
 
+  const [isDevMotion, setIsDevMotion] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const h = window.location.hash.toLowerCase();
+    const p = window.location.pathname.toLowerCase();
+    const s = window.location.search.toLowerCase();
+    return (
+      h === '#dev-motion' ||
+      h === '#dev/motion' ||
+      p.endsWith('/dev/motion') ||
+      p.endsWith('/dev-motion') ||
+      s.includes('dev=motion')
+    );
+  });
+
   useEffect(() => {
     const handleUrlChange = () => {
       const h = window.location.hash.toLowerCase();
@@ -126,6 +144,13 @@ export default function App() {
         p.endsWith('/dev/ui') ||
         p.endsWith('/dev-ui') ||
         s.includes('dev=ui')
+      );
+      setIsDevMotion(
+        h === '#dev-motion' ||
+        h === '#dev/motion' ||
+        p.endsWith('/dev/motion') ||
+        p.endsWith('/dev-motion') ||
+        s.includes('dev=motion')
       );
     };
 
@@ -303,20 +328,44 @@ export default function App() {
 
   if (isDevUi) {
     return (
-      <Suspense
-        fallback={
-          <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
-            Loading Design System Showcase...
-          </div>
-        }
-      >
-        <DevUiShowcase />
-      </Suspense>
+      <MotionConfig reducedMotion="user">
+        <LazyMotion features={domAnimation}>
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+                Loading Design System Showcase...
+              </div>
+            }
+          >
+            <DevUiShowcase />
+          </Suspense>
+        </LazyMotion>
+      </MotionConfig>
+    );
+  }
+
+  if (isDevMotion) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <LazyMotion features={domAnimation}>
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+                Loading Motion Engine Showcase...
+              </div>
+            }
+          >
+            <DevMotionShowcase />
+          </Suspense>
+        </LazyMotion>
+      </MotionConfig>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-transparent text-on-surface flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
+    <MotionConfig reducedMotion="user">
+      <LazyMotion features={domAnimation}>
+        <div className="relative min-h-screen bg-transparent text-on-surface flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
       {/* Code-Generated 3D Animated Constellation Background (Canvas wrapper: fixed inset-0 z-0) */}
       <Suspense fallback={null}>
         <BackgroundScene />
@@ -466,6 +515,8 @@ export default function App() {
         {/* Simplified, Clean Print-Optimized View (Active during @media print) */}
         <PrintablePortfolio />
       </Suspense>
-    </div>
+        </div>
+      </LazyMotion>
+    </MotionConfig>
   );
 }
