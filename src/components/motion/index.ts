@@ -13,3 +13,4 @@ export * from './MaskReveal';
 export * from './StickyStack';
 export * from './CursorFollower';
 export * from './PillButton';
+export * from './Anchor3D';

@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { Play, Pause, Activity } from 'lucide-react';
 import { createCodeAtlas, CodeAtlasResult } from '../lib/codeAtlas';
 import { THEME_COLORS } from '../lib/tokens';
+import { anchorRegistry } from '../lib/anchorRegistry';
+import { createProceduralObjects, ProceduralObjects } from '../lib/proceduralObjects';
 
 export interface FloatingCodeConfig {
   count?: number;
@@ -48,7 +50,6 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   onTogglePause,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // States
   const [internalPaused, setInternalPaused] = useState(() => {
@@ -60,9 +61,11 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   });
   const [fps, setFps] = useState(60);
   const [drawCalls, setDrawCalls] = useState(2);
+  const [triangles, setTriangles] = useState(0);
   const [qualityTier, setQualityTier] = useState<QualityTier>('high');
   const [showDebug, setShowDebug] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
+  const [activeAnchorsCount, setActiveAnchorsCount] = useState(0);
 
   const isPaused = externalPaused !== undefined ? externalPaused : internalPaused;
 
@@ -126,19 +129,23 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
     let instancedCardsMesh: THREE.InstancedMesh | null = null;
     let dustPoints: THREE.Points | null = null;
     let atlasResult: CodeAtlasResult | null = null;
+    let proceduralObjs: ProceduralObjects | null = null;
+
+    // Anchored Objects Group
+    const anchorsGroup = new THREE.Group();
 
     // Mouse and scroll parallax trackers
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     const scroll = { y: 0, targetY: 0 };
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Normalize to [-1, 1]
       mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
     const handleScroll = () => {
       scroll.targetY = window.scrollY;
+      anchorRegistry.updateRects();
     };
 
     if (window.innerWidth >= 768) {
@@ -150,7 +157,36 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
     let lastTime = performance.now();
     let frameCount = 0;
     let fpsAccumulator = 0;
-    let fpsHistory: number[] = [];
+    const fpsHistory: number[] = [];
+
+    // Helper: Map Screen Rect to 3D World Coordinates at a given z-plane.
+    // Camera is at z=18. targetZ=10 → 8 units away, clearly visible.
+    // targetZ=8 → 10 units away. Fog exp(-0.008*8)≈0.94 — nearly opaque.
+    const mapScreenToWorld = (rect: DOMRect, targetZ = 8): { pos: THREE.Vector3; scale: number } => {
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      // Normalized Device Coordinates (-1 to +1)
+      const ndcX = (centerX / window.innerWidth) * 2 - 1;
+      const ndcY = -(centerY / window.innerHeight) * 2 + 1;
+
+      // Unproject NDC → world direction, then intersect with z-plane
+      const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
+      vec.unproject(camera);
+      vec.sub(camera.position).normalize();
+      // Guard: if ray nearly parallel to plane, fall back to origin
+      if (Math.abs(vec.z) < 0.001) return { pos: new THREE.Vector3(0, 0, targetZ), scale: 1 };
+      const distance = (targetZ - camera.position.z) / vec.z;
+      const worldPos = camera.position.clone().add(vec.multiplyScalar(distance));
+
+      // Scale: frustum width at targetZ → map rect pixel ratio to world units
+      const vFov = (camera.fov * Math.PI) / 180;
+      const visibleHeightAtZ = 2 * Math.tan(vFov / 2) * Math.abs(camera.position.z - targetZ);
+      const visibleWidthAtZ = visibleHeightAtZ * camera.aspect;
+      const scale = (rect.width / window.innerWidth) * (visibleWidthAtZ / 3.4);
+
+      return { pos: worldPos, scale: Math.max(0.35, scale) };
+    };
 
     // Initialize Three.js Scene
     const initScene = async () => {
@@ -160,75 +196,75 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       const w = window.innerWidth;
       const h = window.innerHeight;
 
-      // 1. Scene & Exponential Fog (fading out into #090b11)
+      // 1. Scene & Depth Fog (density lowered so mid-range anchored objects at z=8-10 are clear)
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2('#090b11', 0.015);
+      scene.fog = new THREE.FogExp2('#090b11', 0.008);
 
-      // 2. Camera
+      // 2. Perspective Camera
       camera = new THREE.PerspectiveCamera(54, w / h, 0.1, 100);
       camera.position.set(0, 0, 18);
 
-      // 3. Renderer with clamped DPR to 1.5
+      // 3. Single Shared WebGL Renderer
       renderer = new THREE.WebGLRenderer({
-        antialias: window.devicePixelRatio < 1.5,
         alpha: true,
+        antialias: window.devicePixelRatio < 1.5,
         powerPreference: 'high-performance',
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setSize(w, h);
-      renderer.setClearColor(0x000000, 0); // Transparent canvas, html has #090b11
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
 
       container.appendChild(renderer.domElement);
 
-      // 4. Generate Texture Atlas
-      atlasResult = await createCodeAtlas();
-      if (destroyed) {
-        atlasResult.texture.dispose();
-        return;
+      // 4. Create Texture Atlas
+      try {
+        atlasResult = await createCodeAtlas();
+      } catch (err) {
+        console.warn('Code atlas creation failed, falling back to basic material', err);
       }
 
-      const { texture: atlasTexture, tiles } = atlasResult;
+      if (destroyed) return;
 
-      // 5. Build Cards Instances
-      // Card geometry: aspect ratio ~ 1.55 (e.g. 5.6 x 3.6 world units)
-      const cardW = 5.4;
-      const cardH = 3.4;
+      // 5. Build Instanced Floating Code Cards
+      const cardW = 3.6;
+      const cardH = 1.9;
       const cardGeom = new THREE.PlaneGeometry(cardW, cardH);
 
-      // Custom instanced shader material
       const cardMat = new THREE.MeshBasicMaterial({
-        map: atlasTexture,
+        map: atlasResult?.texture || null,
         transparent: true,
-        depthWrite: false,
+        opacity: 0.9,
         side: THREE.DoubleSide,
+        depthWrite: false,
       });
 
       cardMat.onBeforeCompile = (shader) => {
         shader.vertexShader = `
           attribute vec4 instanceUv;
           attribute float instanceAlpha;
-          varying vec2 vTileUv;
+          varying vec2 vInstanceUv;
           varying float vInstanceAlpha;
           ${shader.vertexShader}
         `.replace(
           '#include <uv_vertex>',
           `
           #include <uv_vertex>
-          vTileUv = uv * instanceUv.zw + instanceUv.xy;
+          vInstanceUv = uv * instanceUv.zw + instanceUv.xy;
           vInstanceAlpha = instanceAlpha;
           `
         );
 
         shader.fragmentShader = `
-          varying vec2 vTileUv;
+          varying vec2 vInstanceUv;
           varying float vInstanceAlpha;
           ${shader.fragmentShader}
         `.replace(
           '#include <map_fragment>',
           `
           #ifdef USE_MAP
-            vec4 sampledColor = texture2D( map, vTileUv );
-            diffuseColor = sampledColor;
+            vec4 sampledColor = texture2D( map, vInstanceUv );
+            diffuseColor *= sampledColor;
             diffuseColor.a *= vInstanceAlpha;
           #endif
           `
@@ -236,77 +272,62 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       };
 
       instancedCardsMesh = new THREE.InstancedMesh(cardGeom, cardMat, count);
-      instancedCardsMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      instancedCardsMesh.frustumCulled = false;
 
-      // UV offset attributes: vec4(uOffset, vOffset, uScale, vScale)
       const instanceUvArray = new Float32Array(count * 4);
       const instanceAlphaArray = new Float32Array(count);
 
-      // Setup 3 Depth Bands:
-      // Band 0 (Near): z in [-8, -3], alpha 0.50, scale 1.2
-      // Band 1 (Mid): z in [-20, -10], alpha 0.72, scale 1.0
-      // Band 2 (Far): z in [-34, -22], alpha 0.45, scale 0.78
       const cards: CardInstance[] = [];
+      const tiles = atlasResult?.tiles || [];
 
       for (let i = 0; i < count; i++) {
-        const band = i % 3;
-        let baseZ = -15;
-        let scale = 1.0;
-        let alpha = 0.55;
+        let z = -22 + Math.random() * 8;
+        let scale = 0.55 + Math.random() * 0.2;
+        let baseAlpha = 0.35 + Math.random() * 0.25;
 
-        if (band === 0) {
-          // Near layer
-          baseZ = -3 - Math.random() * 5;
-          scale = 1.2;
-          alpha = 0.48; // Crisp and visible, yet restrained
-        } else if (band === 1) {
-          // Mid layer
-          baseZ = -10 - Math.random() * 10;
-          scale = 1.0;
-          alpha = 0.72;
-        } else {
-          // Far layer
-          baseZ = -22 - Math.random() * 14;
-          scale = 0.78;
-          alpha = 0.45;
+        if (i % 3 === 1) {
+          z = -14 + Math.random() * 6;
+          scale = 0.8 + Math.random() * 0.25;
+          baseAlpha = 0.55 + Math.random() * 0.25;
+        } else if (i % 3 === 2) {
+          z = -7 + Math.random() * 4;
+          scale = 1.05 + Math.random() * 0.3;
+          baseAlpha = 0.22 + Math.random() * 0.12;
         }
 
-
-        // Layout awareness: distribute across width with exclusion zone in center-left column
-        let x = (Math.random() - 0.5) * 36;
-        if (x > -8 && x < 2) {
-          // Push out of center-left hero text column
-          x += Math.random() > 0.5 ? 8 : -8;
+        const xSpread = 16 * (1 + Math.abs(z) * 0.05);
+        let x = (Math.random() - 0.5) * xSpread * 2;
+        if (Math.abs(x) < 3.5 && Math.random() > 0.3) {
+          x += x > 0 ? 3.5 : -3.5;
         }
 
-        const y = (Math.random() - 0.5) * 32;
-
-        const tileIndex = i % tiles.length;
-        const tile = tiles[tileIndex];
+        const y = -14 + Math.random() * 28;
+        const tileIdx = i % (tiles.length || 1);
+        const tile = tiles[tileIdx] || { uOffset: 0, vOffset: 0, uScale: 1, vScale: 1 };
 
         instanceUvArray[i * 4 + 0] = tile.uOffset;
         instanceUvArray[i * 4 + 1] = tile.vOffset;
         instanceUvArray[i * 4 + 2] = tile.uScale;
         instanceUvArray[i * 4 + 3] = tile.vScale;
-        instanceAlphaArray[i] = alpha;
+        instanceAlphaArray[i] = baseAlpha;
 
         cards.push({
           baseX: x,
           baseY: y,
-          baseZ,
+          baseZ: z,
           x,
           y,
-          z: baseZ,
+          z,
           scale,
-          rotX: (Math.random() - 0.5) * 0.15,
-          rotY: (Math.random() - 0.5) * 0.25,
-          rotZ: (Math.random() - 0.5) * 0.1,
-          speedY: 0.15 + Math.random() * 0.25,
+          rotX: (Math.random() - 0.5) * 0.35,
+          rotY: (Math.random() - 0.5) * 0.45,
+          rotZ: (Math.random() - 0.5) * 0.2,
+          speedY: 0.15 + Math.random() * 0.35,
           swayFreq: 0.4 + Math.random() * 0.6,
-          swayAmp: 0.3 + Math.random() * 0.5,
+          swayAmp: 0.2 + Math.random() * 0.4,
           phase: Math.random() * Math.PI * 2,
-          alpha,
-          tileIndex,
+          alpha: baseAlpha,
+          tileIndex: tileIdx,
         });
       }
 
@@ -321,36 +342,40 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
       scene.add(instancedCardsMesh);
 
-      // 6. Dust & Space Particle Motes Layer
-      const dustCount = initialTier === 'high' ? 300 : initialTier === 'medium' ? 180 : 80;
+      // 6. Particle Constellation Dust
+      const dustCount = initialTier === 'high' ? 120 : 60;
       const dustGeom = new THREE.BufferGeometry();
       const dustPos = new Float32Array(dustCount * 3);
-
       for (let i = 0; i < dustCount; i++) {
-        dustPos[i * 3 + 0] = (Math.random() - 0.5) * 45;
-        dustPos[i * 3 + 1] = (Math.random() - 0.5) * 40;
-        dustPos[i * 3 + 2] = -42 + Math.random() * 40;
+        dustPos[i * 3 + 0] = (Math.random() - 0.5) * 40;
+        dustPos[i * 3 + 1] = (Math.random() - 0.5) * 35;
+        dustPos[i * 3 + 2] = -25 + Math.random() * 25;
       }
-
       dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-
-      // Luminous cyan/emerald tiny particle motes
       const dustMat = new THREE.PointsMaterial({
         color: new THREE.Color(THEME_COLORS.accent),
-        size: 0.18,
+        size: 0.06,
         transparent: true,
-        opacity: 0.45,
-        blending: THREE.AdditiveBlending,
+        opacity: 0.5,
+        depthWrite: false,
       });
-
       dustPoints = new THREE.Points(dustGeom, dustMat);
       scene.add(dustPoints);
 
-      // Helper matrix
+      // 7. Procedural 3D Objects for Anchors (Single Canvas Unification)
+      proceduralObjs = createProceduralObjects();
+      scene.add(anchorsGroup);
+
+      anchorsGroup.add(proceduralObjs.heroCore);
+      anchorsGroup.add(proceduralObjs.aboutTorusKnot);
+      anchorsGroup.add(proceduralObjs.aboutGyro);
+      anchorsGroup.add(proceduralObjs.aboutBlocks);
+      anchorsGroup.add(proceduralObjs.aboutNoiseSphere);
+      anchorsGroup.add(proceduralObjs.contactGlobe);
+
       const dummy = new THREE.Object3D();
 
-      // Render one initial composed frame (useful for reduced motion or static fallback)
-      const renderComposedFrame = (time: number) => {
+      const renderComposedFrame = () => {
         for (let i = 0; i < count; i++) {
           const c = cards[i];
           dummy.position.set(c.x, c.y, c.z);
@@ -363,14 +388,13 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
         renderer.render(scene, camera);
       };
 
-      renderComposedFrame(0);
+      renderComposedFrame();
 
-      // If reduced motion is requested, stop right here after composed frame!
       if (prefersReducedMotion) {
         return;
       }
 
-      // 7. Animation Loop
+      // 8. Animation Loop with Anchored Coordinate Mapping
       const boundTop = 18;
       const boundBottom = -18;
 
@@ -379,26 +403,24 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
         animationFrameId = requestAnimationFrame(animate);
 
-        // Pause check
-        if (isPaused) {
-          return;
-        }
+        if (isPaused) return;
 
         const now = performance.now();
         const delta = Math.min((now - lastTime) / 1000, 0.1);
         lastTime = now;
 
-        // FPS calculation & degradation check
         frameCount++;
         fpsAccumulator += delta;
+
         if (fpsAccumulator >= 0.5) {
           const currentFps = Math.round(frameCount / fpsAccumulator);
           setFps(currentFps);
-          setDrawCalls(renderer.info.render.calls);
           fpsHistory.push(currentFps);
-          if (fpsHistory.length > 4) fpsHistory.shift();
+          if (fpsHistory.length > 10) fpsHistory.shift();
 
-          // Auto-drop tier if average FPS stays under 45 for 2 seconds
+          setDrawCalls(renderer.info.render.calls);
+          setTriangles(renderer.info.render.triangles);
+
           if (fpsHistory.length >= 4) {
             const avgFps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
             if (avgFps < 45 && initialTier === 'high') {
@@ -410,36 +432,32 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           fpsAccumulator = 0;
         }
 
-        // Smooth Parallax Lerp
+        // Parallax Lerp
         mouse.x += (mouse.targetX - mouse.x) * 0.04;
         mouse.y += (mouse.targetY - mouse.y) * 0.04;
         scroll.y += (scroll.targetY - scroll.y) * 0.05;
 
-        // Camera gentle drift from parallax
-        camera.position.x = mouse.x * 1.8;
-        camera.position.y = mouse.y * 1.2 - (scroll.y * 0.003);
-        camera.rotation.y = -mouse.x * 0.035;
-        camera.rotation.x = mouse.y * 0.025;
+        // Camera gentle drift from parallax and scroll depth dolly
+        camera.position.x = mouse.x * 1.5;
+        camera.position.y = mouse.y * 1.0 - scroll.y * 0.002;
+        camera.rotation.y = -mouse.x * 0.03;
+        camera.rotation.x = mouse.y * 0.02;
 
         const time = now * 0.001;
 
-        // Update Code Cards
+        // Update Instanced Floating Code Cards
         for (let i = 0; i < count; i++) {
           const c = cards[i];
-
-          // Slow vertical drift
           c.y += c.speedY * delta;
           if (c.y > boundTop) {
             c.y = boundBottom;
           }
 
-          // Gentle sine sway and tiny rotations
           const swayX = Math.sin(time * c.swayFreq + c.phase) * c.swayAmp;
           const currentRotX = c.rotX + Math.sin(time * 0.3 + c.phase) * 0.04;
           const currentRotY = c.rotY + Math.cos(time * 0.4 + c.phase) * 0.05;
           const currentRotZ = c.rotZ + Math.sin(time * 0.2 + c.phase) * 0.02;
 
-          // Mouse proximity nudge (desktop only, for near/mid cards)
           let nudgeX = 0;
           let nudgeY = 0;
           if (c.z > -18) {
@@ -465,10 +483,96 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           instancedCardsMesh.instanceMatrix.needsUpdate = true;
         }
 
-        // Dust drift
+        // Update Dust Particles
         if (dustPoints) {
           dustPoints.rotation.y = time * 0.012;
           dustPoints.rotation.x = Math.sin(time * 0.008) * 0.05;
+        }
+
+        // 9. Update Anchored 3D Objects from DOM Rects
+        anchorRegistry.updateRects();
+        const activeAnchors = anchorRegistry.getAll();
+        setActiveAnchorsCount(activeAnchors.filter((a) => a.isVisible).length);
+
+        if (proceduralObjs) {
+          // A) Hero Centerpiece Anchor
+          const heroReg = anchorRegistry.get('hero-centerpiece');
+          if (heroReg && heroReg.isVisible) {
+            proceduralObjs.heroCore.visible = true;
+            const mapped = mapScreenToWorld(heroReg.screenRect, 10);
+            proceduralObjs.heroCore.position.copy(mapped.pos);
+            proceduralObjs.heroCore.scale.setScalar(mapped.scale);
+            proceduralObjs.heroCore.rotation.y = time * 0.6 + mouse.x * 0.8;
+            proceduralObjs.heroCore.rotation.x = time * 0.3 - mouse.y * 0.5;
+          } else {
+            proceduralObjs.heroCore.visible = false;
+          }
+
+          // B) About Corner: Torus Knot
+          const torusReg = anchorRegistry.get('about-torus');
+          if (torusReg && torusReg.isVisible) {
+            proceduralObjs.aboutTorusKnot.visible = true;
+            const mapped = mapScreenToWorld(torusReg.screenRect, 8);
+            proceduralObjs.aboutTorusKnot.position.copy(mapped.pos);
+            proceduralObjs.aboutTorusKnot.scale.setScalar(mapped.scale);
+            proceduralObjs.aboutTorusKnot.rotation.x = time * 0.8;
+            proceduralObjs.aboutTorusKnot.rotation.y = time * 0.5;
+          } else {
+            proceduralObjs.aboutTorusKnot.visible = false;
+          }
+
+          // C) About Corner: Gyroscope
+          const gyroReg = anchorRegistry.get('about-gyro');
+          if (gyroReg && gyroReg.isVisible) {
+            proceduralObjs.aboutGyro.visible = true;
+            const mapped = mapScreenToWorld(gyroReg.screenRect, 8);
+            proceduralObjs.aboutGyro.position.copy(mapped.pos);
+            proceduralObjs.aboutGyro.scale.setScalar(mapped.scale);
+            proceduralObjs.aboutGyro.rotation.z = time * 0.7;
+            proceduralObjs.aboutGyro.rotation.y = time * 0.4;
+          } else {
+            proceduralObjs.aboutGyro.visible = false;
+          }
+
+          // D) About Corner: Blocks
+          const blocksReg = anchorRegistry.get('about-blocks');
+          if (blocksReg && blocksReg.isVisible) {
+            proceduralObjs.aboutBlocks.visible = true;
+            const mapped = mapScreenToWorld(blocksReg.screenRect, 8);
+            proceduralObjs.aboutBlocks.position.copy(mapped.pos);
+            proceduralObjs.aboutBlocks.scale.setScalar(mapped.scale);
+            proceduralObjs.aboutBlocks.rotation.y = time * 0.45;
+            proceduralObjs.aboutBlocks.rotation.x = time * 0.25;
+          } else {
+            proceduralObjs.aboutBlocks.visible = false;
+          }
+
+          // E) About Corner: Noise Sphere
+          const sphereReg = anchorRegistry.get('about-noise-sphere');
+          if (sphereReg && sphereReg.isVisible) {
+            proceduralObjs.aboutNoiseSphere.visible = true;
+            const mapped = mapScreenToWorld(sphereReg.screenRect, 8);
+            proceduralObjs.aboutNoiseSphere.position.copy(mapped.pos);
+            proceduralObjs.aboutNoiseSphere.scale.setScalar(
+              mapped.scale * (1 + Math.sin(time * 2.5) * 0.08)
+            );
+            proceduralObjs.aboutNoiseSphere.rotation.y = time * 0.6;
+          } else {
+            proceduralObjs.aboutNoiseSphere.visible = false;
+          }
+
+          // F) Contact Globe Anchor
+          const globeReg = anchorRegistry.get('contact-globe');
+          if (globeReg && globeReg.isVisible) {
+            proceduralObjs.contactGlobe.visible = true;
+            const mapped = mapScreenToWorld(globeReg.screenRect, 8);
+            proceduralObjs.contactGlobe.position.copy(mapped.pos);
+            proceduralObjs.contactGlobe.scale.setScalar(mapped.scale * 0.75);
+            proceduralObjs.contactGlobe.rotation.y = time * 0.35 + mouse.x * 0.4;
+            proceduralObjs.contactGlobe.rotation.x = mouse.y * 0.2;
+          } else {
+            proceduralObjs.contactGlobe.visible = false;
+          }
         }
 
         renderer.render(scene, camera);
@@ -479,7 +583,6 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
     initScene();
 
-    // Resize handler
     const handleResize = () => {
       if (!renderer || !camera) return;
       const nw = window.innerWidth;
@@ -488,30 +591,22 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       camera.updateProjectionMatrix();
       renderer.setSize(nw, nh);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      anchorRegistry.updateRects();
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Visibility API (pause when tab hidden to save GPU cycles)
     const handleVisibilityChange = () => {
       if (document.hidden) {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
       } else {
         lastTime = performance.now();
-        if (!isPaused && !prefersReducedMotion) {
-          animationFrameId = requestAnimationFrame(animateLoopResume);
-        }
       }
-    };
-
-    const animateLoopResume = () => {
-      // Trigger requestAnimationFrame resume
-      lastTime = performance.now();
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Clean up
+    // Clean up all resources
     return () => {
       destroyed = true;
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -536,6 +631,10 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
 
       if (atlasResult) {
         atlasResult.texture.dispose();
+      }
+
+      if (proceduralObjs) {
+        proceduralObjs.dispose();
       }
 
       if (renderer) {
@@ -566,9 +665,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
         className={`fixed inset-0 z-0 pointer-events-none overflow-hidden ${className}`}
         aria-hidden="true"
       >
-        {/* Soft radial vignette overlay ensuring WCAG AA contrast while preserving card visibility */}
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,rgba(9,11,17,0.15)_0%,rgba(9,11,17,0.55)_80%,rgba(9,11,17,0.8)_100%)]" />
-
       </div>
 
       {/* Accessible Control: Pause/Resume Toggle (OUTSIDE aria-hidden canvas wrapper) */}
@@ -598,11 +695,13 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
             <Activity className="w-3 h-3 text-sky-400 animate-pulse" />
             <span>{fps} FPS</span>
             <span className="text-slate-600">|</span>
-            <span>{drawCalls} Draw Calls</span>
+            <span>{drawCalls} Calls</span>
+            <span className="text-slate-600">|</span>
+            <span>{triangles} Tris</span>
+            <span className="text-slate-600">|</span>
+            <span>{activeAnchorsCount} Anchors</span>
             <span className="text-slate-600">|</span>
             <span className="uppercase">{qualityTier} Tier</span>
-            <span className="text-slate-600">|</span>
-            <span>2048x1024 Atlas</span>
           </div>
         )}
       </div>

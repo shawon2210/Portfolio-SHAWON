@@ -111,8 +111,8 @@ export default function App() {
     const p = window.location.pathname.toLowerCase();
     const s = window.location.search.toLowerCase();
     return (
-      h === '#dev-ui' ||
-      h === '#dev/ui' ||
+      h.startsWith('#dev-ui') ||
+      h.startsWith('#dev/ui') ||
       p.endsWith('/dev/ui') ||
       p.endsWith('/dev-ui') ||
       s.includes('dev=ui')
@@ -125,8 +125,8 @@ export default function App() {
     const p = window.location.pathname.toLowerCase();
     const s = window.location.search.toLowerCase();
     return (
-      h === '#dev-motion' ||
-      h === '#dev/motion' ||
+      h.startsWith('#dev-motion') ||
+      h.startsWith('#dev/motion') ||
       p.endsWith('/dev/motion') ||
       p.endsWith('/dev-motion') ||
       s.includes('dev=motion')
@@ -139,15 +139,15 @@ export default function App() {
       const p = window.location.pathname.toLowerCase();
       const s = window.location.search.toLowerCase();
       setIsDevUi(
-        h === '#dev-ui' ||
-        h === '#dev/ui' ||
+        h.startsWith('#dev-ui') ||
+        h.startsWith('#dev/ui') ||
         p.endsWith('/dev/ui') ||
         p.endsWith('/dev-ui') ||
         s.includes('dev=ui')
       );
       setIsDevMotion(
-        h === '#dev-motion' ||
-        h === '#dev/motion' ||
+        h.startsWith('#dev-motion') ||
+        h.startsWith('#dev/motion') ||
         p.endsWith('/dev/motion') ||
         p.endsWith('/dev-motion') ||
         s.includes('dev=motion')
@@ -238,6 +238,9 @@ export default function App() {
     }
 
     const cleanHash = rawHash.split('?')[0].split('/')[0] as TabType;
+    if (rawHash.startsWith('dev') || rawHash.includes('dev')) {
+      return;
+    }
     if (['home', 'projects', 'experience', 'contact'].includes(cleanHash)) {
       setActiveTab(cleanHash);
       updateSectionSEO(cleanHash, activeProjectCategoryRef.current);
@@ -348,15 +351,22 @@ export default function App() {
     return (
       <MotionConfig reducedMotion="user">
         <LazyMotion features={domAnimation}>
-          <Suspense
-            fallback={
-              <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
-                Loading Motion Engine Showcase...
-              </div>
-            }
-          >
-            <DevMotionShowcase />
-          </Suspense>
+          <div className="relative min-h-screen bg-transparent">
+            <Suspense fallback={null}>
+              <BackgroundScene />
+            </Suspense>
+            <div className="relative z-1">
+              <Suspense
+                fallback={
+                  <div className="min-h-screen bg-[#090b11] text-slate-400 flex items-center justify-center font-mono text-sm">
+                    Loading Motion Engine Showcase...
+                  </div>
+                }
+              >
+                <DevMotionShowcase />
+              </Suspense>
+            </div>
+          </div>
         </LazyMotion>
       </MotionConfig>
     );

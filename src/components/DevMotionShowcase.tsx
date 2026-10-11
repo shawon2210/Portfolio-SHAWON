@@ -13,12 +13,13 @@ import {
   CursorFollower,
   PillButton,
   GhostButton,
+  Anchor3D,
 } from './motion';
 import { Sparkles, ArrowRight, Code2, Rocket, ExternalLink } from 'lucide-react';
 
 export const DevMotionShowcase: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#090b11] text-[#e2e8f0] px-4 sm:px-8 py-16 max-w-6xl mx-auto space-y-24">
+    <div className="min-h-screen bg-transparent text-[#e2e8f0] px-4 sm:px-8 py-16 max-w-6xl mx-auto space-y-24">
       {/* Header */}
       <div className="space-y-4 border-b border-white/10 pb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono">
@@ -187,6 +188,42 @@ export const DevMotionShowcase: React.FC = () => {
             </StickyStackItem>
           ))}
         </StickyStack>
+      </section>
+
+      {/* 9. Anchored 3D Objects in Shared WebGL Scene */}
+      <section className="space-y-4 pb-24">
+        <h3 className="text-xs uppercase tracking-widest text-slate-500 font-mono">9. Anchored 3D Objects (Single Unified Canvas)</h3>
+        <p className="text-sm text-slate-400 font-mono">
+          DOM elements with <code className="text-sky-400">&lt;Anchor3D name="..."&gt;</code> dynamically project their screen positions to 3D meshes in the single fixed WebGL canvas.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+          <Anchor3D name="about-torus" className="h-44 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-end p-4">
+            <span className="text-xs font-mono text-sky-400">Anchor: about-torus</span>
+            <span className="text-[11px] text-slate-400">Torus Knot Wireframe</span>
+          </Anchor3D>
+
+          <Anchor3D name="about-gyro" className="h-44 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-end p-4">
+            <span className="text-xs font-mono text-violet-400">Anchor: about-gyro</span>
+            <span className="text-[11px] text-slate-400">Gyroscope Rings</span>
+          </Anchor3D>
+
+          <Anchor3D name="about-blocks" className="h-44 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-end p-4">
+            <span className="text-xs font-mono text-emerald-400">Anchor: about-blocks</span>
+            <span className="text-[11px] text-slate-400">Instanced Cube Matrix</span>
+          </Anchor3D>
+
+          <Anchor3D name="about-noise-sphere" className="h-44 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-end p-4">
+            <span className="text-xs font-mono text-amber-400">Anchor: about-noise-sphere</span>
+            <span className="text-[11px] text-slate-400">Pulsing Sphere Core</span>
+          </Anchor3D>
+        </div>
+
+        <div className="pt-6 flex justify-center">
+          <Anchor3D name="contact-globe" className="w-full max-w-md h-52 rounded-3xl bg-white/[0.02] border border-white/10 flex flex-col justify-end p-6 text-center">
+            <span className="text-xs font-mono text-sky-400">Anchor: contact-globe</span>
+            <span className="text-xs text-slate-400">Point-Cloud Interactive Coordinate Globe</span>
+          </Anchor3D>
+        </div>
       </section>
 
       {/* Global Cursor Follower included in showcase */}
