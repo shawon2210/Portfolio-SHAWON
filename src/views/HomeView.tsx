@@ -1,14 +1,18 @@
-import React, { useRef, useState, useEffect, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, FileText, Github, Linkedin, Mail, Check, Copy, ChevronDown } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { ArrowRight, FileText, Github, Linkedin, Check, Copy, ChevronDown } from 'lucide-react';
 import { TabType, Project } from '../types';
 import { PERSONAL_INFO, SKILL_CATEGORIES } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
-import { Badge, SplitText, MagneticButton } from '../components/primitives';
-
-const TechCanvas3D = lazy(() =>
-  import('../components/TechCanvas3D').then((m) => ({ default: m.TechCanvas3D }))
-);
+import { Badge } from '../components/primitives';
+import {
+  GradientHeading,
+  PillButton,
+  GhostButton,
+  Anchor3D,
+  FadeIn,
+  Magnet,
+} from '../components/motion';
 
 interface HomeViewProps {
   avatarUrl: string;
@@ -27,6 +31,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onShowToast,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
   const blueprintRef = useRef<HTMLDivElement>(null);
 
   // Dynamic verified role rotation
@@ -44,11 +49,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
     return () => clearInterval(timer);
   }, [roles.length]);
 
+  // Scroll cue fades out on scroll
+  const { scrollY } = useScroll();
+  const scrollCueOpacity = useTransform(scrollY, [0, 160], [1, 0]);
 
   const handleScrollToBlueprint = () => {
     blueprintRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
@@ -89,192 +96,173 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
       {/* =========================================================================
-          PREMIUM EDITORIAL HERO SECTION:
-          Left: Clear positioning, concise value proposition, 2 primary CTAs, social links
-          Right: Interactive 3D Spatial Architecture Canvas (TechCanvas3D)
+          PHASE 3: AWARD-LEVEL CINEMATIC HERO SECTION
+          Reference Pattern 1 & 2:
+          - Giant full-width gradient display heading spanning viewport (z-0, behind showpiece)
+          - Centered 3D "Magnet" showpiece (Anchor3D "hero-centerpiece" z-10, in front of heading)
+          - Tagline bottom-left (max-w capped, dynamic role pill)
+          - Exactly two CTAs bottom-right (PillButton + GhostButton)
+          - Staggered entrance: heading 0.15s, tagline 0.35s, CTA 0.5s, showpiece 0.6s
+          - Scroll cue with useTransform opacity fade
       ========================================================================= */}
-      {/* =========================================================================
-          PHASE 4: EDITORIAL SPLIT HERO SECTION
-          Left: Availability pill, Author Portrait, Name once with SplitText, Dynamic Rotating Role,
-                2-sentence value proposition, exactly 2 CTAs (Explore Projects shimmer + Inspect CV Resume),
-                minimal verified presence links.
-          Right: Showpiece TechCanvas3D in an editorial glass frame (clamped DPR 1.5, paused offscreen).
-      ========================================================================= */}
-      <section className="relative w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between px-4 sm:px-6 lg:px-10 xl:px-12 pt-20 sm:pt-24 pb-8 sm:pb-12">
-        {/* Soft aurora ambient highlight (complements 3D background without muddying) */}
+      <section
+        ref={heroRef}
+        className="relative w-full min-h-[100vh] flex flex-col justify-between px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 pb-8 sm:pb-12 overflow-hidden select-none"
+      >
+        {/* Soft aurora ambient highlight */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-25">
-          <div className="absolute top-12 left-1/4 w-[32rem] h-[32rem] bg-sky-500/15 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[42rem] h-[28rem] bg-sky-500/15 rounded-full blur-[140px]" />
         </div>
 
-        {/* Main Editorial Hero Split Grid */}
-        <div className="relative z-20 max-w-7xl w-full mx-auto my-auto py-6 sm:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            {/* Left Column: Narrative, Identity, Headline, Dynamic Role, and CTAs */}
-            <motion.div
-              variants={fadeInVariants}
-              initial="hidden"
-              animate="visible"
-              className="lg:col-span-7 flex flex-col items-start text-left w-full space-y-6"
+        {/* Top Status & Identity Row (Entrance 0.05s) */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <FadeIn delay={0.05} y={-10} className="flex items-center gap-3 sm:gap-4">
+            <div
+              onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+              className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
+              title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
             >
-              {/* Top Meta Lockup: Author Portrait + Status Pill */}
-              <div className="flex items-center gap-4">
-                <div
-                  onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-                  className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
-                  title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
-                >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden ring-2 ring-sky-400/30 shadow-2xl bg-white/[0.04] transition-all duration-300 group-hover:ring-sky-400/60 group-hover:scale-105">
-                    <img
-                      src={avatarUrl}
-                      alt={PERSONAL_INFO.name}
-                      className="w-full h-full object-cover object-top filter contrast-[1.03]"
-                    />
-                  </div>
-                  <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 ring-2 ring-[#090b11]" />
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-start gap-1.5">
-                  <Badge variant="availability" pulse>
-                    {PERSONAL_INFO.statusPill}
-                  </Badge>
-                  <span className="text-xs font-mono text-slate-400">
-                    {PERSONAL_INFO.location} &bull; Remote Available
-                  </span>
-                </div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden ring-2 ring-sky-400/30 shadow-2xl bg-white/[0.04] transition-all duration-300 group-hover:ring-sky-400/60 group-hover:scale-105">
+                <img
+                  src={avatarUrl}
+                  alt={PERSONAL_INFO.name}
+                  className="w-full h-full object-cover object-top filter contrast-[1.03]"
+                />
               </div>
+              <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 ring-2 ring-[#090b11]" />
+              </span>
+            </div>
 
-              {/* Candidate Headline — NAME APPEARS ONCE */}
-              <div className="space-y-2">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.08]">
-                  <SplitText text="MD Shawon Molla" />
-                </h1>
+            <div className="flex flex-col items-start gap-1">
+              <Badge variant="availability" pulse>
+                {PERSONAL_INFO.statusPill}
+              </Badge>
+              <span className="text-[11px] font-mono text-slate-400">
+                {PERSONAL_INFO.location} &bull; Remote Available
+              </span>
+            </div>
+          </FadeIn>
 
-                {/* Dynamic Rotating Role Line */}
-                <div className="h-7 sm:h-8 flex items-center overflow-hidden">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={roleIndex}
-                      initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                      className="font-mono text-sm sm:text-base font-semibold text-sky-400 flex items-center gap-2"
-                    >
-                      <span className="text-slate-500 font-normal">&gt;</span>
-                      <span>{roles[roleIndex]}</span>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* 2-Sentence Value Proposition */}
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
-                Building high-concurrency web platforms, distributed backend services, and autonomous AI pipelines. Focused on clean architecture, performance optimization, and scalable engineering.
-              </p>
-
-              {/* Exactly 2 Primary High-Contrast Actions */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                {/* Primary CTA with Shimmer Effect */}
-                <MagneticButton
-                  onClick={() => onNavigate('projects')}
-                  className="relative group overflow-hidden px-6 py-3 rounded-xl bg-sky-400 text-slate-950 font-semibold text-sm shadow-[0_0_24px_rgba(56,189,248,0.35)] hover:bg-sky-300 transition-all duration-300 flex items-center gap-2 cursor-pointer"
-                >
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                  <span className="relative z-10 flex items-center gap-2">
-                    <span>Explore Projects</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </MagneticButton>
-
-                {/* Secondary CTA */}
-                <MagneticButton
-                  onClick={onOpenResume}
-                  className="px-5 py-3 rounded-xl bg-white/[0.04] text-slate-200 hover:text-white hover:bg-white/[0.08] font-medium text-sm border border-white/[0.1] hover:border-white/[0.2] transition-all flex items-center gap-2 cursor-pointer backdrop-blur-md"
-                >
-                  <FileText className="w-4 h-4 text-sky-400" />
-                  <span>Inspect CV Resume</span>
-                </MagneticButton>
-              </div>
-
-              {/* Verified Minimal Presence Links */}
-              <div className="flex flex-wrap items-center gap-2 pt-2">
-                <a
-                  href={PERSONAL_INFO.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
-                  title="GitHub Profile"
-                >
-                  <Github className="w-3.5 h-3.5 text-sky-400" />
-                  <span>GitHub</span>
-                </a>
-
-                <a
-                  href={PERSONAL_INFO.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
-                  title="LinkedIn Profile"
-                >
-                  <Linkedin className="w-3.5 h-3.5 text-violet-400" />
-                  <span>LinkedIn</span>
-                </a>
-
-                <button
-                  onClick={handleCopyEmail}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer"
-                  title="Copy email to clipboard"
-                >
-                  {copiedEmail ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-emerald-400" />
-                  )}
-                  <span>{copiedEmail ? 'Copied' : PERSONAL_INFO.email}</span>
-                </button>
-              </div>
-            </motion.div>
-
-            {/* Right Column: 3D Spatial Architecture Showpiece */}
-            <motion.div
-              variants={fadeInVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: 0.15 }}
-              className="hidden lg:flex lg:col-span-5 flex-col items-center justify-center w-full"
+          {/* Social Presence Pills */}
+          <FadeIn delay={0.1} y={-10} className="hidden sm:flex items-center gap-2">
+            <a
+              href={PERSONAL_INFO.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
             >
-              <div className="w-full max-w-md p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] backdrop-blur-sm shadow-2xl">
-                <Suspense
-                  fallback={
-                    <div className="h-[360px] w-full rounded-xl bg-white/[0.02] animate-pulse border border-white/5 flex items-center justify-center text-slate-500 font-mono text-xs">
-                      Initializing 3D Spatial Canvas...
-                    </div>
-                  }
-                >
-                  <TechCanvas3D className="h-[340px] sm:h-[380px] w-full" variant="hero" />
-                </Suspense>
-              </div>
-            </motion.div>
+              <Github className="w-3.5 h-3.5 text-sky-400" />
+              <span>GitHub</span>
+            </a>
+            <a
+              href={PERSONAL_INFO.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-violet-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all"
+            >
+              <Linkedin className="w-3.5 h-3.5 text-violet-400" />
+              <span>LinkedIn</span>
+            </a>
+            <button
+              onClick={handleCopyEmail}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer"
+            >
+              {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-emerald-400" />}
+              <span>{copiedEmail ? 'Copied' : PERSONAL_INFO.email}</span>
+            </button>
+          </FadeIn>
+        </div>
+
+        {/* Centerpiece Stage: Giant Display Heading BEHIND 3D Core Showpiece */}
+        <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8">
+          {/* Layer 0: Giant Full-Width Gradient Display Heading (behind showpiece, delay 0.15s) */}
+          <div className="relative z-0 w-full flex justify-center text-center overflow-hidden pointer-events-none">
+            <GradientHeading
+              text="SHAWON MOLLA"
+              as="h1"
+              delay={0.15}
+              stagger={0.03}
+              gradient="linear-gradient(180deg, #f8fafc 0%, #64748b 70%, #334155 100%)"
+              className="text-[14vw] sm:text-[13vw] lg:text-[11.5vw] font-black tracking-[-0.04em] leading-[0.88] uppercase opacity-90"
+            />
+          </div>
+
+          {/* Layer 1: Centered 3D Showpiece Anchor overlapping the heading in front (delay 0.6s) */}
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <FadeIn delay={0.6} duration={0.8} y={30} blur={10}>
+              <Magnet padding={40} strength={0.3}>
+                <div className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing">
+                  {/* Anchor DOM rect projects to the 3D core in the single WebGL scene */}
+                  <Anchor3D
+                    name="hero-centerpiece"
+                    className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative"
+                  >
+                    {/* Visual aura halo ring */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />
+                  </Anchor3D>
+                </div>
+              </Magnet>
+            </FadeIn>
           </div>
         </div>
 
-        {/* Scroll Cue Pinned to Bottom of Hero */}
-        <div className="relative z-20 w-full flex justify-center pt-4 sm:pt-6">
+        {/* Bottom Hero Bar: Tagline bottom-left, CTAs bottom-right */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pt-4">
+          {/* Bottom-Left: Role Pill + Value Proposition Tagline (delay 0.35s) */}
+          <FadeIn delay={0.35} y={20} className="flex flex-col items-start space-y-2 max-w-xl">
+            <div className="h-7 flex items-center overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={roleIndex}
+                  initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="font-mono text-xs sm:text-sm font-semibold text-sky-400 flex items-center gap-2"
+                >
+                  <span className="text-slate-500 font-normal">&gt;</span>
+                  <span>{roles[roleIndex]}</span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg font-normal">
+              High-concurrency systems, distributed microservices, and autonomous AI orchestration. Built for resilience and performance.
+            </p>
+          </FadeIn>
+
+          {/* Bottom-Right: Exactly Two CTAs (PillButton + GhostButton) (delay 0.5s) */}
+          <FadeIn delay={0.5} y={20} className="flex flex-wrap items-center gap-3">
+            <PillButton onClick={() => onNavigate('projects')} className="group">
+              <span>Explore Projects</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </PillButton>
+
+            <GhostButton onClick={onOpenResume}>
+              <FileText className="w-4 h-4 text-sky-400" />
+              <span>Inspect CV Resume</span>
+            </GhostButton>
+          </FadeIn>
+        </div>
+
+        {/* Scroll Cue with useTransform Opacity Fade */}
+        <motion.div
+          style={{ opacity: scrollCueOpacity }}
+          className="relative z-20 w-full flex justify-center pt-6 sm:pt-8"
+        >
           <button
             onClick={handleScrollToBlueprint}
-            className="flex flex-col items-center gap-1 text-slate-500 hover:text-sky-400 transition-colors cursor-pointer group"
+            className="flex flex-col items-center gap-1 text-slate-500 hover:text-sky-400 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full px-3 py-1"
+            aria-label="Scroll to technical capabilities"
           >
-            <span className="font-mono text-[11px] tracking-widest uppercase">
+            <span className="font-mono text-[10px] tracking-widest uppercase">
               Explore Technical Capabilities
             </span>
-            <ChevronDown className="w-4 h-4 animate-bounce text-sky-400" />
+            <ChevronDown className="w-3.5 h-3.5 animate-bounce text-sky-400" />
           </button>
-        </div>
+        </motion.div>
       </section>
-
 
       {/* =========================================================================
           SECTION 2: SYSTEMS BLUEPRINT & TECHNICAL STACK
