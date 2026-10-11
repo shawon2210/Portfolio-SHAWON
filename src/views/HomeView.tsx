@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { ArrowRight, FileText, Github, Linkedin, Check, Copy, ChevronDown } from 'lucide-react';
 import { TabType, Project } from '../types';
-import { PERSONAL_INFO, SKILL_CATEGORIES } from '../data/portfolioData';
+import { PERSONAL_INFO, SKILL_CATEGORIES, PROJECTS } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
 import { Badge } from '../components/primitives';
 import {
@@ -12,6 +12,8 @@ import {
   Anchor3D,
   FadeIn,
   Magnet,
+  ScrollMarquee,
+  AnimatedText,
 } from '../components/motion';
 
 interface HomeViewProps {
@@ -28,6 +30,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onNavigate,
   onOpenResume,
   onOpenUploadModal,
+  onSelectProject,
   onShowToast,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
@@ -265,199 +268,267 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* =========================================================================
-          SECTION 2: SYSTEMS BLUEPRINT & TECHNICAL STACK
-          Clear engineering overview + 6-discipline skills matrix + hiring pitch
+          PATTERN 3: TWO-ROW SCROLL-DRIVEN PROJECT MARQUEE ("Selected work in motion")
+          Row 1 moves right, Row 2 moves left; driven by scroll position with velocity skew
       ========================================================================= */}
-      <div
-        ref={blueprintRef}
-        className="flex flex-col w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pt-16 sm:pt-20 lg:pt-24 pb-20 sm:pb-24 lg:pb-28 scroll-mt-20 sm:scroll-mt-24 lg:scroll-mt-28"
-      >
-        {/* Professional Summary Panel (Engineering Blueprint) */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-white/[0.03] backdrop-blur-xl shadow-2xl shadow-black/20 mb-8 sm:mb-10 lg:mb-12 flex flex-col gap-4 border border-white/[0.08]"
-        >
+      <section className="relative w-full py-16 sm:py-24 overflow-hidden border-y border-white/[0.06] bg-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-              <span className="font-code-md text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">
-                Engineering Blueprint
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+              <span className="font-mono text-xs uppercase tracking-widest text-sky-400">
+                Selected Work In Motion
               </span>
             </div>
-            <span className="font-status-label text-[10px] text-on-surface-variant px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08]">
-              CS GRADUATE
+            <span className="text-xs font-mono text-slate-500 hidden sm:inline">
+              Scroll Driven &bull; Velocity Sensitive
             </span>
           </div>
-          <p className="font-body-md text-xs sm:text-sm text-on-surface leading-relaxed">
-            {PERSONAL_INFO.bio}
-          </p>
+        </div>
 
-          {/* Telemetry Impact Stats Bar */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2"
-          >
-            <motion.div
-              variants={childFade}
-              whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-primary">3+</span>
-                <AppIcon name="rocket" className="w-4 h-4 text-primary" />
+        {/* Row 1: moves right */}
+        <div className="w-full mb-5">
+          <ScrollMarquee direction="right" speed={0.25}>
+            {PROJECTS.map((proj) => (
+              <div
+                key={`row1-${proj.id}`}
+                onClick={() => onSelectProject(proj)}
+                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02]"
+              >
+                {proj.imageUrl ? (
+                  <img
+                    src={proj.imageUrl}
+                    alt={proj.title}
+                    className="w-full h-full object-cover object-top opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-900 font-mono text-xs text-slate-500">
+                    TODO(asset)
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent p-5 flex flex-col justify-end">
+                  <span className="text-[11px] font-mono text-sky-400 uppercase tracking-wider font-semibold">
+                    {proj.flagshipNumber}
+                  </span>
+                  <h4 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                    {proj.title}
+                  </h4>
+                  <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
+                    {proj.tagline}
+                  </p>
+                </div>
               </div>
-              <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
-                Production Apps Shipped
-              </span>
-            </motion.div>
-            <motion.div
-              variants={childFade}
-              whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-secondary">97</span>
-                <AppIcon name="schema" className="w-4 h-4 text-secondary" />
-              </div>
-              <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
-                Tables Schema Scaled
-              </span>
-            </motion.div>
-            <motion.div
-              variants={childFade}
-              whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-tertiary">+27</span>
-                <AppIcon name="speed" className="w-4 h-4 text-tertiary" />
-              </div>
-              <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
-                Lighthouse Score Gain
-              </span>
-            </motion.div>
-            <motion.div
-              variants={childFade}
-              whileHover={{ y: -2 }}
-              className="p-3 rounded-lg bg-white/[0.02] flex flex-col border border-white/[0.06] hover:border-sky-400/25 transition-colors"
-            >
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-primary-fixed">91+</span>
-                <AppIcon name="verified" className="w-4 h-4 text-primary-fixed" />
-              </div>
-              <span className="font-status-label text-[10px] text-on-surface-variant mt-0.5">
-                Automated Tests Written
-              </span>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            ))}
+          </ScrollMarquee>
+        </div>
 
-        {/* Technical Skills Matrix Section */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 flex flex-col gap-3 mb-8 sm:mb-10 lg:mb-12"
-        >
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <AppIcon name="developer_board" className="text-secondary w-5 h-5" />
-              <h2 className="font-headline-md text-base sm:text-lg text-on-surface font-bold">
-                Technical Stack &amp; Disciplines
+        {/* Row 2: moves left */}
+        <div className="w-full">
+          <ScrollMarquee direction="left" speed={0.25}>
+            {PROJECTS.slice().reverse().map((proj) => (
+              <div
+                key={`row2-${proj.id}`}
+                onClick={() => onSelectProject(proj)}
+                className="w-[340px] sm:w-[420px] h-[220px] sm:h-[260px] rounded-2xl overflow-hidden relative group border border-white/10 bg-[#0d1017]/80 shrink-0 cursor-pointer shadow-xl transition-all hover:border-sky-400/40 hover:scale-[1.02]"
+              >
+                {proj.imageUrl ? (
+                  <img
+                    src={proj.imageUrl}
+                    alt={proj.title}
+                    className="w-full h-full object-cover object-top opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-900 font-mono text-xs text-slate-500">
+                    TODO(asset)
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent p-5 flex flex-col justify-end">
+                  <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">
+                    {proj.badge}
+                  </span>
+                  <h4 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                    {proj.title}
+                  </h4>
+                  <p className="text-xs text-slate-300 line-clamp-1 mt-0.5">
+                    {proj.tagline}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </ScrollMarquee>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          PATTERN 4 & 5: ABOUT SECTION WITH 4 CORNER 3D ANCHORS + CHAR SCROLL REVEAL
+          Corners:
+          - Top-Left: Anchor3D name="about-torus"
+          - Top-Right: Anchor3D name="about-gyro"
+          - Bottom-Left: Anchor3D name="about-blocks"
+          - Bottom-Right: Anchor3D name="about-noise-sphere"
+      ========================================================================= */}
+      <section
+        ref={blueprintRef}
+        className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-24 sm:py-32 scroll-mt-20 overflow-hidden"
+      >
+        {/* 4 Decorative 3D Corner Anchors sliding in from sides with staggered FadeIn */}
+        <div className="absolute top-8 left-4 sm:left-8 pointer-events-none z-10 hidden md:block">
+          <FadeIn delay={0.1} x={-30} y={0}>
+            <Anchor3D name="about-torus" className="w-28 h-28 lg:w-36 lg:h-36" />
+          </FadeIn>
+        </div>
+
+        <div className="absolute top-8 right-4 sm:right-8 pointer-events-none z-10 hidden md:block">
+          <FadeIn delay={0.2} x={30} y={0}>
+            <Anchor3D name="about-gyro" className="w-28 h-28 lg:w-36 lg:h-36" />
+          </FadeIn>
+        </div>
+
+        <div className="absolute bottom-8 left-4 sm:left-8 pointer-events-none z-10 hidden md:block">
+          <FadeIn delay={0.3} x={-30} y={0}>
+            <Anchor3D name="about-blocks" className="w-28 h-28 lg:w-36 lg:h-36" />
+          </FadeIn>
+        </div>
+
+        <div className="absolute bottom-8 right-4 sm:right-8 pointer-events-none z-10 hidden md:block">
+          <FadeIn delay={0.4} x={30} y={0}>
+            <Anchor3D name="about-noise-sphere" className="w-28 h-28 lg:w-36 lg:h-36" />
+          </FadeIn>
+        </div>
+
+        {/* Central Editorial Content */}
+        <div className="relative z-20 max-w-4xl mx-auto text-center space-y-8">
+          <FadeIn delay={0.1}>
+            <span className="font-mono text-xs uppercase tracking-widest text-sky-400 bg-sky-500/10 border border-sky-500/20 px-3.5 py-1.5 rounded-full inline-block">
+              About &bull; System Architecture
+            </span>
+          </FadeIn>
+
+          <GradientHeading
+            text="ENGINEERING SYSTEMS WITH RESILIENCE"
+            as="h2"
+            delay={0.15}
+            className="text-3xl sm:text-5xl lg:text-6xl text-center justify-center font-black"
+          />
+
+          {/* Character-by-Character Scroll-Reveal Paragraph */}
+          <div className="pt-4 max-w-3xl mx-auto">
+            <AnimatedText
+              text={PERSONAL_INFO.bio}
+              className="text-lg sm:text-2xl text-slate-200 font-medium leading-relaxed tracking-tight"
+              offset={['start 0.85', 'end 0.35']}
+            />
+          </div>
+
+          {/* Telemetry Stats Bar */}
+          <FadeIn delay={0.4} className="pt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
+                <span className="text-2xl sm:text-3xl font-bold text-sky-400 font-mono">3+</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Shipped Apps</span>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
+                <span className="text-2xl sm:text-3xl font-bold text-violet-400 font-mono">97</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">PG Tables</span>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
+                <span className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">+27</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Lighthouse Gain</span>
+              </div>
+              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
+                <span className="text-2xl sm:text-3xl font-bold text-amber-400 font-mono">91+</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Vitest Specs</span>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          PATTERN 6: NUMBERED SERVICES / DISCIPLINES ON LIGHT INVERTED SECTION
+          Huge 01-05 numerals, uppercase title, muted description, hairline dividers,
+          on light section with rounded-t-[60px] that overlaps the dark section.
+      ========================================================================= */}
+      <section className="relative w-full bg-[#f8fafc] text-slate-900 rounded-t-[48px] sm:rounded-t-[60px] pt-20 sm:pt-28 pb-24 px-4 sm:px-8 lg:px-16 shadow-[0_-20px_50px_rgba(0,0,0,0.4)] z-30">
+        <div className="max-w-6xl mx-auto space-y-16">
+          {/* Inverted Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-8">
+            <div className="space-y-2">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-sky-600">
+                02 &bull; Core Disciplines
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 uppercase">
+                Technical Capabilities
               </h2>
             </div>
-            <span className="font-code-sm text-xs text-on-surface-variant">6 Disciplines</span>
+            <p className="text-sm sm:text-base text-slate-600 max-w-md font-normal leading-relaxed">
+              Modern full-stack architecture, distributed systems, and AI orchestration delivered with verified benchmarks.
+            </p>
           </div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-          >
-            {SKILL_CATEGORIES.map((category) => (
-              <motion.div
-                key={category.id}
-                variants={childFade}
-                whileHover={{ y: -3 }}
-                className="p-4 rounded-xl bg-white/[0.02] backdrop-blur-sm flex flex-col gap-2.5 border border-white/[0.08] hover:border-sky-400/30 transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-white/[0.05] flex items-center justify-center text-primary">
-                      <AppIcon name={category.icon} className="w-[18px] h-[18px]" />
+          {/* Numbered Services List: Huge 01-05 Numerals + Hairline Dividers */}
+          <div className="divide-y divide-slate-200">
+            {SKILL_CATEGORIES.map((category, idx) => {
+              const num = String(idx + 1).padStart(2, '0');
+              return (
+                <div
+                  key={category.id}
+                  className="py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start group hover:bg-slate-100/60 -mx-4 px-4 sm:-mx-6 sm:px-6 rounded-2xl transition-colors duration-300"
+                >
+                  {/* Huge Numeral */}
+                  <div className="lg:col-span-2 font-mono text-4xl sm:text-6xl font-black text-slate-300 group-hover:text-sky-600 transition-colors">
+                    {num}
+                  </div>
+
+                  {/* Title & Badge */}
+                  <div className="lg:col-span-4 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl sm:text-2xl font-black uppercase text-slate-950 tracking-tight">
+                        {category.name}
+                      </h3>
                     </div>
-                    <span className="font-headline-md text-sm sm:text-base font-semibold text-on-surface">
-                      {category.name}
+                    <span className="font-mono text-xs font-semibold text-sky-700 uppercase tracking-wider">
+                      {category.badge}
                     </span>
                   </div>
-                  <span className="font-status-label text-[10px] text-primary font-code-sm font-semibold">
-                    {category.badge}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {category.skills.map((skill, sIdx) => (
-                    <span
-                      key={sIdx}
-                      className="px-2.5 py-1 rounded bg-white/[0.03] text-on-surface font-code-sm text-xs border border-white/[0.07]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
 
-        {/* Interactive Hiring Manager Pitch Card */}
-        <motion.div
-          variants={fadeInVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-40px' }}
-          className="relative z-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white/[0.06] via-white/[0.03] to-transparent backdrop-blur-xl shadow-2xl shadow-black/20 flex flex-col gap-3 border border-white/[0.08]"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AppIcon name="handshake" className="text-secondary w-6 h-6" />
-              <span className="font-headline-md text-base font-bold text-on-surface">
-                Hiring for your engineering team?
-              </span>
+                  {/* Skills Pills Flow */}
+                  <div className="lg:col-span-6 flex flex-wrap gap-2 pt-1">
+                    {category.skills.map((skill, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="px-3 py-1 rounded-full bg-white text-slate-800 font-mono text-xs font-medium border border-slate-200 shadow-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Bottom Pitch inside Inverted Section */}
+          <div className="pt-8 border-t border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="space-y-1 text-center sm:text-left">
+              <h4 className="text-lg font-bold text-slate-950">
+                Ready to deploy these capabilities to your engineering team?
+              </h4>
+              <p className="text-sm text-slate-600">
+                Full-time software engineering role &bull; Remote or Dhaka, Bangladesh
+              </p>
             </div>
-            <span className="font-code-sm text-xs text-secondary bg-white/[0.03] border border-white/[0.07] px-2 py-0.5 rounded">
-              Ready to Deploy
-            </span>
+            <div className="flex items-center gap-3">
+              <PillButton onClick={() => onNavigate('contact')}>
+                <span>Schedule Interview</span>
+                <ArrowRight className="w-4 h-4" />
+              </PillButton>
+            </div>
           </div>
-          <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-            I am eager to contribute clean, production-grade PRs, build modern React/Next.js interfaces, and scale backend services from day one.
-          </p>
-          <div className="flex items-center gap-2 pt-1">
-            <button
-              onClick={() => onNavigate('contact')}
-              className="flex-1 h-10 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-body-sm font-semibold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm cursor-pointer"
-            >
-              <AppIcon name="chat" className="w-[18px] h-[18px]" />
-              <span>Schedule an Interview</span>
-            </button>
-            <button
-              onClick={handleCopyEmail}
-              className="h-10 px-3.5 rounded-lg bg-white/[0.04] text-on-surface hover:text-sky-400 hover:bg-white/[0.08] font-code-sm text-xs flex items-center justify-center gap-1.5 transition-colors border border-white/[0.1] cursor-pointer"
-            >
-              <AppIcon name={copiedEmail ? 'check' : 'content_copy'} className="w-4 h-4" />
-              <span>{copiedEmail ? 'Copied' : 'Copy Email'}</span>
-            </button>
-          </div>
-        </motion.div>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };

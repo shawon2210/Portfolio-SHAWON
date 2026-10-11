@@ -17,6 +17,7 @@ import {
 import { PERSONAL_INFO } from '../data/portfolioData';
 import { GlassCard, Badge, Section } from '../components/primitives';
 import { MOTION_EASING, MOTION_DURATIONS, MOTION_STAGGER } from '../lib/motion';
+import { GradientHeading, Anchor3D, Magnet, PillButton } from '../components/motion';
 
 interface ContactViewProps {
   avatarUrl?: string; // kept for App.tsx compat; not rendered here
@@ -122,25 +123,44 @@ export const ContactView: React.FC<ContactViewProps> = ({
 
   return (
     <Section className="pb-24">
-      {/* ── Section header ── */}
+      {/* ── Section header with Giant Gradient Heading & 3D Contact Globe ── */}
       <motion.div
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="mb-10 text-center"
+        className="mb-14 text-center flex flex-col items-center relative"
       >
-        <Badge variant="accent" className="mb-4 mx-auto">
+        <Badge variant="accent" className="mb-4">
           <MessageSquare className="w-3 h-3" />
-          <span>Contact</span>
+          <span>Contact &bull; Direct Connection</span>
         </Badge>
 
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[-0.025em] text-[#e2e8f0] mb-3">
-          Let's Work Together
-        </h2>
-        <p className="text-[#94a3b8] max-w-md mx-auto text-sm sm:text-base leading-[1.65]">
-          Open to full-time software engineering roles, contract projects, and
-          technical collaborations. Reach out via any channel below.
+        <GradientHeading
+          text="LET'S BUILD SOMETHING RESILIENT"
+          as="h2"
+          className="text-3xl sm:text-5xl lg:text-6xl text-center justify-center font-black mb-6 max-w-4xl"
+        />
+
+        {/* 3D Contact Globe Anchor Stage */}
+        <div className="relative my-4 flex items-center justify-center">
+          <Magnet padding={30} strength={0.25}>
+            <div className="relative p-6 flex flex-col items-center justify-center">
+              <Anchor3D
+                name="contact-globe"
+                className="w-48 h-48 sm:w-60 sm:h-60 rounded-full flex items-center justify-center relative cursor-grab active:cursor-grabbing"
+              >
+                <div className="absolute inset-0 rounded-full bg-sky-500/5 blur-xl pointer-events-none" />
+              </Anchor3D>
+              <span className="font-mono text-[11px] text-slate-400 mt-2 tracking-widest uppercase">
+                Dhaka &bull; Remote Worldwide &bull; Coordinate Active
+              </span>
+            </div>
+          </Magnet>
+        </div>
+
+        <p className="text-slate-400 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
+          Open to full-time software engineering roles, distributed platform architecture, and high-impact teams. Reach out via email, phone, or direct dispatch.
         </p>
       </motion.div>
 
