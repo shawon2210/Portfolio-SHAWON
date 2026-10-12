@@ -10,3 +10,7 @@ coverage/
 
 # Phase 5 measurement screenshots (local verification artifacts)
 shots/
+
+# Phase 0 responsive audit artifacts (regenerate: npm run test:responsive)
+tests/.artifacts/
+tests/tests/
