@@ -11,7 +11,8 @@
     "lint": "tsc --noEmit",
     "test:responsive": "playwright test --config=tests/playwright.config.js",
     "audit:analyze": "node tests/analyze.mjs",
-    "portrait:build": "node scripts/build-portrait.mjs"
+    "portrait:build": "node scripts/build-portrait.mjs",
+    "stage:build": "node scripts/build-stage-portrait.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
