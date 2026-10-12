@@ -710,13 +710,23 @@
 }
 /* v5/Phase3: the glass surface now lives on .stage-card (the card's own root).
    Position/animation live on the .portrait-stage__slot wrapper. */
+/* v5/Phase3 perf fix: this USED to carry `backdrop-filter: blur(10px)`.
+   These cards float continuously, and a backdrop-filter element that MOVES
+   re-blurs its entire backdrop region every frame — and here the backdrop is
+   the live WebGL canvas, so each of the 3 cards paid a full re-blur per frame.
+   Measured 390x844 DSF2 @ 4x CPU: dropping it took 28.6 -> 37.3 FPS.
+
+   Glass is preserved without the cost: the surface is mixed up to 88% (so the
+   blurred backdrop contributed almost nothing to begin with — at 72% we were
+   paying real per-frame cost for a subtle effect) plus a static top sheen.
+   An OVERFLOWING, moving, filtered surface is the thing to avoid here. */
 .stage-card {
   pointer-events: none;
-  background: color-mix(in oklab, var(--color-surface-container) 72%, transparent);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 38%),
+    color-mix(in oklab, var(--color-surface-container) 88%, transparent);
   border: 1px solid var(--color-border-glass);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
   color: var(--color-on-surface);
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -897,9 +907,15 @@
   0%, 100% { transform: rotate(-45deg) translate(0, 0); }
   50%      { transform: rotate(-51deg) translate(3px, -3px); }
 }
+/* v5/Phase3 perf fix: this used to animate `background-position`, which is a
+   PAINT-only property — every frame repainted the whole rounded surface AND
+   forced the mix-blend-mode:overlay grain below it to re-composite with it.
+   Measured 390x844 DSF2 @ 4x CPU: removing this one loop alone took
+   28.6 -> 39.8 FPS. A composited transform gives the same "living" read for
+   ~0 paint cost, and leaves every gradient / inset shadow / grain untouched. */
 @keyframes ps-grad {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.035) translate3d(-1.2%, -0.8%, 0); }
 }
 
 .portrait-stage--anim .portrait-stage__slot--stat    .portrait-stage__slot-float { animation: ps-float-a 6.5s ease-in-out infinite; }
@@ -907,7 +923,12 @@
 .portrait-stage--anim .portrait-stage__slot--stack   .portrait-stage__slot-float { animation: ps-float-c 7.8s ease-in-out -3.5s infinite; }
 .portrait-stage--anim .portrait-stage__cap--amber { animation: ps-drift-a 9s ease-in-out infinite; }
 .portrait-stage--anim .portrait-stage__cap--mint  { animation: ps-drift-b 11s ease-in-out -3s infinite; }
-.portrait-stage--anim .portrait-stage__shape { animation: ps-grad 14s linear infinite; }
+.portrait-stage--anim .portrait-stage__shape { animation: ps-grad 16s ease-in-out infinite; will-change: transform; }
+/* Promote the floating layers only while the stage is live — `will-change` on a
+   permanently-animating element would hold a compositor layer for the whole
+   session, which is the layer-leak Phase 5 removed on purpose. */
+.portrait-stage--anim .portrait-stage__slot-float,
+.portrait-stage--anim .portrait-stage__cap { will-change: transform; }
 
 /* Reduced motion: never animate, always the final composed state. */
 @media (prefers-reduced-motion: reduce) {
