@@ -84,6 +84,70 @@
      floor for body-size text. Lifting the token once fixes every muted label
      in the app without touching individual call sites. */
   --color-slate-500: #7e8fa4;
+
+  /* ==========================================================================
+     MOBILE-FIRST v4 — PHASE 1 FOUNDATION
+     Base styles target 320–360px. Everything scales up from here via these
+     tokens rather than by ad-hoc breakpoints at each call site.
+
+     `xs` (400px) exists because the common phone band 360–430px is too wide a
+     gap to serve with Tailwind's stock first breakpoint (sm: 640px). Without
+     it every phone layout has to either squeeze at 360px or jump at 640px.
+     `3xl` (1920px) lets the layout breathe on large displays instead of
+     stretching text lines past a comfortable measure.
+     ========================================================================== */
+  --breakpoint-xs: 25rem;   /* 400px */
+  --breakpoint-3xl: 120rem; /* 1920px */
+
+  /* ---- Fluid spacing: 4/8 scale, viewport-aware, never overflows 320px ---- */
+  --spacing-gutter: clamp(1rem, 5vw, 3rem);
+  --spacing-section-y: clamp(3.5rem, 9vw, 8rem);
+
+  /* ---- Fluid type scale ----
+     Floor values are tuned so the smallest supported viewport (320px) is still
+     legible; ceilings keep 2560px from ballooning. */
+  --text-display: clamp(2.75rem, 13vw, 11rem);
+  --text-h1: clamp(1.75rem, 5.5vw, 4rem);
+  --text-h2: clamp(1.25rem, 3.4vw, 2.25rem);
+  --text-h3: clamp(1.0625rem, 2.4vw, 1.5rem);
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+  --text-caption: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+
+  /* ---- Radius family: one scale, used everywhere ---- */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* ---- Layout ---- */
+  --container-content: 75rem;   /* 1200px readable measure */
+  --container-prose: 45rem;     /* ~72ch */
+  --container-wide: 90rem;      /* 1440px for full-bleed cinematic sections */
+
+  /* ---- Safe-area padding (viewport-fit=cover is set in index.html) ---- */
+  --spacing-safe-t: env(safe-area-inset-top, 0px);
+  --spacing-safe-b: env(safe-area-inset-bottom, 0px);
+  --spacing-safe-l: env(safe-area-inset-left, 0px);
+  --spacing-safe-r: env(safe-area-inset-right, 0px);
+
+  /* ---- Z-index scale (audit R-15) ----
+     Replaces ad-hoc z-50/z-40/z-30 so the stacking order is one documented
+     ladder. Mobile header and mobile nav previously shared z-50; the scale
+     makes every layer's intent explicit and leaves headroom between tiers. */
+  --z-base: 0;
+  --z-scene: 10;         /* 3D background canvas + ambience */
+  --z-content: 20;       /* in-flow content raised above the scene */
+  --z-raised: 30;        /* cards, sticky stacks */
+  --z-chrome: 40;        /* mobile dock, Pause 3D control */
+  --z-header: 50;        /* floating top nav */
+  --z-overlay: 60;       /* mobile nav overlay */
+  --z-modal: 70;         /* modals + focus traps */
+  --z-toast: 80;         /* toasts */
+  --z-rail: 90;          /* scroll progress rail */
+  --z-cursor: 100;       /* custom cursor follower (desktop only) */
+  --z-preloader: 110;    /* intro curtain */
 }
 
 @layer base {
@@ -93,9 +157,66 @@
     background-color: #090b11;
     color: #e2e8f0;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    /* MOBILE-FIRST P1: dvh tracks the *dynamic* viewport, so the iOS Safari
+       address bar collapsing no longer resizes full-height sections mid-scroll.
+       svh is the safe floor (smallest viewport, never clipped). */
     min-height: 100vh;
+    min-height: 100svh;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Never let a stray wide child produce a horizontal scrollbar. This is a
+       BACKSTOP only — the real overflow sources were fixed at source in P1.1.
+       `clip` (not `hidden`) so it does not create a scroll container, which
+       would break position: sticky inside. */
+    overflow-x: clip;
+  }
+
+  /* MOBILE-FIRST P1: pinch-zoom must stay available, but users should never
+     be able to trigger a 300% zoom from a stray double-tap on a control. */
+  body {
+    touch-action: manipulation;
+  }
+
+  /* Styled tap highlight instead of the OS default blue flash. */
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  summary,
+  label {
+    -webkit-tap-highlight-color: rgba(76, 215, 246, 0.18);
+  }
+
+  /* Flex/grid children default to min-width:auto, which refuses to shrink
+     below their content and is a classic overflow source. */
+  * {
+    min-width: 0;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  picture {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Form controls below 16px make iOS Safari zoom the viewport on focus,
+     which then leaves the user zoomed-in and panning. Audit R-07.
+     NOTE: this selector alone is NOT enough — Tailwind's `text-xs` utility
+     lives in @layer utilities, which beats @layer base. The enforcing rule
+     lives unlayered at the end of this file. */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+
+  /* Keyboard focus always visible; pointer focus never shows a ring. */
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 
   /* PHASE 5: the app owns programmatic scrolling, so the UA smooth-scroll
@@ -626,4 +747,97 @@ select:focus-visible,
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* ============================================================================
+   MOBILE-FIRST v4 — PHASE 1: form control sizing (unlayered)
+   Audit R-07: every contact/filter input was 12–14px. On iOS Safari a focused
+   input under 16px triggers a viewport zoom that the user cannot easily undo.
+
+   Declared unlayered for the same reason as the focus contract above: the
+   inputs carry Tailwind `text-xs` / `text-sm` utilities, and @layer utilities
+   beat @layer base — so a base-layer rule is silently discarded.
+   ========================================================================= */
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
+
+/* ============================================================================
+   MOBILE-FIRST v4 — PHASE 1: minimum touch target
+   Audit R-06: 33 interactive elements rendered under 44x44 CSS px, the worst
+   a 14x14 social link. Rather than editing ~33 call sites, enforce the floor
+   once: any control that opts in via `.tap` gets a min box, and controls that
+   need extra hit area without changing layout get a ::after overlay.
+   ========================================================================= */
+.tap,
+.tap-sm {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Hit-area expansion that does not alter the visual box. The pseudo-element is
+   positioned beyond the element and is transparent, so the icon stays exactly
+   where it was while the touchable region grows to 44x44. */
+[data-tap] {
+  position: relative;
+}
+[data-tap]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   MOBILE-FIRST v4 — PHASE 1: hover gating
+   Hover-only effects must not stick on touch devices, where :hover latches
+   after a tap. Everything decorative is gated behind a fine pointer.
+   ========================================================================= */
+@media not all and (hover: hover) and (pointer: fine) {
+  .hover-only {
+    display: none !important;
+  }
+}
+
+/* ============================================================================
+   MOBILE-FIRST v4 — PHASE 1: scroll container helper
+   Horizontal scrollers (filter rows, chip tracks) hide their scrollbar without
+   losing scrollability. Used by ProjectsView and now ExperienceView.
+   ========================================================================= */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================================
+   MOBILE-FIRST v4 — PHASE 1: safe-area + dynamic viewport utilities
+   iOS notch/home-indicator and the collapsing address bar.
+   ========================================================================= */
+.safe-t {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-b {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.min-h-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.min-h-svh {
+  min-height: 100svh;
 }
