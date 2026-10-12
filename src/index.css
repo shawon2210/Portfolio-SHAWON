@@ -471,6 +471,208 @@
 }
 
 /* ============================================================================
+   MOBILE-FIRST v5 — PHASE 1: PortraitStage
+   Premium "portrait stage": a rotated cyan/blue geometric shape, an emerald
+   blob, decor micro-elements, and the portrait sitting over the shape.
+
+   Sizing (mobile-first):
+     phone   width clamp(260px, 82vw, 380px)  aspect 7/9
+     tablet  width clamp(380px, 44vw, 440px)  aspect 7/9
+     desktop width clamp(480px, 32vw, 600px)  aspect 4/5  (up to ~4/5)
+
+   All decorative layers are aria-hidden and sized in % so they scale with the
+   stage and never push horizontal overflow. No WebGL — the shared 3D canvas is
+   untouched. TODO(asset): the framed portrait becomes a transparent cutout with
+   a pop-out once the cutout asset is supplied.
+   ========================================================================= */
+.portrait-stage {
+  position: relative;
+  width: clamp(260px, 82vw, 380px);
+  aspect-ratio: 7 / 9;
+  flex-shrink: 0;
+  isolation: isolate;
+  /* Portrait fill ratio inside the stage (bottom-centre). */
+  --stage-portrait-fill: 74%;
+}
+
+@media (min-width: 640px) {
+  .portrait-stage {
+    width: clamp(380px, 44vw, 440px);
+    --stage-portrait-fill: 72%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .portrait-stage {
+    width: clamp(480px, 32vw, 600px);
+    aspect-ratio: 4 / 5;
+    --stage-portrait-fill: 70%;
+  }
+}
+
+/* --- L0 ambient glow ------------------------------------------------------ */
+.portrait-stage__glow {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--color-accent) 34%, transparent),
+    transparent 72%
+  );
+  filter: blur(28px);
+  opacity: 0.5;
+}
+
+/* --- L1 main geometric shape (rotated rounded parallelogram) -------------- */
+.portrait-stage__shape {
+  position: absolute;
+  inset: 6% 8%;
+  z-index: 1;
+  border-radius: 34px;
+  transform: rotate(-10deg);
+  background: linear-gradient(
+    165deg,
+    #22d3ee 0%,
+    var(--color-primary) 30%,
+    var(--color-accent) 62%,
+    #2563eb 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -40px 60px -40px rgba(2, 20, 40, 0.6),
+    0 24px 60px -24px color-mix(in oklab, var(--color-accent) 45%, transparent);
+}
+/* Faint grain for premium texture (static data-URI, no runtime filter cost). */
+.portrait-stage__shape::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- L2 secondary blob + diagonal line ----------------------------------- */
+.portrait-stage__blob {
+  position: absolute;
+  right: 2%;
+  bottom: 16%;
+  width: 46%;
+  aspect-ratio: 1;
+  z-index: 2;
+  border-radius: 58% 42% 46% 54% / 44% 52% 48% 56%;
+  pointer-events: none;
+  background: linear-gradient(140deg, #34d399 0%, #10b981 55%, #059669 100%);
+  box-shadow: 0 18px 40px -18px color-mix(in oklab, var(--color-secondary) 40%, transparent);
+  opacity: 0.95;
+}
+.portrait-stage__line {
+  position: absolute;
+  left: 4%;
+  top: 12%;
+  width: 46%;
+  height: 2px;
+  z-index: 2;
+  transform: rotate(-32deg);
+  transform-origin: left center;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-accent) 60%, transparent), transparent);
+  opacity: 0.5;
+}
+
+/* --- L3 decor micro-elements --------------------------------------------- */
+.portrait-stage__decor {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+.portrait-stage__cap {
+  position: absolute;
+  border-radius: var(--radius-pill);
+  transform: rotate(-45deg);
+}
+.portrait-stage__cap--amber {
+  width: 13%;
+  height: 3.4%;
+  left: 7%;
+  top: 26%;
+  background: var(--color-accent-warm);
+  box-shadow: 0 4px 12px -2px color-mix(in oklab, var(--color-accent-warm) 45%, transparent);
+}
+.portrait-stage__cap--mint {
+  width: 9%;
+  height: 2.8%;
+  right: 12%;
+  top: 12%;
+  background: var(--color-secondary);
+  box-shadow: 0 4px 12px -2px color-mix(in oklab, var(--color-secondary) 40%, transparent);
+}
+.portrait-stage__cap--sky {
+  width: 7%;
+  height: 2.4%;
+  right: 18%;
+  bottom: 6%;
+  background: color-mix(in oklab, var(--color-accent) 70%, transparent);
+}
+.portrait-stage__dot {
+  position: absolute;
+  border-radius: 50%;
+}
+.portrait-stage__dot--1 { width: 4.5%; aspect-ratio: 1; left: 16%; top: 10%; background: var(--color-accent-warm); }
+.portrait-stage__dot--2 { width: 3%;   aspect-ratio: 1; left: 6%;  bottom: 30%; background: color-mix(in oklab, var(--color-accent) 80%, transparent); }
+.portrait-stage__dot--3 { width: 5%;   aspect-ratio: 1; right: 7%; top: 40%; background: var(--color-secondary); }
+.portrait-stage__dot--4 { width: 2.6%; aspect-ratio: 1; right: 30%; bottom: 3%; background: color-mix(in oklab, var(--color-accent-warm) 80%, transparent); }
+.portrait-stage__cursor {
+  position: absolute;
+  left: 13%;
+  bottom: 34%;
+  width: 8%;
+  color: color-mix(in oklab, var(--color-accent) 70%, white);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+.portrait-stage__play {
+  position: absolute;
+  right: 9%;
+  bottom: 24%;
+  width: 6.5%;
+  color: var(--color-accent-warm);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* --- grounding shadow + L4 portrait --------------------------------------- */
+.portrait-stage__ground {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: var(--stage-portrait-fill);
+  height: 7%;
+  z-index: 5;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent 75%);
+  filter: blur(10px);
+}
+.portrait-stage__portrait {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: var(--stage-portrait-fill);
+  z-index: 10;
+  transform: translateX(-50%);
+}
+/* The framed portrait fills the stage-controlled box. */
+.portrait-stage__portrait .profile-portrait {
+  width: 100%;
+}
+
+/* ============================================================================
    PHASE 5 — Shared micro-interaction layer
    One place defines hover / press / focus so every surface in the portfolio
    responds identically. Timings and curves mirror src/lib/motion.ts.

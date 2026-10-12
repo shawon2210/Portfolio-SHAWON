@@ -5,7 +5,7 @@ import { TabType, Project } from '../types';
 import { PERSONAL_INFO, SKILL_CATEGORIES, PROJECTS } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
 import { Badge } from '../components/primitives';
-import { ProfilePortrait } from '../components/ProfilePortrait';
+import { PortraitStage } from '../components/PortraitStage';
 import { useLoadPhase } from '../lib/loadPhase';
 import { EASE_MICRO } from '../lib/motion';
 import { scrollElementTo } from '../lib/scroll';
@@ -196,22 +196,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
             The 3D core wrapper is scoped to the NAME element (not the whole
             row) so the projected core keeps tracking the name at every width. */}
         <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8 lg:flex-row lg:items-center lg:justify-center lg:gap-10 xl:gap-14">
-          {/* PORTRAIT — mobile: above the name (order-1). Desktop: right of the name (order-2). */}
+          {/* PORTRAIT STAGE — mobile: above the name (order-1). Desktop: right of the name (order-2). */}
           <div
             onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
             className={`order-1 lg:order-2 shrink-0 ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
             title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
           >
-            <ProfilePortrait
+            <PortraitStage
               // Dev-only avatar upload override. When it still matches the
-              // default we render the generated <picture> ladder instead.
+              // default the stage renders its own framed <picture> ladder.
               src={avatarUrl !== PERSONAL_INFO.portraitUrl ? avatarUrl : undefined}
               alt={`Portrait of ${PERSONAL_INFO.name}, ${PERSONAL_INFO.title}`}
-              // Mirrors the clamp() ladder in index.css so the browser picks
-              // the right candidate from srcset for the actual box.
-              sizes="(min-width: 1024px) clamp(320px, 26vw, 420px), (min-width: 640px) clamp(280px, 34vw, 340px), (min-width: 400px) clamp(240px, 58vw, 300px), clamp(200px, 62vw, 260px)"
               delay={at('meta') + 0.05}
-              showAvailability={false}
             />
           </div>
 

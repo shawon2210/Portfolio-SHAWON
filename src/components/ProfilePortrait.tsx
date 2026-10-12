@@ -5,6 +5,11 @@ import {
   PORTRAIT_INTRINSIC,
   PORTRAIT_FALLBACK_SRC,
 } from '../data/portraitManifest';
+import {
+  STAGE_PORTRAIT_SRCSET,
+  STAGE_PORTRAIT_INTRINSIC,
+  STAGE_PORTRAIT_FALLBACK_SRC,
+} from '../data/stagePortraitManifest';
 import { usePrefersReducedMotion, EASE_MICRO } from '../lib/motion';
 
 export interface ProfilePortraitProps {
@@ -23,7 +28,7 @@ export interface ProfilePortraitProps {
   /** Entrance delay from the load choreography clock (seconds). */
   delay?: number;
   /** 'hero' is larger and gets the tilt; 'compact' is for secondary placements. */
-  variant?: 'hero' | 'compact';
+  variant?: 'hero' | 'compact' | 'stage-framed';
 }
 
 /**
@@ -60,10 +65,29 @@ export const ProfilePortrait: React.FC<ProfilePortraitProps> = ({
   // devices never latch it and reduced-motion users get no transform at all.
   const useCustomSource = !!src;
 
+  // The stage-framed variant reads the higher-res stage ladder (sourced from the
+  // 1024px master); hero/compact keep the v4 ladder. Both are pre-cropped 7:9.
+  const isStage = variant === 'stage-framed';
+  const ladder = isStage
+    ? {
+        avif: STAGE_PORTRAIT_SRCSET.avif,
+        webp: STAGE_PORTRAIT_SRCSET.webp,
+        jpg: STAGE_PORTRAIT_FALLBACK_SRC,
+        intrinsic: STAGE_PORTRAIT_INTRINSIC,
+      }
+    : {
+        avif: PORTRAIT_SRCSET.avif,
+        webp: PORTRAIT_SRCSET.webp,
+        jpg: PORTRAIT_FALLBACK_SRC,
+        intrinsic: PORTRAIT_INTRINSIC,
+      };
+
   return (
     <div
       ref={ref}
-      data-testid={variant === 'hero' ? 'hero-portrait' : 'portrait-compact'}
+      data-testid={
+        variant === 'hero' ? 'hero-portrait' : isStage ? 'portrait-stage-frame' : 'portrait-compact'
+      }
       className={`profile-portrait profile-portrait--${variant} ${className}`}
     >
       {/* Accent glow ring behind the frame — echoes --color-accent without
@@ -91,22 +115,24 @@ export const ProfilePortrait: React.FC<ProfilePortraitProps> = ({
             alt={alt}
             decoding="async"
             fetchPriority="high"
+            data-testid="portrait-image"
             className="profile-portrait__img"
           />
         ) : (
           <picture>
-            <source type="image/avif" srcSet={PORTRAIT_SRCSET.avif} sizes={sizes} />
-            <source type="image/webp" srcSet={PORTRAIT_SRCSET.webp} sizes={sizes} />
+            <source type="image/avif" srcSet={ladder.avif} sizes={sizes} />
+            <source type="image/webp" srcSet={ladder.webp} sizes={sizes} />
             <img
-              src={PORTRAIT_FALLBACK_SRC}
+              src={ladder.jpg}
               alt={alt}
-              width={PORTRAIT_INTRINSIC.width}
-              height={PORTRAIT_INTRINSIC.height}
+              width={ladder.intrinsic.width}
+              height={ladder.intrinsic.height}
               loading="eager"
               decoding="async"
               // The hero portrait is the LCP candidate — it must not queue behind
               // anything else in the critical path.
               fetchPriority="high"
+              data-testid="portrait-image"
               className="profile-portrait__img"
             />
           </picture>
