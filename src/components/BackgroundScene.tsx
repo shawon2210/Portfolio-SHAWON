@@ -8,6 +8,7 @@ import { anchorRegistry } from '../lib/anchorRegistry';
 import { createProceduralObjects, ProceduralObjects } from '../lib/proceduralObjects';
 import { useLoadPhase } from '../lib/loadPhase';
 import { usePrefersReducedMotion, EASE_MICRO } from '../lib/motion';
+import { motionPause } from '../lib/motionPause';
 
 export interface FloatingCodeConfig {
   count?: number;
@@ -93,6 +94,12 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
   }, [tierStep]);
 
   const isPaused = externalPaused !== undefined ? externalPaused : internalPaused;
+
+  // v5/Phase3: publish the 3D pause toggle into the shared motion store so the
+  // portrait stage's ambient loops + pointer parallax honour the SAME toggle.
+  useEffect(() => {
+    motionPause.set(isPaused);
+  }, [isPaused]);
 
   const togglePause = useCallback(() => {
     if (onTogglePause) {
