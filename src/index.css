@@ -526,13 +526,21 @@
   opacity: 0.5;
 }
 
-/* --- L1 main geometric shape (rotated rounded parallelogram) -------------- */
-.portrait-stage__shape {
+/* --- L1 main geometric shape (rotated rounded parallelogram) --------------
+   v5/Phase3: rotation + clip-path reveal now live on the Motion wrapper
+   (.portrait-stage__shape-wrap); the shape itself is the gradient fill so the
+   wrapper's transform and the shape's background-position loop never collide. */
+.portrait-stage__shape-wrap {
   position: absolute;
   inset: 6% 8%;
   z-index: 1;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.portrait-stage__shape {
+  position: absolute;
+  inset: 0;
   border-radius: 34px;
-  transform: rotate(-10deg);
   background: linear-gradient(
     165deg,
     #22d3ee 0%,
@@ -540,6 +548,8 @@
     var(--color-accent) 62%,
     #2563eb 100%
   );
+  background-size: 160% 160%;
+  background-position: 0% 50%;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
     inset 0 -40px 60px -40px rgba(2, 20, 40, 0.6),
@@ -557,7 +567,16 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* --- L2 secondary blob + diagonal line ----------------------------------- */
+/* --- L2 secondary blob + diagonal line -----------------------------------
+   v5/Phase3: the scale-in + opposite parallax live on .blob-wrap; the blob
+   keeps its own geometry inside. */
+.portrait-stage__blob-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
 .portrait-stage__blob {
   position: absolute;
   right: 2%;
@@ -667,6 +686,11 @@
   z-index: 10;
   transform: translateX(-50%);
 }
+/* Inner wrapper carries the Motion transform (scale + parallax) so it never
+   fights the centering translateX(-50%) on the parent. */
+.portrait-stage__portrait-inner {
+  will-change: transform;
+}
 /* The framed portrait fills the stage-controlled box. */
 .portrait-stage__portrait .profile-portrait {
   width: 100%;
@@ -684,8 +708,9 @@
   z-index: 20;
   pointer-events: none;
 }
-.portrait-stage__card {
-  position: absolute;
+/* v5/Phase3: the glass surface now lives on .stage-card (the card's own root).
+   Position/animation live on the .portrait-stage__slot wrapper. */
+.stage-card {
   pointer-events: none;
   background: color-mix(in oklab, var(--color-surface-container) 72%, transparent);
   border: 1px solid var(--color-border-glass);
@@ -773,50 +798,123 @@
    Tablet:  adds the stack card (right, lower).
    Desktop: cards are slightly smaller and the stat/stack may overhang the
             stage edge, as in the reference — still clear of the face. */
-.portrait-stage__card--stat {
+/* v5/Phase3: positioning moved to the Motion slot wrapper so the card's own
+   transform is free for the parallax, and the inner .slot-float div carries the
+   ambient loop (separate element => no transform collision). */
+.portrait-stage__slot {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.portrait-stage__slot-float {
+  pointer-events: none;
+  will-change: transform;
+}
+.portrait-stage__slot--stat {
   left: 2%;
   top: 3%;
-  padding: 8px 10px;
 }
-.portrait-stage__card--status {
+.portrait-stage__slot--status {
   right: 3%;
   top: 3%;
 }
-.portrait-stage__card--stack {
+.portrait-stage__slot--stack {
   display: none;
   right: 2%;
-  top: 64%;
+  top: 66%;
+}
+.portrait-stage__slot--stat .stage-card {
   padding: 8px 10px;
 }
-.portrait-stage__card--stack .stage-card__chips {
+.portrait-stage__slot--stack .stage-card {
+  padding: 8px 10px;
+}
+.portrait-stage__slot--stack .stage-card__chips {
   max-width: 120px;
 }
 
 @media (min-width: 640px) {
-  .portrait-stage__card--stack {
+  .portrait-stage__slot--stack {
     display: block;
   }
-  .portrait-stage__card--stat .stage-card__value {
+  .portrait-stage__slot--stat .stage-card__value {
     font-size: 28px;
   }
 }
 
 @media (min-width: 1024px) {
-  .portrait-stage__card--stat {
+  .portrait-stage__slot--stat {
     left: -3%;
     top: 4%;
   }
-  .portrait-stage__card--status {
+  .portrait-stage__slot--status {
     right: 4%;
     top: 4%;
   }
-  .portrait-stage__card--stack {
+  .portrait-stage__slot--stack {
     right: -2%;
-    top: 58%;
+    top: 61%;
+  }
+  .portrait-stage__slot--stack .stage-card {
     padding: 9px 12px;
   }
-  .portrait-stage__card--stack .stage-card__chips {
+  .portrait-stage__slot--stack .stage-card__chips {
     max-width: 150px;
+  }
+}
+
+/* ============================================================================
+   v5/Phase3 — ambient loops (transform / background-position only)
+
+   EXACTLY SIX simultaneous infinite animations when the stage is "live"
+   (in view + tab visible + site pause off + motion allowed):
+     3 × card float   (stat / status / stack)  — phase-offset sine bob
+     2 × capsule drift(amber / mint)           — slow rotate + translate
+     1 × shape gradient shift                  — slow background-position
+
+   When the stage is NOT live the `portrait-stage--still` class applies and the
+   stage holds its final composed (static) state. prefers-reduced-motion never
+   reaches the `--anim` branch, so reduced users always get the static state.
+   ========================================================================= */
+@keyframes ps-float-a {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes ps-float-b {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+@keyframes ps-float-c {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes ps-drift-a {
+  0%, 100% { transform: rotate(-45deg) translate(0, 0); }
+  50%      { transform: rotate(-39deg) translate(2px, -5px); }
+}
+@keyframes ps-drift-b {
+  0%, 100% { transform: rotate(-45deg) translate(0, 0); }
+  50%      { transform: rotate(-51deg) translate(3px, -3px); }
+}
+@keyframes ps-grad {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.portrait-stage--anim .portrait-stage__slot--stat    .portrait-stage__slot-float { animation: ps-float-a 6.5s ease-in-out infinite; }
+.portrait-stage--anim .portrait-stage__slot--status  .portrait-stage__slot-float { animation: ps-float-b 5.6s ease-in-out -1.2s infinite; }
+.portrait-stage--anim .portrait-stage__slot--stack   .portrait-stage__slot-float { animation: ps-float-c 7.8s ease-in-out -3.5s infinite; }
+.portrait-stage--anim .portrait-stage__cap--amber { animation: ps-drift-a 9s ease-in-out infinite; }
+.portrait-stage--anim .portrait-stage__cap--mint  { animation: ps-drift-b 11s ease-in-out -3s infinite; }
+.portrait-stage--anim .portrait-stage__shape { animation: ps-grad 14s linear infinite; }
+
+/* Reduced motion: never animate, always the final composed state. */
+@media (prefers-reduced-motion: reduce) {
+  .portrait-stage__shape,
+  .portrait-stage__slot-float,
+  .portrait-stage__cap {
+    animation: none !important;
   }
 }
 

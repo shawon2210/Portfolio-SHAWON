@@ -15,6 +15,7 @@ import { PERSONAL_INFO, PROJECTS, SKILL_CATEGORIES } from './portfolioData';
 export const STAGE_STAT = {
   label: 'Projects',
   value: String(PROJECTS.length),
+  valueNum: PROJECTS.length,
   caption: 'in portfolio',
 } as const;
 
