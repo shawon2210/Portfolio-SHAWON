@@ -35,7 +35,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border backdrop-blur-md transition-colors ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 shrink-0 px-2.5 py-1 rounded-full text-xs font-mono font-medium border backdrop-blur-md transition-colors ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {pulse && (
@@ -49,7 +49,7 @@ export const Badge: React.FC<BadgeProps> = ({
         </span>
       )}
       {icon && <span className="inline-flex shrink-0">{icon}</span>}
-      <span>{children}</span>
+      <span className="whitespace-nowrap">{children}</span>
     </span>
   );
 };
