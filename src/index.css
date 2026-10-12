@@ -9,6 +9,10 @@
   --color-border-hover: rgba(56, 189, 248, 0.35);
   --color-accent: #38bdf8;
   --color-availability: #34d399;
+  /* MOBILE-FIRST v5 / PHASE 1: single warm accent token for the portrait stage
+     (capsule + underline details only). Deliberately sparse — the stage shape
+     itself stays on the sky/blue token family. */
+  --color-accent-warm: #f59e0b;
   --color-heading: #e2e8f0;
   --color-body: #94a3b8;
 
