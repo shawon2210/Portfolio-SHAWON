@@ -5,6 +5,7 @@ import { TabType, Project } from '../types';
 import { PERSONAL_INFO, SKILL_CATEGORIES, PROJECTS } from '../data/portfolioData';
 import { AppIcon } from '../components/AppIcon';
 import { Badge } from '../components/primitives';
+import { ProfilePortrait } from '../components/ProfilePortrait';
 import { useLoadPhase } from '../lib/loadPhase';
 import { EASE_MICRO } from '../lib/motion';
 import { scrollElementTo } from '../lib/scroll';
@@ -119,59 +120,62 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[42rem] h-[28rem] bg-sky-500/15 rounded-full blur-[140px]" />
         </div>
 
-        {/* Top Status & Identity Row — choreography slot: meta */}
+        {/* Top Status & Identity Row — choreography slot: meta
+
+            MOBILE-FIRST v4 / PHASE 2: the brief's mobile order is
+            availability pill -> passport portrait -> name. On phones the whole
+            identity block becomes a centred column (portrait between pill and
+            the giant heading below), and the social pills move under it.
+            From lg up this row returns to the original cinematic left-aligned
+            layout so the desktop design is unchanged.
+
+            The 48px avatar chip is gone. <ProfilePortrait /> is the single
+            canonical portrait for the whole site. */}
         <motion.div
-          className="relative z-20 w-full max-w-7xl mx-auto flex items-center justify-between gap-4"
+          className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-4"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: at('meta'), ease: EASE_MICRO }}
         >
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Profile portrait. MOBILE-FIRST v4: `data-testid="hero-portrait"` is the
-                canonical hook Phase 2 will measure and replace with the full
-                <ProfilePortrait /> component. */}
+          {/* Availability pill comes FIRST on mobile (per the brief's order). */}
+          <div className="flex flex-col items-center gap-3 lg:flex-row lg:items-start lg:gap-4">
+            <Badge variant="availability" pulse>
+              {PERSONAL_INFO.statusPill}
+            </Badge>
+
+            {/* Canonical passport portrait — centred on mobile, left on desktop. */}
             <div
-              data-testid="hero-portrait"
               onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-              className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
+              className={import.meta.env.DEV ? 'cursor-pointer' : ''}
               title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
             >
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden ring-2 ring-sky-400/30 shadow-2xl bg-white/[0.04] transition-all duration-300 group-hover:ring-sky-400/60 group-hover:scale-105">
-                {/* PHASE 5: intrinsic size + high fetch priority. The hero portrait
-                    is the LCP candidate, so it must not wait on layout. */}
-                <img
-                  src={avatarUrl}
-                  alt={PERSONAL_INFO.name}
-                  width={800}
-                  height={800}
-                  decoding="async"
-                  fetchPriority="high"
-                  className="w-full h-full object-cover object-top filter contrast-[1.03]"
-                />
-              </div>
-              <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 ring-2 ring-[#090b11]" />
-              </span>
+              <ProfilePortrait
+                // Dev-only avatar upload override. When it still matches the
+                // default we render the generated <picture> ladder instead.
+                src={avatarUrl !== PERSONAL_INFO.portraitUrl ? avatarUrl : undefined}
+                alt={`Portrait of ${PERSONAL_INFO.name}, ${PERSONAL_INFO.title}`}
+                // Mirrors the clamp() ladder in index.css so the browser picks
+                // the right candidate from srcset for the actual box.
+                sizes="(min-width: 1024px) clamp(320px, 26vw, 420px), (min-width: 640px) clamp(280px, 34vw, 340px), (min-width: 400px) clamp(240px, 58vw, 300px), clamp(200px, 62vw, 260px)"
+                delay={at('meta') + 0.05}
+                showAvailability={false}
+              />
             </div>
 
-            <div className="flex flex-col items-start gap-1">
-              <Badge variant="availability" pulse>
-                {PERSONAL_INFO.statusPill}
-              </Badge>
-              <span className="text-[11px] font-mono text-slate-400">
-                {PERSONAL_INFO.location} &bull; Remote Available
-              </span>
-            </div>
+            <span className="text-xs sm:text-sm font-mono text-slate-400 lg:order-2">
+              {PERSONAL_INFO.location} &bull; Remote Available
+            </span>
           </div>
 
-          {/* Social Presence Pills */}
-          <motion.div
-            className="hidden sm:flex items-center gap-2"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: at('meta') + 0.05, ease: EASE_MICRO }}
-          >
+{/* Social Presence Pills — MOBILE-FIRST v4: previously hidden below sm.
+                Now visible on phones as a centred row under the portrait,
+                because the brief's mobile hero order ends with social icons. */}
+            <motion.div
+              className="flex flex-wrap items-center justify-center gap-2 lg:justify-end"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: at('meta') + 0.05, ease: EASE_MICRO }}
+            >
             <a
               href={PERSONAL_INFO.githubUrl}
               target="_blank"
@@ -232,9 +236,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing"
               >
                 {/* Anchor DOM rect projects to the 3D core in the single WebGL scene */}
+                {/* MOBILE-FIRST v4 / PHASE 2: on phones the portrait owns the hero, so the
+                centerpiece shrinks to a small ambient element and is pushed
+                behind the heading rather than sitting on top of it. From sm up
+                it returns to the full cinematic size. The audit at 390px showed
+                a 192px core sitting directly over the display heading. */}
                 <Anchor3D
                   name="hero-centerpiece"
-                  className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative"
+                  className="w-32 h-32 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative opacity-60 sm:opacity-100"
                 >
                   {/* Visual aura halo ring */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />

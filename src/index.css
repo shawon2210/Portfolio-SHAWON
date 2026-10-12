@@ -271,6 +271,202 @@
 }
 
 /* ============================================================================
+   MOBILE-FIRST v4 — PHASE 2: ProfilePortrait
+   The single canonical portrait. Width ladder is taken verbatim from the brief;
+   floor guarantees are >=200px on phones and >=320px on desktop, so the face is
+   a portrait rather than an avatar chip.
+
+   The source is pre-cropped to 7:9 at build time (scripts/build-portrait.mjs),
+   so `object-fit: cover` here is a no-op safety net — the face cannot be
+   clipped at any width. `object-position` is kept for documentation.
+   ========================================================================= */
+.profile-portrait {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  isolation: isolate;
+}
+
+.profile-portrait__frame {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  /* 1px tokenised border + inner shadow for depth without dimming the face */
+  border: 1px solid var(--color-border-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -24px 48px -24px rgba(0, 0, 0, 0.55),
+    0 24px 48px -20px rgba(0, 0, 0, 0.65);
+  will-change: opacity, transform;
+}
+
+.profile-portrait__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 7 / 9;
+  object-fit: cover;
+  object-position: center top;
+  /* No filters on the face — it must look natural and crisp. */
+}
+
+/* The studio shot has a light grey seamless backdrop (#e8e8e8-ish) which reads
+   as a bright rectangle against the #090b11 canvas. Rather than filter the
+   face, the backdrop is tinted separately: a multiply-ish veil that darkens
+   neutral greys toward the canvas colour while leaving skin tones (which are
+   warmer and more saturated than neutral) largely intact. Applied via a
+   separate layer element so the <img> itself stays unfiltered. */
+.profile-portrait__backdrop-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-canvas) 62%, transparent) 0%,
+      color-mix(in oklab, var(--color-canvas) 40%, transparent) 55%,
+      color-mix(in oklab, var(--color-canvas) 68%, transparent) 100%
+    );
+  mix-blend-mode: multiply;
+}
+
+/* A cool rim on the frame edge ties the portrait into the accent palette. */
+.profile-portrait__rim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--color-accent) 22%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Accent glow behind the frame. Decorative only; never over the face. */
+.profile-portrait__glow {
+  position: absolute;
+  inset: -14%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--color-accent) 38%, transparent),
+    transparent 72%
+  );
+  filter: blur(26px);
+  pointer-events: none;
+}
+
+/* Top-edge sheen, above the image. */
+.profile-portrait__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.10) 0%,
+    transparent 26%
+  );
+}
+
+.profile-portrait__availability {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  z-index: 3;
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+}
+.profile-portrait__dot {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--color-availability);
+  box-shadow: 0 0 0 3px var(--color-canvas), 0 0 14px 2px color-mix(in oklab, var(--color-availability) 55%, transparent);
+}
+.profile-portrait__ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--color-availability);
+  opacity: 0.7;
+  animation: portrait-ping 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes portrait-ping {
+  75%, 100% { transform: scale(2.1); opacity: 0; }
+}
+
+/* ---- Size ladder: mobile-first, floors enforced ----
+   NOTE the +2px on every hero band: the frame carries a 1px border per side,
+   and clamp() sizes the border-box, so without the allowance the rendered
+   IMAGE lands 2px under the brief's floor (measured 198px at a 320px
+   viewport, 238px at 412px). The image box is what the floor refers to. */
+.profile-portrait--hero,
+.profile-portrait--compact {
+  /* 320–399px base */
+  width: calc(clamp(200px, 62vw, 260px) + 2px);
+}
+.profile-portrait--compact {
+  width: calc(clamp(120px, 34vw, 180px) + 2px);
+}
+
+@media (min-width: 400px) {
+  .profile-portrait--hero {
+    width: calc(clamp(240px, 58vw, 300px) + 2px);
+  }
+  .profile-portrait--compact {
+    width: calc(clamp(140px, 32vw, 200px) + 2px);
+  }
+}
+
+@media (min-width: 640px) {
+  .profile-portrait--hero {
+    width: calc(clamp(280px, 34vw, 340px) + 2px);
+  }
+  .profile-portrait--compact {
+    width: calc(clamp(150px, 22vw, 210px) + 2px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-portrait--hero {
+    width: calc(clamp(320px, 26vw, 420px) + 2px);
+  }
+  .profile-portrait--compact {
+    width: calc(clamp(160px, 16vw, 220px) + 2px);
+  }
+}
+
+/* Tilt is a pointer affordance only — gated so touch never latches it. */
+@media (hover: hover) and (pointer: fine) {
+  .profile-portrait--hero .profile-portrait__frame {
+    transition: transform 420ms var(--ease-micro, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+  .profile-portrait--hero:hover .profile-portrait__frame {
+    transform: perspective(900px) rotateX(-3deg) rotateY(4deg) translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-portrait__ping {
+    animation: none;
+    opacity: 0;
+  }
+  .profile-portrait__frame {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================================
    PHASE 5 — Shared micro-interaction layer
    One place defines hover / press / focus so every surface in the portfolio
    responds identically. Timings and curves mirror src/lib/motion.ts.
