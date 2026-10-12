@@ -54,39 +54,50 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
           </p>
         </motion.div>
 
-        {/* Filter Segment Tabs with Spring Pill */}
-        <div className="flex items-center gap-1.5 mt-6 pt-4 border-t border-white/[0.08]">
-          {[
-            { id: 'all', label: 'All Milestones', icon: Layers },
-            { id: 'work', label: 'Work & Apprenticeships', icon: Briefcase },
-            { id: 'academy', label: 'Academic & Degrees', icon: GraduationCap },
-          ].map((tab) => {
-            const isActive = activeFilter === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveFilter(tab.id as 'all' | 'work' | 'academy')}
-                className={`relative px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
-                  isActive
+        {/* Filter Segment Tabs with Spring Pill
+            MOBILE-FIRST P1 / audit R-04: this row was `flex items-center gap-1.5`
+            with no wrap and no overflow handling, so at 320–430px the pill track
+            forced documentElement.scrollWidth to 509px — a horizontal scroll on
+            every phone. ProjectsView already handles the identical row with
+            `overflow-x-auto no-scrollbar`; mirroring that fixes R-03/R-05.
+            `min-w-0` lets the flex child actually shrink instead of forcing the
+            parent wide. */}
+        <div className="flex items-center gap-1.5 mt-6 pt-4 border-t border-white/[0.08] overflow-x-auto no-scrollbar py-1">
+          <div className="flex items-center gap-1.5 min-w-0" role="tablist" aria-label="Filter milestones">
+            {[
+              { id: 'all', label: 'All Milestones', icon: Layers },
+              { id: 'work', label: 'Work & Apprenticeships', icon: Briefcase },
+              { id: 'academy', label: 'Academic & Degrees', icon: GraduationCap },
+            ].map((tab) => {
+              const isActive = activeFilter === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveFilter(tab.id as 'all' | 'work' | 'academy')}
+                  className={`relative shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
+                    isActive
                     ? 'text-slate-950 font-bold'
                     : 'text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06]'
                 }`}
-              >
-                {isActive && (
-                  <motion.span
-                    layoutId="experienceFilterTab"
-                    className="absolute inset-0 bg-sky-400 rounded-full shadow-[0_0_16px_rgba(56,189,248,0.45)]"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </span>
-              </button>
-            );
-          })}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="experienceFilterTab"
+                      className="absolute inset-0 bg-sky-400 rounded-full shadow-[0_0_16px_rgba(56,189,248,0.45)]"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
