@@ -195,7 +195,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 <button
                   onClick={() => emailCopy.trigger(PERSONAL_INFO.email)}
                   aria-label="Copy email address"
-                  className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 flex items-center justify-center text-[#94a3b8] hover:text-sky-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  className="w-11 h-11 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 flex items-center justify-center text-[#94a3b8] hover:text-sky-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 >
                   <AnimatePresence mode="wait" initial={false}>
                     {emailCopy.copied ? (
@@ -223,7 +223,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 </button>
                 <a
                   href={`mailto:${PERSONAL_INFO.email}`}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold hover:bg-sky-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  className="tap-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-500 text-white text-xs font-semibold hover:bg-sky-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 >
                   Send <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
@@ -249,7 +249,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                 <button
                   onClick={() => phoneCopy.trigger(PERSONAL_INFO.phone)}
                   aria-label="Copy phone number"
-                  className="w-8 h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-emerald-400/35 hover:bg-emerald-400/5 flex items-center justify-center text-[#94a3b8] hover:text-emerald-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                  className="w-11 h-11 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-emerald-400/35 hover:bg-emerald-400/5 flex items-center justify-center text-[#94a3b8] hover:text-emerald-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   <AnimatePresence mode="wait" initial={false}>
                     {phoneCopy.copied ? (
@@ -279,7 +279,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   href={PERSONAL_INFO.whatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                  className="tap-pill inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   Chat <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
@@ -661,7 +661,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           {/* Print access (footer only) */}
           <button
             onClick={() => window.print()}
-            className="font-mono text-[11px] text-[#94a3b8] hover:text-[#e2e8f0] transition-colors underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
+            className="font-mono text-[11px] text-[#94a3b8] hover:text-[#e2e8f0] transition-colors underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded py-2 -my-2 px-1 -mx-1"
           >
             Print Portfolio
           </button>

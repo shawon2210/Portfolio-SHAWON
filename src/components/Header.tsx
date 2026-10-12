@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <motion.header
       data-testid="site-header"
-      className={`fixed top-0 left-0 right-0 z-50 transition-[padding] duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-[padding] duration-300 pt-[max(env(safe-area-inset-top),0px)] ${
         scrolled ? 'py-2 sm:py-2.5' : 'py-3 sm:py-4'
       }`}
       role="banner"
@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onSelectTab(id)}
                 aria-current={isActive ? 'page' : undefined}
                 data-cursor="link"
-                className={`relative px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable ${
+                className={`tap-pill relative px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable ${
                   isActive ? 'text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
           {import.meta.env.DEV && (
             <a
               href="#dev-ui"
-              className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono text-slate-400 hover:text-sky-300 hover:border-sky-500/30 transition-all pressable"
+              className="tap-pill hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-[11px] font-mono text-slate-400 hover:text-sky-300 hover:border-sky-500/30 transition-all pressable"
               title="Design System /dev/ui"
             >
               <Sparkles className="w-3 h-3 text-sky-400" />
@@ -153,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOpenResume}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-sky-500/15 text-xs font-semibold text-sky-400 border border-sky-500/25 hover:border-sky-500/50 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable"
+            className="tap-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-sky-500/15 text-xs font-semibold text-sky-400 border border-sky-500/25 hover:border-sky-500/50 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable"
             aria-label="View CV Resume"
             data-cursor="link"
           >
@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
             href={PERSONAL_INFO.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.08] border border-transparent hover:border-white/[0.1] transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable"
+            className="w-11 h-11 flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-white/[0.08] border border-transparent hover:border-white/[0.1] transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 pressable"
             aria-label="GitHub Profile"
             title="GitHub Profile"
           >

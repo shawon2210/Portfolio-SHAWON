@@ -114,7 +114,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <button
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.id)}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer pressable focus-ring ${
+                  className={`tap-pill relative px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer pressable focus-ring ${
                     isActive
                       ? 'text-slate-950 font-bold'
                       : 'text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06]'
@@ -268,7 +268,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all pressable focus-ring"
+                        className="w-11 h-11 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all pressable focus-ring"
                         title="GitHub Repo"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -372,7 +372,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="flex items-center justify-between pt-4 mt-3 border-t border-white/[0.06]">
                         <button
                           onClick={() => onSelectProject(project)}
-                          className="font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer pressable focus-ring"
+                          className="font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer pressable focus-ring py-2 -my-2"
                         >
                           Inspect Code &rarr;
                         </button>
@@ -383,7 +383,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                               href={project.liveUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-mono text-slate-400 hover:text-white"
+                              data-tap
+                              className="text-xs font-mono text-slate-400 hover:text-white inline-flex items-center px-2 -mx-2 py-2 -my-2"
                               title="Live URL"
                             >
                               Live
@@ -393,7 +394,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-white"
+                            data-tap
+                            className="text-slate-400 hover:text-white inline-flex items-center justify-center"
                             title="GitHub Repo"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />

@@ -77,7 +77,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = () => {
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setActiveFilter(tab.id as 'all' | 'work' | 'academy')}
-                  className={`relative shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
+                  className={`tap-pill relative shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 ${
                     isActive
                     ? 'text-slate-950 font-bold'
                     : 'text-slate-400 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06]'

@@ -176,7 +176,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               href={PERSONAL_INFO.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
+              className="tap-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-sky-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
             >
               <Github className="w-3.5 h-3.5 text-sky-400" />
               <span>GitHub</span>
@@ -185,7 +185,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               href={PERSONAL_INFO.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-violet-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
+              className="tap-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-violet-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all pressable"
             >
               <Linkedin className="w-3.5 h-3.5 text-violet-400" />
               <span>LinkedIn</span>

@@ -24,12 +24,12 @@ export const FloatingDock: React.FC<FloatingDockProps> = ({ activeTab, onSelectT
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <nav
+<nav
       data-testid="mobile-dock"
-      className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-center pointer-events-none pb-[max(1rem,env(safe-area-inset-bottom))] pt-2"
       aria-label="Mobile navigation"
     >
-      <div className="flex items-center gap-1 bg-[#0d1017]/90 backdrop-blur-2xl px-2 py-2 rounded-2xl border border-white/[0.10] shadow-[0_8px_40px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)]">
+      <div className="pointer-events-auto flex items-center gap-1 bg-[#0d1017]/90 backdrop-blur-2xl px-2 py-2 rounded-2xl border border-white/[0.10] shadow-[0_8px_40px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)]">
         {DOCK_ITEMS.map(({ id, label, Icon }) => {
           const isActive = activeTab === id;
           return (
@@ -74,7 +74,7 @@ const DockItem: React.FC<DockItemProps> = ({
       data-cursor="link"
       aria-label={label}
       title={label}
-      className={`relative flex flex-col items-center justify-center gap-0.5 px-4 py-2 rounded-xl transition-colors duration-200 cursor-pointer pressable focus-ring ${
+      className={`tap-pill relative flex flex-col items-center justify-center gap-0.5 px-4 py-2 rounded-xl transition-colors duration-200 cursor-pointer pressable focus-ring ${
         isActive
           ? 'text-slate-950'
           : 'text-slate-400 hover:text-white hover:bg-white/[0.06]'

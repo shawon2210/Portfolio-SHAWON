@@ -486,7 +486,7 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
             </Suspense>
           </section>
 
-          <section id="contact" data-testid="section-contact" className="scroll-mt-16 w-full border-t border-white/5 pb-28 md:pb-0 bg-transparent">
+          <section id="contact" data-testid="section-contact" className="scroll-mt-16 w-full border-t border-white/5 pb-[max(7rem,calc(env(safe-area-inset-bottom)+7rem))] md:pb-0 bg-transparent">
             <Suspense fallback={<div data-testid="loading-contact" className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
               <ContactView
                 avatarUrl={avatarUrl}
