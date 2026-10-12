@@ -41,6 +41,7 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({ showReadout = fa
   return (
     <>
       <motion.div
+        data-testid="scroll-rail"
         aria-hidden="true"
         className="fixed top-0 left-0 right-0 h-[2px] origin-left bg-gradient-to-r from-sky-400 via-sky-300 to-emerald-400 z-[70] pointer-events-none shadow-[0_0_10px_rgba(56,189,248,0.55)]"
         style={{ scaleX: progress }}

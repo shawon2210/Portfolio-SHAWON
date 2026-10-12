@@ -25,6 +25,7 @@ export const FloatingDock: React.FC<FloatingDockProps> = ({ activeTab, onSelectT
 
   return (
     <nav
+      data-testid="mobile-dock"
       className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
       aria-label="Mobile navigation"
     >
@@ -68,6 +69,7 @@ const DockItem: React.FC<DockItemProps> = ({
   return (
     <button
       onClick={() => onSelectTab(id)}
+      data-testid={`dock-${id}`}
       aria-current={isActive ? 'page' : undefined}
       data-cursor="link"
       aria-label={label}

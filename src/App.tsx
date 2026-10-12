@@ -442,9 +442,12 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
           onPrintPortfolio={handlePrintPortfolio}
         />
 
-        {/* Main Content Area: Continuous Sections with Scroll-Spy Integration */}
-        <main className="flex-1 pt-16 flex flex-col w-full relative bg-transparent">
-          <section id="home" className="scroll-mt-16 w-full bg-transparent">
+{/* Main Content Area: Continuous Sections with Scroll-Spy Integration
+            MOBILE-FIRST v4: `data-testid` hooks on every section boundary so the
+            responsive/a11y suites select stable nodes instead of matching on
+            class names, which change whenever the layout is restyled. */}
+        <main className="flex-1 pt-16 flex flex-col w-full relative bg-transparent" data-testid="main-content">
+          <section id="home" data-testid="section-home" className="scroll-mt-16 w-full bg-transparent">
             <HomeView
               avatarUrl={avatarUrl}
               onNavigate={handleTabChange}
@@ -456,8 +459,8 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
             />
           </section>
 
-          <section id="projects" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
-            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading projects catalog...</div>}>
+          <section id="projects" data-testid="section-projects" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
+            <Suspense fallback={<div data-testid="loading-projects" className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading projects catalog...</div>}>
               <ProjectsView
                 onNavigate={handleTabChange}
                 onSelectProject={(project) => setSelectedProject(project)}
@@ -474,8 +477,8 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
             </Suspense>
           </section>
 
-          <section id="experience" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
-            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading experience...</div>}>
+          <section id="experience" data-testid="section-experience" className="scroll-mt-16 w-full border-t border-white/5 bg-transparent">
+            <Suspense fallback={<div data-testid="loading-experience" className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading experience...</div>}>
               <ExperienceView
                 onNavigate={handleTabChange}
                 onShowToast={showToast}
@@ -483,8 +486,8 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
             </Suspense>
           </section>
 
-          <section id="contact" className="scroll-mt-16 w-full border-t border-white/5 pb-28 md:pb-0 bg-transparent">
-            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
+          <section id="contact" data-testid="section-contact" className="scroll-mt-16 w-full border-t border-white/5 pb-28 md:pb-0 bg-transparent">
+            <Suspense fallback={<div data-testid="loading-contact" className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
               <ContactView
                 avatarUrl={avatarUrl}
                 onOpenResume={() => setIsResumeOpen(true)}

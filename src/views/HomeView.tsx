@@ -111,6 +111,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       ========================================================================= */}
       <section
         ref={heroRef}
+        data-testid="hero"
         className="relative w-full min-h-[100vh] flex flex-col justify-between px-4 sm:px-6 lg:px-12 pt-24 sm:pt-28 pb-8 sm:pb-12 overflow-hidden select-none"
       >
         {/* Soft aurora ambient highlight */}
@@ -126,7 +127,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
           transition={{ duration: 0.6, delay: at('meta'), ease: EASE_MICRO }}
         >
           <div className="flex items-center gap-3 sm:gap-4">
+            {/* Profile portrait. MOBILE-FIRST v4: `data-testid="hero-portrait"` is the
+                canonical hook Phase 2 will measure and replace with the full
+                <ProfilePortrait /> component. */}
             <div
+              data-testid="hero-portrait"
               onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
               className={`relative shrink-0 group ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
               title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
@@ -277,12 +282,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: at('cta'), ease: EASE_MICRO }}
           >
-            <PillButton onClick={() => onNavigate('projects')} className="group">
+            <PillButton data-testid="cta-explore-projects" onClick={() => onNavigate('projects')} className="group">
               <span>Explore Projects</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </PillButton>
 
-            <GhostButton onClick={onOpenResume}>
+            <GhostButton data-testid="cta-inspect-resume" onClick={onOpenResume}>
               <FileText className="w-4 h-4 text-sky-400" />
               <span>Inspect CV Resume</span>
             </GhostButton>
@@ -315,7 +320,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           PATTERN 3: TWO-ROW SCROLL-DRIVEN PROJECT MARQUEE ("Selected work in motion")
           Row 1 moves right, Row 2 moves left; driven by scroll position with velocity skew
       ========================================================================= */}
-      <section className="relative w-full py-16 sm:py-24 overflow-hidden border-y border-white/[0.06] bg-transparent">
+      <section data-testid="section-marquee" className="relative w-full py-16 sm:py-24 overflow-hidden border-y border-white/[0.06] bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -495,7 +500,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           Huge 01-05 numerals, uppercase title, muted description, hairline dividers,
           on light section with rounded-t-[60px] that overlaps the dark section.
       ========================================================================= */}
-      <section className="relative w-full bg-[#f8fafc] text-slate-900 rounded-t-[48px] sm:rounded-t-[60px] pt-20 sm:pt-28 pb-24 px-4 sm:px-8 lg:px-16 shadow-[0_-20px_50px_rgba(0,0,0,0.4)] z-30">
+      <section data-testid="section-services" className="relative w-full bg-[#f8fafc] text-slate-900 rounded-t-[48px] sm:rounded-t-[60px] pt-20 sm:pt-28 pb-24 px-4 sm:px-8 lg:px-16 shadow-[0_-20px_50px_rgba(0,0,0,0.4)] z-30">
         <div className="max-w-6xl mx-auto space-y-16">
           {/* Inverted Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-300 pb-8">
@@ -565,7 +570,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <PillButton onClick={() => onNavigate('contact')}>
+              <PillButton data-testid="cta-schedule-interview" onClick={() => onNavigate('contact')}>
                 <span>Schedule Interview</span>
                 <ArrowRight className="w-4 h-4" />
               </PillButton>

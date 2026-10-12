@@ -255,6 +255,9 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       renderer.toneMappingExposure = 1.05;
 
       container.appendChild(renderer.domElement);
+      // MOBILE-FIRST v4: stable hook for the WebGL surface. three.js creates the
+      // canvas imperatively, so the testid has to be set here rather than in JSX.
+      renderer.domElement.setAttribute('data-testid', 'scene-canvas');
 
       // 4. Create Texture Atlas
       try {
@@ -749,6 +752,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
           transform never triggers a resize. */}
       <motion.div
         aria-hidden="true"
+        data-testid="scene-layer"
         className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
         /* PHASE 5: opacity only. A `scale` tween on an element that contains a
            WebGL canvas forces the compositor to resample the drawing buffer on
@@ -777,6 +781,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
         <button
           onClick={togglePause}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d1017]/85 backdrop-blur-md border border-white/[0.08] hover:border-sky-400/40 text-[11px] font-mono text-slate-400 hover:text-white transition-all shadow-lg cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
+          data-testid="scene-pause-toggle"
           title={isPaused ? 'Resume 3D Background' : 'Pause 3D Background'}
           aria-label={isPaused ? 'Resume 3D animations' : 'Pause 3D animations'}
         >

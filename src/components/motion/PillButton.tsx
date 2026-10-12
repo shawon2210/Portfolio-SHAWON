@@ -9,6 +9,8 @@ export interface PillButtonProps {
   href?: string;
   className?: string;
   magnetic?: boolean;
+  /** MOBILE-FIRST v4: forwarded to the interactive element as a stable test hook. */
+  'data-testid'?: string;
 }
 
 export const PillButton: React.FC<PillButtonProps> = ({
@@ -17,6 +19,7 @@ export const PillButton: React.FC<PillButtonProps> = ({
   href,
   className = '',
   magnetic = true,
+  'data-testid': testId,
 }) => {
   const reducedMotion = usePrefersReducedMotion();
 
@@ -47,11 +50,11 @@ export const PillButton: React.FC<PillButtonProps> = ({
   );
 
   const wrapper = href ? (
-    <a href={href} onClick={onClick} className="inline-block no-underline focus-ring">
+    <a href={href} onClick={onClick} data-testid={testId} className="inline-block no-underline focus-ring tap">
       {content}
     </a>
   ) : (
-    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0 focus-ring">
+    <button onClick={onClick} type="button" data-testid={testId} className="inline-block bg-transparent border-0 p-0 focus-ring tap">
       {content}
     </button>
   );
@@ -69,6 +72,8 @@ export interface GhostButtonProps {
   href?: string;
   className?: string;
   magnetic?: boolean;
+  /** MOBILE-FIRST v4: forwarded to the interactive element as a stable test hook. */
+  'data-testid'?: string;
 }
 
 export const GhostButton: React.FC<GhostButtonProps> = ({
@@ -77,6 +82,7 @@ export const GhostButton: React.FC<GhostButtonProps> = ({
   href,
   className = '',
   magnetic = true,
+  'data-testid': testId,
 }) => {
   const reducedMotion = usePrefersReducedMotion();
 
@@ -92,11 +98,11 @@ export const GhostButton: React.FC<GhostButtonProps> = ({
   );
 
   const wrapper = href ? (
-    <a href={href} onClick={onClick} className="inline-block no-underline focus-ring">
+    <a href={href} onClick={onClick} data-testid={testId} className="inline-block no-underline focus-ring tap">
       {content}
     </a>
   ) : (
-    <button onClick={onClick} type="button" className="inline-block bg-transparent border-0 p-0 focus-ring">
+    <button onClick={onClick} type="button" data-testid={testId} className="inline-block bg-transparent border-0 p-0 focus-ring tap">
       {content}
     </button>
   );

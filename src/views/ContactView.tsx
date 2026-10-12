@@ -458,6 +458,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                     <span className="text-red-400" aria-hidden="true">*</span>
                   </label>
                   <input
+                    data-testid="form-contact-name"
                     id="contact-name"
                     name="name"
                     type="text"
@@ -493,6 +494,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                     <span className="text-red-400" aria-hidden="true">*</span>
                   </label>
                   <input
+                    data-testid="form-contact-email"
                     id="contact-email"
                     name="email"
                     type="email"
@@ -528,6 +530,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   Subject / Inquiry Type
                 </label>
                 <select
+                  data-testid="form-contact-subject"
                   id="contact-subject"
                   name="subject"
                   value={formData.subject}
@@ -558,6 +561,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   <span className="text-red-400" aria-hidden="true">*</span>
                 </label>
                 <textarea
+                  data-testid="form-contact-message"
                   id="contact-message"
                   name="message"
                   required
