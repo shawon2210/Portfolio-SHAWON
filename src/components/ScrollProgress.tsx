@@ -43,7 +43,7 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({ showReadout = fa
       <motion.div
         data-testid="scroll-rail"
         aria-hidden="true"
-        className="fixed top-0 left-0 right-0 h-[2px] origin-left bg-gradient-to-r from-sky-400 via-sky-300 to-emerald-400 z-[70] pointer-events-none shadow-[0_0_10px_rgba(56,189,248,0.55)]"
+        className="fixed top-0 left-0 right-0 h-[2px] origin-left bg-gradient-to-r from-sky-400 via-sky-300 to-emerald-400 z-90 pointer-events-none shadow-[0_0_10px_rgba(56,189,248,0.55)]"
         style={{ scaleX: progress }}
       />
 
@@ -67,7 +67,7 @@ const Readout: React.FC<{ progress: ReturnType<typeof useSpring> }> = ({ progres
   return (
     <motion.div
       aria-hidden="true"
-      className="fixed top-3 right-4 sm:right-6 z-[70] pointer-events-none font-mono text-[10px] tabular-nums text-sky-300/70 mix-blend-screen"
+      className="fixed top-3 right-4 sm:right-6 z-90 pointer-events-none font-mono text-[10px] tabular-nums text-sky-300/70 mix-blend-screen"
       style={{ opacity }}
     >
       <motion.span>{pct}</motion.span>

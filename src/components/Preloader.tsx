@@ -170,7 +170,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete, enabled, reduc
   return (
     <div
       ref={shellRef}
-      className={`fixed inset-0 z-[120] flex flex-col items-center justify-center overflow-hidden bg-[#090b11] ${
+      className={`fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-hidden bg-[#090b11] ${
         exiting ? 'preloader-exit' : ''
       }`}
       role="progressbar"

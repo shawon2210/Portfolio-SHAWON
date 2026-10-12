@@ -134,12 +134,20 @@
 
   /* ---- Z-index scale (audit R-15) ----
      Replaces ad-hoc z-50/z-40/z-30 so the stacking order is one documented
-     ladder. Mobile header and mobile nav previously shared z-50; the scale
-     makes every layer's intent explicit and leaves headroom between tiers. */
+     ladder. Header and mobile nav previously both sat at z-50 with no defined
+     relationship, which is how audit R-10 (nav covering a CTA) was found.
+
+     NOTE: these are plain CSS custom properties, NOT @theme keys. Tailwind v4
+     has no `--z-*` namespace, so declaring them in @theme generates no
+     utilities at all — verified empirically: a `--z-header: 50` theme key
+     produced no `.z-header` rule and silently stripped the header's stacking.
+     The scale is therefore enforced with real Tailwind z-* utilities in JSX
+     (z-40 chrome, z-50 header, z-70 modal, z-80 toast, z-90 rail,
+     z-[110] preloader) and documented here as the single source of truth. */
   --z-base: 0;
   --z-scene: 10;         /* 3D background canvas + ambience */
   --z-content: 20;       /* in-flow content raised above the scene */
-  --z-raised: 30;        /* cards, sticky stacks */
+  --z-raised: 30;        /* cards, sticky stacks, inverted light section */
   --z-chrome: 40;        /* mobile dock, Pause 3D control */
   --z-header: 50;        /* floating top nav */
   --z-overlay: 60;       /* mobile nav overlay */

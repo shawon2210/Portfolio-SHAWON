@@ -86,7 +86,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-70 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md bg-surface-container rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden font-sans">
         {/* Modal Top Bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-surface-container-high">

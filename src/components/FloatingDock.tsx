@@ -26,7 +26,7 @@ export const FloatingDock: React.FC<FloatingDockProps> = ({ activeTab, onSelectT
   return (
     <nav
       data-testid="mobile-dock"
-      className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
+      className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40"
       aria-label="Mobile navigation"
     >
       <div className="flex items-center gap-1 bg-[#0d1017]/90 backdrop-blur-2xl px-2 py-2 rounded-2xl border border-white/[0.10] shadow-[0_8px_40px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.04)]">

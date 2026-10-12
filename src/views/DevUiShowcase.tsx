@@ -64,7 +64,7 @@ export const DevUiShowcase: React.FC = () => {
       }`}
     >
       {/* Dev Header */}
-      <header className="sticky top-0 z-50 bg-[#090b11]/80 backdrop-blur-xl border-b border-white/[0.08] px-4 md:px-8 py-3.5">
+      <header className="sticky top-0 z-70 bg-[#090b11]/80 backdrop-blur-xl border-b border-white/[0.08] px-4 md:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Badge variant="accent" icon={<Terminal size={12} />}>
