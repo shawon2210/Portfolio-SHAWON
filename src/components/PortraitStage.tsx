@@ -1,5 +1,6 @@
 import React from 'react';
 import { ProfilePortrait } from './ProfilePortrait';
+import { StageCard } from './StageCard';
 
 export interface PortraitStageProps {
   /** Descriptive alt text. Use the person's name/title from portfolioData. */
@@ -102,6 +103,16 @@ export const PortraitStage: React.FC<PortraitStageProps> = ({
           delay={delay}
           showAvailability={false}
         />
+      </div>
+
+      {/* L5 — Floating info cards (Phase 2). Real content only. The whole layer
+          is pointer-events:none so it never intercepts a tap meant for the
+          portrait (dev upload) or a CTA; the card text stays in the a11y tree. */}
+      <div data-testid="stage-cards" className="portrait-stage__cards">
+        <StageCard variant="stat" className="portrait-stage__card portrait-stage__card--stat" />
+        <StageCard variant="status" className="portrait-stage__card portrait-stage__card--status" />
+        {/* Stack card only on tablet+ (phones cap at 2 cards per the brief). */}
+        <StageCard variant="stack" className="portrait-stage__card portrait-stage__card--stack" />
       </div>
     </div>
   );
