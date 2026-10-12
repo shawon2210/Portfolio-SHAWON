@@ -122,15 +122,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Top Status & Identity Row — choreography slot: meta
 
-            MOBILE-FIRST v4 / PHASE 2: the brief's mobile order is
-            availability pill -> passport portrait -> name. On phones the whole
-            identity block becomes a centred column (portrait between pill and
-            the giant heading below), and the social pills move under it.
-            From lg up this row returns to the original cinematic left-aligned
-            layout so the desktop design is unchanged.
-
-            The 48px avatar chip is gone. <ProfilePortrait /> is the single
-            canonical portrait for the whole site. */}
+            MOBILE-FIRST v4 / PHASE 2 (position redesign): this row now carries
+            only the availability pill + location (left) and the social pills
+            (right). The canonical <ProfilePortrait /> moved DOWN into the
+            centerpiece stage so it can sit BESIDE the giant name on desktop
+            (right side) while still stacking above the name on mobile — making
+            the portrait's position genuinely responsive. */}
         <motion.div
           className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-4"
           initial={{ opacity: 0, y: -10 }}
@@ -138,31 +135,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           transition={{ duration: 0.6, delay: at('meta'), ease: EASE_MICRO }}
         >
           {/* Availability pill comes FIRST on mobile (per the brief's order). */}
-          <div className="flex flex-col items-center gap-3 lg:flex-row lg:items-start lg:gap-4">
+          <div className="flex flex-col items-center gap-3 lg:flex-row lg:items-center lg:gap-4">
             <Badge variant="availability" pulse>
               {PERSONAL_INFO.statusPill}
             </Badge>
 
-            {/* Canonical passport portrait — centred on mobile, left on desktop. */}
-            <div
-              onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-              className={import.meta.env.DEV ? 'cursor-pointer' : ''}
-              title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
-            >
-              <ProfilePortrait
-                // Dev-only avatar upload override. When it still matches the
-                // default we render the generated <picture> ladder instead.
-                src={avatarUrl !== PERSONAL_INFO.portraitUrl ? avatarUrl : undefined}
-                alt={`Portrait of ${PERSONAL_INFO.name}, ${PERSONAL_INFO.title}`}
-                // Mirrors the clamp() ladder in index.css so the browser picks
-                // the right candidate from srcset for the actual box.
-                sizes="(min-width: 1024px) clamp(320px, 26vw, 420px), (min-width: 640px) clamp(280px, 34vw, 340px), (min-width: 400px) clamp(240px, 58vw, 300px), clamp(200px, 62vw, 260px)"
-                delay={at('meta') + 0.05}
-                showAvailability={false}
-              />
-            </div>
-
-            <span className="text-xs sm:text-sm font-mono text-slate-400 lg:order-2">
+            <span className="text-xs sm:text-sm font-mono text-slate-400">
               {PERSONAL_INFO.location} &bull; Remote Available
             </span>
           </div>
@@ -204,53 +182,82 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </motion.div>
         </motion.div>
 
-        {/* Centerpiece Stage: Giant Display Heading BEHIND 3D Core Showpiece */}
-        <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8">
-          {/* Layer 0: Giant Full-Width Gradient Display Heading (behind showpiece) */}
-          <div className="relative z-0 w-full flex justify-center text-center overflow-hidden pointer-events-none">
+        {/* Centerpiece Stage — Giant name + RESPONSIVE portrait placement.
+
+            MOBILE-FIRST v4 / PHASE 2 (position redesign):
+            The portrait now lives HERE, next to the name, instead of floating
+            above-left in the meta row. Its position is genuinely responsive:
+              - < lg : portrait stacks ABOVE the giant name (centred column),
+                      preserving the established mobile-first identity order.
+              - lg+  : true two-column hero — giant name on the LEFT (with the
+                      single WebGL core anchored over it) and the passport
+                      portrait on the RIGHT. This is the "right side of the
+                      name" layout.
+            The 3D core wrapper is scoped to the NAME element (not the whole
+            row) so the projected core keeps tracking the name at every width. */}
+        <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8 lg:flex-row lg:items-center lg:justify-center lg:gap-10 xl:gap-14">
+          {/* PORTRAIT — mobile: above the name (order-1). Desktop: right of the name (order-2). */}
+          <div
+            onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
+            className={`order-1 lg:order-2 shrink-0 ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
+            title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
+          >
+            <ProfilePortrait
+              // Dev-only avatar upload override. When it still matches the
+              // default we render the generated <picture> ladder instead.
+              src={avatarUrl !== PERSONAL_INFO.portraitUrl ? avatarUrl : undefined}
+              alt={`Portrait of ${PERSONAL_INFO.name}, ${PERSONAL_INFO.title}`}
+              // Mirrors the clamp() ladder in index.css so the browser picks
+              // the right candidate from srcset for the actual box.
+              sizes="(min-width: 1024px) clamp(320px, 26vw, 420px), (min-width: 640px) clamp(280px, 34vw, 340px), (min-width: 400px) clamp(240px, 58vw, 300px), clamp(200px, 62vw, 260px)"
+              delay={at('meta') + 0.05}
+              showAvailability={false}
+            />
+          </div>
+
+          {/* NAME + single WebGL core. Mobile: below portrait (order-2). Desktop: left of portrait (order-1). */}
+          <div className="order-2 lg:order-1 relative w-full lg:w-auto lg:flex-1 flex items-center justify-center pointer-events-none">
+            {/* Layer 0: Giant Gradient Display Heading (behind the core). Sized to
+                share the row with the portrait on lg+ so both fit cleanly. */}
             <GradientHeading
               text="SHAWON MOLLA"
               as="h1"
               delay={at('heading')}
               stagger={shouldAnimate ? 0.022 : 0}
               gradient="linear-gradient(180deg, #f8fafc 0%, #94a3b8 62%, #475569 100%)"
-              className="text-[14vw] sm:text-[13vw] lg:text-[11.5vw] font-black tracking-[-0.04em] leading-[0.88] uppercase"
+              className="text-[14vw] sm:text-[13vw] lg:text-[clamp(58px,6.4vw,110px)] font-black tracking-[-0.04em] leading-[0.88] uppercase justify-center"
             />
-          </div>
 
-          {/* Layer 1: Centered 3D Showpiece Anchor overlapping the heading in front */}
-          <motion.div
-            className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
-            initial={{ opacity: 0, scale: 0.82, y: 30, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{
-              duration: 0.9,
-              delay: at('scene'),
-              ease: EASE_MICRO,
-            }}
-          >
-            <Magnet padding={40} strength={0.3}>
-              {/* data-cursor="drag" drives the contextual cursor's grab state */}
-              <div
-                data-cursor="drag"
-                className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing"
-              >
-                {/* Anchor DOM rect projects to the 3D core in the single WebGL scene */}
-                {/* MOBILE-FIRST v4 / PHASE 2: on phones the portrait owns the hero, so the
-                centerpiece shrinks to a small ambient element and is pushed
-                behind the heading rather than sitting on top of it. From sm up
-                it returns to the full cinematic size. The audit at 390px showed
-                a 192px core sitting directly over the display heading. */}
-                <Anchor3D
-                  name="hero-centerpiece"
-                  className="w-32 h-32 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center relative opacity-60 sm:opacity-100"
+            {/* Layer 1: 3D core anchored over the NAME wrapper so it tracks the
+                name on every breakpoint (phones: small & behind the heading;
+                lg+: full cinematic size). */}
+            <motion.div
+              className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+              initial={{ opacity: 0, scale: 0.82, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{
+                duration: 0.9,
+                delay: at('scene'),
+                ease: EASE_MICRO,
+              }}
+            >
+              <Magnet padding={40} strength={0.3}>
+                {/* data-cursor="drag" drives the contextual cursor's grab state */}
+                <div
+                  data-cursor="drag"
+                  className="relative flex items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing"
                 >
-                  {/* Visual aura halo ring */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />
-                </Anchor3D>
-              </div>
-            </Magnet>
-          </motion.div>
+                  <Anchor3D
+                    name="hero-centerpiece"
+                    className="w-32 h-32 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-full flex items-center justify-center relative opacity-60 sm:opacity-100"
+                  >
+                    {/* Visual aura halo ring */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-500/10 via-violet-500/5 to-transparent blur-2xl pointer-events-none" />
+                  </Anchor3D>
+                </div>
+              </Magnet>
+            </motion.div>
+          </div>
         </div>
 
         {/* Bottom Hero Bar: Tagline bottom-left, CTAs bottom-right */}
