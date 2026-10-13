@@ -5,9 +5,10 @@
  * until the transparent cutout (TODO(asset)) is supplied. This script produces
  * that framed portrait's 7:9 ladder in AVIF + WebP + JPEG into public/stage/.
  *
- * Source: src/assets/images/mdshawonmolla.jpg — the highest-resolution master in
- * the project (1024x1024, opaque). It is a better source than the 800x800 file
- * the v4 hero ladder uses, so the stage gets the most honest pixels available.
+ * Source: src/assets/images/mdshawonmolla.jpeg — the highest-resolution master in
+ * the project (1024x1024, opaque). It is the same master the v4 hero ladder now
+ * uses (assets/portrait-source.jpg is a copy of it), so hero and stage frame the
+ * subject identically.
  *
  * Honest width ladder
  * -------------------
@@ -25,7 +26,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const SOURCE = path.resolve('src/assets/images/mdshawonmolla.jpg');
+const SOURCE = path.resolve('src/assets/images/mdshawonmolla.jpeg');
 const OUT_DIR = path.resolve('public/stage');
 const MANIFEST = path.resolve('src/data/stagePortraitManifest.ts');
 

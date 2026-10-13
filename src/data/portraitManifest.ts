@@ -6,19 +6,19 @@
  * disk; the browser only ever requests files listed here, so there are no 404s.
  */
 
-export const PORTRAIT_WIDTHS = [240, 320, 400, 480, 560, 622] as const;
+export const PORTRAIT_WIDTHS = [240, 320, 400, 480, 560, 622, 720] as const;
 
 export const PORTRAIT_SRCSET = {
-  avif: '/portrait/240.avif 240w, /portrait/320.avif 320w, /portrait/400.avif 400w, /portrait/480.avif 480w, /portrait/560.avif 560w, /portrait/622.avif 622w',
-  webp: '/portrait/240.webp 240w, /portrait/320.webp 320w, /portrait/400.webp 400w, /portrait/480.webp 480w, /portrait/560.webp 560w, /portrait/622.webp 622w',
-  jpg:  '/portrait/240.jpg 240w, /portrait/320.jpg 320w, /portrait/400.jpg 400w, /portrait/480.jpg 480w, /portrait/560.jpg 560w, /portrait/622.jpg 622w',
+  avif: '/portrait/240.avif 240w, /portrait/320.avif 320w, /portrait/400.avif 400w, /portrait/480.avif 480w, /portrait/560.avif 560w, /portrait/622.avif 622w, /portrait/720.avif 720w',
+  webp: '/portrait/240.webp 240w, /portrait/320.webp 320w, /portrait/400.webp 400w, /portrait/480.webp 480w, /portrait/560.webp 560w, /portrait/622.webp 622w, /portrait/720.webp 720w',
+  jpg:  '/portrait/240.jpg 240w, /portrait/320.jpg 320w, /portrait/400.jpg 400w, /portrait/480.jpg 480w, /portrait/560.jpg 560w, /portrait/622.jpg 622w, /portrait/720.jpg 720w',
 } as const;
 
 /** Intrinsic size of the largest real variant, for width/height to avoid CLS. */
-export const PORTRAIT_INTRINSIC = { width: 622, height: 800 } as const;
+export const PORTRAIT_INTRINSIC = { width: 720, height: 926 } as const;
 
 /** Fallback <img src> — a mid-weight JPEG that every browser understands. */
 export const PORTRAIT_FALLBACK_SRC = '/portrait/480.jpg';
 
 /** Widths requested by the brief but not producible without a larger source. */
-export const PORTRAIT_MISSING_WIDTHS = [720, 960, 1280] as const;
+export const PORTRAIT_MISSING_WIDTHS = [960, 1280] as const;
