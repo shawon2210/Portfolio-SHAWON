@@ -122,12 +122,14 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     scrollWindowTo(0, { reducedMotion });
   };
 
-  // Custom avatar with localStorage persistence (v2 cache-busted)
+  // Force the project portrait to be the default app image. Some older localStorage
+  // entries can preserve a stale uploaded photo and keep overriding the hero portrait
+  // even after a new deployment.
   const [avatarUrl, setAvatarUrl] = useState<string>(() => {
     try {
       localStorage.removeItem('shawon_portfolio_custom_avatar');
-      const stored = localStorage.getItem('shawon_portfolio_custom_avatar_v2');
-      return stored || PERSONAL_INFO.portraitUrl;
+      localStorage.removeItem('shawon_portfolio_custom_avatar_v2');
+      return PERSONAL_INFO.portraitUrl;
     } catch {
       return PERSONAL_INFO.portraitUrl;
     }
