@@ -2,6 +2,7 @@
 import { PERSONAL_INFO, SECTION_SEO } from '../lib/portfolio';
 import SmoothScroll from '../components/SmoothScroll';
 import AmbientSound from '../components/AmbientSound.astro';
+import IntroCurtain from '../components/IntroCurtain.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -114,6 +115,7 @@ const jsonLd = {
     </a>
 
     <div class="scroll-progress" aria-hidden="true" data-scroll-progress></div>
+    <IntroCurtain />
     <header class="site-header">
       <nav
         aria-label="Primary"
@@ -205,6 +207,11 @@ const jsonLd = {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       const amount = scrollable > 0 ? window.scrollY / scrollable : 0;
       progress?.style.setProperty('--progress', String(Math.min(1, Math.max(0, amount))));
+      document.querySelectorAll<HTMLElement>('main section.section-shell').forEach((section) => {
+        const bounds = section.getBoundingClientRect();
+        const sectionProgress = (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height);
+        section.style.setProperty('--section-progress', String(Math.min(1, Math.max(0, sectionProgress))));
+      });
     });
   };
   window.addEventListener('scroll', updateProgress, { passive: true });
@@ -219,13 +226,14 @@ const jsonLd = {
     });
   });
 
-  const sections = sectionLinks
-    .map((link) => document.getElementById(link.dataset.sectionLink ?? ''))
-    .filter((section): section is HTMLElement => section !== null);
+  const sections = [...document.querySelectorAll<HTMLElement>('main section[id]')];
 
   if ('IntersectionObserver' in window) {
     const sectionObserver = new IntersectionObserver(
       (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle('is-in-view', entry.isIntersecting);
+        });
         const current = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]?.target.id;
@@ -282,6 +290,37 @@ const jsonLd = {
       });
     }
   }
+
+  let activePreviewOpener: HTMLElement | null = null;
+  document.querySelectorAll<HTMLButtonElement>('[data-preview-open]').forEach((trigger) => {
+    const dialogId = trigger.dataset.previewOpen;
+    const dialog = dialogId ? document.getElementById(dialogId) : null;
+    if (!(dialog instanceof HTMLDialogElement)) return;
+
+    trigger.addEventListener('click', () => {
+      activePreviewOpener = trigger;
+      dialog.showModal();
+      dialog.querySelector<HTMLElement>('[data-dialog-close]')?.focus();
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]').forEach((closeButton) => {
+      closeButton.addEventListener('click', () => dialog.close());
+    });
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== dialog) return;
+      const bounds = dialog.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right ||
+          event.clientY < bounds.top || event.clientY > bounds.bottom) {
+        dialog.close();
+      }
+    });
+
+    dialog.addEventListener('close', () => {
+      activePreviewOpener?.focus();
+      activePreviewOpener = null;
+    });
+  });
 
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   if (canHover && !reducedMotion) {

@@ -9,16 +9,11 @@ interface Props {
 const { project, index } = Astro.props;
 const externalLink = project.liveUrl || project.githubUrl;
 const displayMetric = project.metrics[0];
+const previewId = `project-preview-${project.id}`;
 ---
 
 <article class="project-card reveal" style={`--card-index: ${index}`}>
-  <a
-    class="project-art"
-    href={externalLink}
-    target="_blank"
-    rel="noreferrer noopener"
-    aria-label={`Open ${project.title} project`}
-  >
+  <div class="project-art">
     {
       project.imageUrl ? (
         <img
@@ -37,15 +32,24 @@ const displayMetric = project.metrics[0];
       )
     }
     <span class="project-art-index">{String(index + 1).padStart(2, '0')}</span>
-    <span class="project-open" aria-hidden="true">↗</span>
-  </a>
+    <button
+      class="project-open"
+      type="button"
+      aria-label={`Preview ${project.title}`}
+      aria-haspopup="dialog"
+      aria-controls={previewId}
+      data-preview-open={previewId}
+    >
+      <span aria-hidden="true">↗</span>
+    </button>
+  </div>
   <div class="project-copy">
     <div class="project-kicker">
       <span>{project.badge}</span>
       <span>{project.versionOrEndpoint}</span>
     </div>
     <h3>
-      <a href={externalLink} target="_blank" rel="noreferrer noopener">{project.title}</a>
+      {project.title}
     </h3>
     <p>{project.tagline}</p>
     <div class="project-meta">
@@ -59,6 +63,75 @@ const displayMetric = project.metrics[0];
       <ul aria-label={`${project.title} technologies`}>
         {project.techStack.slice(0, 4).map((technology) => <li>{technology}</li>)}
       </ul>
+      <button class="project-preview-link" type="button" data-preview-open={previewId}>
+        Open project preview <span aria-hidden="true">↗</span>
+      </button>
     </div>
   </div>
+
+  <dialog class="project-dialog" id={previewId} aria-labelledby={`${previewId}-title`} data-project-dialog>
+    <div class="project-dialog-shell">
+      <div class="project-dialog-topline">
+        <span class="eyebrow"><span>{String(index + 1).padStart(2, '0')}</span> / PROJECT FILE</span>
+        <button class="dialog-close" type="button" aria-label={`Close ${project.title} preview`} data-dialog-close>
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="project-dialog-grid">
+        <div class="project-dialog-art">
+          {
+            project.imageUrl ? (
+              <img src={project.imageUrl} alt={`${project.title} project preview`} width="640" height="420" loading="lazy" />
+            ) : (
+              <span class="project-art-placeholder" aria-hidden="true">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <span>{project.category}</span>
+              </span>
+            )
+          }
+        </div>
+        <div class="project-dialog-copy">
+          <p class="eyebrow">{project.badge} <span>·</span> {project.versionOrEndpoint}</p>
+          <h2 id={`${previewId}-title`}>{project.title}</h2>
+          <p class="project-dialog-tagline">{project.tagline}</p>
+          {
+            project.architectureDetails && (
+              <div class="project-dialog-overview">
+                <h3>System notes</h3>
+                <p>{project.architectureDetails.overview}</p>
+              </div>
+            )
+          }
+          {
+            project.highlights.length > 0 && (
+              <ul class="project-dialog-highlights">
+                {project.highlights.slice(0, 3).map((highlight) => (
+                  <li>
+                    <span aria-hidden="true">↳</span>
+                    <span>{highlight.title ? <strong>{highlight.title}. </strong> : ''}{highlight.description}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+          <div class="project-dialog-tech">
+            <h3>Built with</h3>
+            <ul>{project.techStack.map((technology) => <li>{technology}</li>)}</ul>
+          </div>
+          <div class="project-dialog-actions">
+            <a class="button button-primary" href={externalLink} target="_blank" rel="noreferrer noopener">
+              Open project <span aria-hidden="true">↗</span>
+            </a>
+            {
+              project.liveUrl && project.githubUrl !== project.liveUrl && (
+                <a class="button button-quiet" href={project.githubUrl} target="_blank" rel="noreferrer noopener">
+                  View source <span aria-hidden="true">↗</span>
+                </a>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </article>

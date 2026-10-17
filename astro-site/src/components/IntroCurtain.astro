@@ -1,0 +1,52 @@
+<dialog class="intro-curtain" aria-labelledby="intro-title" data-intro-curtain>
+  <div class="intro-curtain-grid" aria-hidden="true"></div>
+  <div class="intro-curtain-content">
+    <p class="intro-kicker"><span>PORTFOLIO / 2026</span><span>ENGINEERING · AI · PRODUCT</span></p>
+    <div class="intro-title-wrap">
+      <p class="intro-index" aria-hidden="true">01—03</p>
+      <h2 id="intro-title">Ideas into<br /><span>working systems.</span></h2>
+    </div>
+    <div class="intro-progress" aria-hidden="true"><span></span></div>
+    <div class="intro-bottom">
+      <span>MD SHAWON MOLLA</span>
+      <button class="intro-skip" type="button" data-intro-skip>Skip introduction <span aria-hidden="true">↗</span></button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const intro = document.querySelector<HTMLDialogElement>('[data-intro-curtain]');
+  const skip = intro?.querySelector<HTMLButtonElement>('[data-intro-skip]');
+  const introKey = 'shawon-portfolio-intro-seen';
+
+  if (intro && skip) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let alreadySeen = false;
+    try {
+      alreadySeen = window.sessionStorage.getItem(introKey) === '1';
+    } catch (error) {
+      console.warn('Could not read the intro preference; the skippable intro will play.', error);
+    }
+
+    if (!reducedMotion && !alreadySeen) {
+      intro.showModal();
+      skip.focus({ preventScroll: true });
+
+      try {
+        window.sessionStorage.setItem(introKey, '1');
+      } catch (error) {
+        console.warn('Could not save the intro preference; the intro may play again this session.', error);
+      }
+
+      const timer = window.setTimeout(() => intro.close(), 2450);
+      skip.addEventListener('click', () => {
+        window.clearTimeout(timer);
+        intro.close();
+      });
+      intro.addEventListener('close', () => {
+        window.clearTimeout(timer);
+        document.querySelector<HTMLElement>('#top h1')?.focus({ preventScroll: true });
+      }, { once: true });
+    }
+  }
+</script>
