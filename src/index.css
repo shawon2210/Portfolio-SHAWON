@@ -294,6 +294,12 @@
 .profile-portrait__frame {
   position: relative;
   z-index: 1;
+  /* Width is always definite (parent width or the variant clamp); the baked
+     source ratio is 7:9, so declaring it here reserves the full box before the
+     image decodes. Without this the frame collapses to its borders (~3px) and
+     the portrait expands on load — the dominant layout shift. */
+  width: 100%;
+  aspect-ratio: 7 / 9;
   overflow: hidden;
   border-radius: var(--radius-xl);
   /* 1px tokenised border + inner shadow for depth without dimming the face */
@@ -683,6 +689,7 @@
   left: 50%;
   bottom: 8%;
   width: var(--stage-portrait-fill);
+  aspect-ratio: 7 / 9;
   z-index: 10;
   transform: translateX(-50%);
 }
@@ -1470,6 +1477,21 @@ select {
    icon stays exactly where it was while the touchable region grows to 44x44.
    It MUST keep pointer-events:auto (not none) — with `none` the pseudo-element
    is purely decorative and the real hit region is still the 14x14 box. */
+/* Sticky-stack cards are scaled down as they stack (StickyStackItem:
+   scale = 1 -> 1 - (total - 1 - index) * 0.03). A 44px-tall control inside a
+   0.94-scaled card therefore RENDERS at 41.4px and the pointer target shrinks
+   with it — `min-height` alone cannot fix a transform. Dividing the floor by the
+   card's target scale restores >=44px on screen at every scroll position (the
+   live scale only travels from 1 down to the target, so the target is the
+   conservative bound). No scale is applied under prefers-reduced-motion, so that
+   branch sets --stack-scale:1 and this rule is a no-op there. */
+.sticky-stack-item .tap,
+.sticky-stack-item .tap-sm,
+.sticky-stack-item .tap-pill {
+  min-height: calc(44px / var(--stack-scale, 1) + 0.5px);
+  min-width: calc(44px / var(--stack-scale, 1) + 0.5px);
+}
+
 [data-tap] {
   position: relative;
 }

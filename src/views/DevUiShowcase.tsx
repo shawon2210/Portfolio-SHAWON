@@ -318,7 +318,7 @@ export const DevUiShowcase: React.FC = () => {
               </h3>
               <div className="p-4 rounded-lg bg-slate-950/60 border border-white/[0.06] space-y-2">
                 <SplitText
-                  text="Shawon Molla — Full-Stack & Systems Engineer"
+                  text="Shawon Molla — Full-Stack Engineer, Product Systems & AI"
                   className="text-base font-semibold text-sky-400"
                   stagger={0.03}
                 />

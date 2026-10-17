@@ -3,7 +3,6 @@ import {
   FileText,
   Printer,
   X,
-  Camera,
   Mail,
   Briefcase,
   GraduationCap,
@@ -16,17 +15,13 @@ import { useModalA11y } from '../hooks/useModalA11y';
 
 interface ResumeModalProps {
   isOpen: boolean;
-  avatarUrl: string;
   onClose: () => void;
-  onOpenUploadModal: () => void;
   onShowToast: (msg: string) => void;
 }
 
 export const ResumeModal: React.FC<ResumeModalProps> = ({
   isOpen,
-  avatarUrl,
   onClose,
-  onOpenUploadModal,
   onShowToast,
 }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -69,7 +64,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
                 Curriculum Vitae — MD Shawon Molla
               </h2>
               <span className="font-code-sm text-xs text-on-surface-variant">
-                Full-Stack &amp; AI Integration Focus · Updated 2025/2026
+                {PERSONAL_INFO.title} · Updated 2025/2026
               </span>
             </div>
           </div>
@@ -108,21 +103,12 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({
           <div className="border-b border-white/10 pb-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center sm:items-start gap-4">
-                <div
-                  onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-                  className={`relative shrink-0 ${import.meta.env.DEV ? 'group cursor-pointer' : ''}`}
-                  title={import.meta.env.DEV ? 'Click to change photo' : undefined}
-                >
+                <div className="relative shrink-0">
                   <img
-                    src={avatarUrl}
+                    src={PERSONAL_INFO.portraitUrl}
                     alt={PERSONAL_INFO.name}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover object-top ring-2 ring-primary/40 shadow-lg group-hover:ring-primary transition-all"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover object-top ring-2 ring-primary/40 shadow-lg transition-all"
                   />
-                  {import.meta.env.DEV && (
-                    <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-primary">
-                      <Camera className="w-4 h-4" />
-                    </div>
-                  )}
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl font-extrabold text-on-surface">

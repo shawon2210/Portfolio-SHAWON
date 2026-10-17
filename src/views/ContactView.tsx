@@ -20,9 +20,7 @@ import { MOTION_EASING, MOTION_DURATIONS, MOTION_STAGGER } from '../lib/motion';
 import { GradientHeading, Anchor3D, Magnet, PillButton } from '../components/motion';
 
 interface ContactViewProps {
-  avatarUrl?: string; // kept for App.tsx compat; not rendered here
   onOpenResume: () => void;
-  onOpenUploadModal?: () => void; // kept for App.tsx compat
   onShowToast: (msg: string) => void;
 }
 
@@ -65,7 +63,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: 'Full-Time SWE Role (Frontend/Full-Stack)',
+    subject: 'Full-Time Role (Frontend / Full-Stack)',
     message: '',
   });
   const [errors, setErrors] = useState<{
@@ -113,7 +111,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         setFormData({
           name: '',
           email: '',
-          subject: 'Full-Time SWE Role (Frontend/Full-Stack)',
+          subject: 'Full-Time Role (Frontend / Full-Stack)',
           message: '',
         });
         setSubmitSuccess(false);
@@ -133,11 +131,11 @@ export const ContactView: React.FC<ContactViewProps> = ({
       >
         <Badge variant="accent" className="mb-4">
           <MessageSquare className="w-3 h-3" />
-          <span>Contact &bull; Direct Connection</span>
+          <span>Contact &bull; Product Engineering</span>
         </Badge>
 
         <GradientHeading
-          text="LET'S BUILD SOMETHING RESILIENT"
+          text="LET'S BUILD SOFTWARE THAT LASTS"
           as="h2"
           className="text-3xl sm:text-5xl lg:text-6xl text-center justify-center font-black mb-6 max-w-4xl"
         />
@@ -162,7 +160,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
         </div>
 
         <p className="text-slate-400 max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
-          Open to full-time software engineering roles, distributed platform architecture, and high-impact teams. Reach out via email, phone, or direct dispatch.
+          Need a product-minded engineer who can design, ship, and stabilize software that serves real users, real operations, and real business pressure? Let’s talk.
         </p>
       </motion.div>
 
@@ -404,7 +402,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
               </div>
               <button
                 onClick={onOpenResume}
-                className="w-full py-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 text-sky-400 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="tap w-full py-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-sky-400/35 hover:bg-sky-400/5 text-sky-400 font-mono text-xs font-semibold flex items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               >
                 <FileText className="w-4 h-4" />
                 View / Download Resume
@@ -471,7 +469,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                     }}
                     aria-invalid={errors.name ? 'true' : 'false'}
                     aria-describedby={errors.name ? 'cn-err' : undefined}
-                    className={`w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
+                    className={`tap w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
                       errors.name
                         ? 'border-red-500/60 focus:ring-red-500/30'
                         : 'border-white/[0.08] focus:border-sky-400/40 focus:ring-sky-400/20'
@@ -507,7 +505,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
                     }}
                     aria-invalid={errors.email ? 'true' : 'false'}
                     aria-describedby={errors.email ? 'ce-err' : undefined}
-                    className={`w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
+                    className={`tap w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border transition-all outline-none focus:ring-2 placeholder:text-[#94a3b8]/40 ${
                       errors.email
                         ? 'border-red-500/60 focus:ring-red-500/30'
                         : 'border-white/[0.08] focus:border-sky-400/40 focus:ring-sky-400/20'
@@ -538,8 +536,8 @@ export const ContactView: React.FC<ContactViewProps> = ({
                   className="w-full bg-white/[0.03] text-[#e2e8f0] text-sm px-3.5 py-2.5 rounded-lg border border-white/[0.08] outline-none focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/20 appearance-none transition-all"
                   style={{ backgroundImage: 'none' }}
                 >
-                  <option value="Full-Time SWE Role (Frontend/Full-Stack)">
-                    Full-Time SWE Role (Frontend / Full-Stack)
+                  <option value="Full-Time Role (Frontend / Full-Stack)">
+                    Full-Time Role (Frontend / Full-Stack)
                   </option>
                   <option value="Contract / Milestone Project">
                     Contract / Milestone Project
@@ -661,7 +659,7 @@ export const ContactView: React.FC<ContactViewProps> = ({
           {/* Print access (footer only) */}
           <button
             onClick={() => window.print()}
-            className="font-mono text-[11px] text-[#94a3b8] hover:text-[#e2e8f0] transition-colors underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded py-2 -my-2 px-1 -mx-1"
+            className="tap font-mono text-[11px] text-[#94a3b8] hover:text-[#e2e8f0] transition-colors underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded py-2 -my-2 px-1 -mx-1"
           >
             Print Portfolio
           </button>

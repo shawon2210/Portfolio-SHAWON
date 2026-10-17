@@ -40,9 +40,6 @@ const ProjectDetailModal = lazy(() =>
 const TerminalModal = lazy(() =>
   import('./components/TerminalModal').then((m) => ({ default: m.TerminalModal }))
 );
-const ImageUploadModal = lazy(() =>
-  import('./components/ImageUploadModal').then((m) => ({ default: m.ImageUploadModal }))
-);
 const PrintablePortfolio = lazy(() =>
   import('./components/PrintablePortfolio').then((m) => ({ default: m.PrintablePortfolio }))
 );
@@ -88,8 +85,7 @@ const PortfolioShell: React.FC<{ reducedMotion: boolean }> = ({ reducedMotion })
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const isProgrammaticScrollRef = useRef(false);
 
   // Floating scroll-to-top button visibility (appears past hero section)
@@ -121,19 +117,6 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const handleScrollToTop = () => {
     scrollWindowTo(0, { reducedMotion });
   };
-
-  // Force the project portrait to be the default app image. Some older localStorage
-  // entries can preserve a stale uploaded photo and keep overriding the hero portrait
-  // even after a new deployment.
-  const [avatarUrl, setAvatarUrl] = useState<string>(() => {
-    try {
-      localStorage.removeItem('shawon_portfolio_custom_avatar');
-      localStorage.removeItem('shawon_portfolio_custom_avatar_v2');
-      return PERSONAL_INFO.portraitUrl;
-    } catch {
-      return PERSONAL_INFO.portraitUrl;
-    }
-  });
 
   // DEV-only UI Showcase toggle (?dev=ui or #dev-ui or /dev/ui)
   const [isDevUi, setIsDevUi] = useState(() => {
@@ -335,27 +318,6 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     }, 2400);
   };
 
-  const handleUpdateAvatar = (newUrl: string) => {
-    setAvatarUrl(newUrl);
-    try {
-      localStorage.setItem('shawon_portfolio_custom_avatar_v2', newUrl);
-    } catch (e) {
-      console.warn('Unable to save avatar to localStorage:', e);
-    }
-    showToast('Profile photo updated successfully!');
-  };
-
-  const handleResetAvatar = () => {
-    setAvatarUrl(PERSONAL_INFO.portraitUrl);
-    try {
-      localStorage.removeItem('shawon_portfolio_custom_avatar_v2');
-      localStorage.removeItem('shawon_portfolio_custom_avatar');
-    } catch (e) {
-      console.warn('Unable to remove avatar from localStorage:', e);
-    }
-    showToast('Reverted to default portrait.');
-  };
-
   const handlePrintPortfolio = () => {
     showToast('Opening print dialog for portfolio dossier...');
     setTimeout(() => {
@@ -436,25 +398,21 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
         {/* Top sticky header with active scroll-spy location feedback */}
         <Header
           activeTab={activeTab}
-          avatarUrl={avatarUrl}
           onSelectTab={handleTabChange}
           onOpenTerminal={() => setIsTerminalOpen(true)}
           onOpenResume={() => setIsResumeOpen(true)}
-          onOpenUploadModal={() => setIsUploadModalOpen(true)}
           onPrintPortfolio={handlePrintPortfolio}
         />
 
-{/* Main Content Area: Continuous Sections with Scroll-Spy Integration
+        {/* Main Content Area: Continuous Sections with Scroll-Spy Integration
             MOBILE-FIRST v4: `data-testid` hooks on every section boundary so the
             responsive/a11y suites select stable nodes instead of matching on
             class names, which change whenever the layout is restyled. */}
         <main className="flex-1 pt-16 flex flex-col w-full relative bg-transparent" data-testid="main-content">
           <section id="home" data-testid="section-home" className="scroll-mt-16 w-full bg-transparent">
             <HomeView
-              avatarUrl={avatarUrl}
               onNavigate={handleTabChange}
               onOpenResume={() => setIsResumeOpen(true)}
-              onOpenUploadModal={() => setIsUploadModalOpen(true)}
               onSelectProject={(project) => setSelectedProject(project)}
               onShowToast={showToast}
               reducedMotion={reducedMotion}
@@ -491,9 +449,7 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
           <section id="contact" data-testid="section-contact" className="scroll-mt-16 w-full border-t border-white/5 pb-[max(7rem,calc(env(safe-area-inset-bottom)+7rem))] md:pb-0 bg-transparent">
             <Suspense fallback={<div data-testid="loading-contact" className="min-h-[400px] flex items-center justify-center text-on-surface-variant font-code-sm text-xs">Loading contact terminal...</div>}>
               <ContactView
-                avatarUrl={avatarUrl}
                 onOpenResume={() => setIsResumeOpen(true)}
-                onOpenUploadModal={() => setIsUploadModalOpen(true)}
                 onShowToast={showToast}
               />
             </Suspense>
@@ -532,9 +488,7 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
         {isResumeOpen && (
           <ResumeModal
             isOpen={isResumeOpen}
-            avatarUrl={avatarUrl}
             onClose={() => setIsResumeOpen(false)}
-            onOpenUploadModal={() => setIsUploadModalOpen(true)}
             onShowToast={showToast}
           />
         )}
@@ -552,17 +506,6 @@ const [selectedProject, setSelectedProject] = useState<Project | null>(null);
             isOpen={isTerminalOpen}
             onClose={() => setIsTerminalOpen(false)}
             onNavigate={handleTabChange}
-            onShowToast={showToast}
-          />
-        )}
-
-        {isUploadModalOpen && (
-          <ImageUploadModal
-            isOpen={isUploadModalOpen}
-            currentAvatar={avatarUrl}
-            onClose={() => setIsUploadModalOpen(false)}
-            onUpdateAvatar={handleUpdateAvatar}
-            onResetAvatar={handleResetAvatar}
             onShowToast={showToast}
           />
         )}

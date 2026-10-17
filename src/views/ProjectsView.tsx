@@ -95,7 +95,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             Engineered Systems &amp; Flagships
           </h1>
           <p className="text-sm sm:text-base text-slate-400 max-w-2xl leading-relaxed">
-            High-concurrency commerce platforms, multi-model AI pipelines, and distributed cloud services built with clean architectural boundaries.
+            Product systems built for real operations: concurrency, access control, AI workflows, and user trust in environments where the software has to hold up under pressure.
           </p>
         </motion.div>
 
@@ -154,7 +154,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter by stack, keyword..."
-              className="w-full bg-white/[0.03] hover:bg-white/[0.05] focus:bg-[#0d1017] text-white font-mono text-xs pl-9 pr-8 py-2 rounded-full outline-none border border-white/[0.08] focus:border-sky-400/50 transition-all placeholder:text-slate-500"
+              className="tap w-full bg-white/[0.03] hover:bg-white/[0.05] focus:bg-[#0d1017] text-white font-mono text-xs pl-9 pr-8 py-2 rounded-full outline-none border border-white/[0.08] focus:border-sky-400/50 transition-all placeholder:text-slate-500"
             />
             {searchQuery && (
               <button
@@ -245,7 +245,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
                       <button
                         onClick={() => onSelectProject(project)}
-                        className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white font-mono text-xs font-semibold border border-white/10 cursor-pointer pressable focus-ring"
+                        className="tap flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-white font-mono text-xs font-semibold border border-white/10 cursor-pointer pressable focus-ring"
                       >
                         <Code2 className="w-4 h-4 text-sky-400" />
                         <span>Inspect Architecture</span>
@@ -256,7 +256,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-mono text-xs font-bold shadow-md cursor-pointer pressable focus-ring"
+                          className="tap inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-mono text-xs font-bold shadow-md cursor-pointer pressable focus-ring"
                         >
                           <Rocket className="w-3.5 h-3.5" />
                           <span>Live App</span>
@@ -268,7 +268,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-11 h-11 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all pressable focus-ring"
+                        className="tap w-11 h-11 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-all pressable focus-ring"
                         title="GitHub Repo"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -372,7 +372,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="flex items-center justify-between pt-4 mt-3 border-t border-white/[0.06]">
                         <button
                           onClick={() => onSelectProject(project)}
-                          className="font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer pressable focus-ring py-2 -my-2"
+                          className="tap font-mono text-xs text-sky-400 hover:text-sky-300 font-semibold cursor-pointer pressable focus-ring py-2 -my-2"
                         >
                           Inspect Code &rarr;
                         </button>

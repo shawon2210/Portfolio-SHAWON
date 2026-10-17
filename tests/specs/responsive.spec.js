@@ -126,10 +126,34 @@ for (const vp of VIEWPORTS) {
         perSection[s] = {
           horizontalOverflow: sec.horizontalOverflow,
           offenders: sec.offenders.slice(0, 6),
-          smallTargets: sec.smallTargets.slice(0, 6),
-          collisions: sec.collisions.slice(0, 4),
+          smallTargets: sec.smallTargets.slice(0, 20),
+          collisions: sec.collisions.slice(0, 12),
         };
       }
+
+      // `data` above is a single scroll-0 snapshot taken at the home section, so
+      // its smallTargets/collisions are NOT an all-section verdict: scroll-driven
+      // layouts (e.g. the sticky project stack) only settle once their section is
+      // in view, which is what the perSection pass observes. Union both so the
+      // run reports the worst case per viewport instead of the home screen.
+      const union = (...lists) => {
+        const seen = new Set();
+        const out = [];
+        for (const list of lists) {
+          for (const row of list || []) {
+            const key = `${row.selector}|${row.label}|${row.w}|${row.h}|${row.coveredBy || ''}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            out.push(row);
+          }
+        }
+        return out;
+      };
+      const allSections = {
+        smallTargets: union(data.smallTargets, ...SECTIONS.map((s) => perSection[s].smallTargets)),
+        collisions: union(data.collisions, ...SECTIONS.map((s) => perSection[s].collisions)),
+        horizontalOverflow: Math.max(data.horizontalOverflow, ...SECTIONS.map((s) => perSection[s].horizontalOverflow)),
+      };
 
       const dir = path.join(OUT, 'screens', vp.name);
       fs.mkdirSync(dir, { recursive: true });
@@ -182,7 +206,7 @@ for (const vp of VIEWPORTS) {
         path.join(RUNS_DIR, `${vp.name}__${project}.json`),
         JSON.stringify({
           viewport: vp, engine: project,
-          ...data, perSection, fps,
+          ...data, perSection, allSections, fps,
           shots: { fold: shotFold, full: shotFull },
           consoleMsgs, pageErrors,
         }, null, 2),
@@ -212,6 +236,11 @@ test.afterAll(async () => {
   console.log(`horizontal overflow >0 : ${overflow.length} -> ${overflow.map((r) => `${r.viewport.name}/${r.engine}(+${r.horizontalOverflow}px)`).join(', ') || 'none'}`);
   console.log(`page errors            : ${errs.length} -> ${errs.map((r) => `${r.viewport.name}/${r.engine}`).join(', ') || 'none'}`);
   console.log(`runs w/ tiny text      : ${entries.filter((r) => r.tinyText.length > 0).length}`);
-  console.log(`runs w/ small targets  : ${entries.filter((r) => r.smallTargets.length > 0).length}`);
-  console.log(`runs w/ collisions     : ${entries.filter((r) => r.collisions.length > 0).length}`);
+  // Report the all-section roll-up, not the scroll-0 snapshot: a scroll-driven
+  // card that settles under 44px only once its section is in view is a real
+  // defect even though the home-section read is clean.
+  const badTargets = entries.filter((r) => (r.allSections?.smallTargets || r.smallTargets).length > 0);
+  const badCollisions = entries.filter((r) => (r.allSections?.collisions || r.collisions).length > 0);
+  console.log(`runs w/ small targets  : ${badTargets.length} -> ${badTargets.map((r) => r.viewport.name + '/' + r.engine).join(', ') || 'none'}`);
+  console.log(`runs w/ collisions     : ${badCollisions.length} -> ${badCollisions.map((r) => r.viewport.name + '/' + r.engine).join(', ') || 'none'}`);
 });

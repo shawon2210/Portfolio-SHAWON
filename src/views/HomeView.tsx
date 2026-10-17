@@ -21,20 +21,16 @@ import {
 } from '../components/motion';
 
 interface HomeViewProps {
-  avatarUrl: string;
   onNavigate: (tab: TabType) => void;
   onOpenResume: () => void;
-  onOpenUploadModal: () => void;
   onSelectProject: (project: Project) => void;
   onShowToast: (msg: string) => void;
   reducedMotion?: boolean;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  avatarUrl,
   onNavigate,
   onOpenResume,
-  onOpenUploadModal,
   onSelectProject,
   onShowToast,
   reducedMotion = false,
@@ -47,11 +43,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
      so the heading, the 3D centerpiece and the nav resolve as one gesture. */
   const { at, shouldAnimate } = useLoadPhase();
 
-  // Dynamic verified role rotation
+  // One clear role thesis, repeated with restraint.
   const roles = [
-    'Full-Stack Software Engineer',
-    'AI Systems Architecture',
-    'Distributed Cloud Platforms',
+    'Full-Stack Engineer',
+    'Product Systems',
+    'AI-Enabled Delivery',
   ];
   const [roleIndex, setRoleIndex] = useState(0);
 
@@ -140,8 +136,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {PERSONAL_INFO.statusPill}
             </Badge>
 
-            <span className="text-xs sm:text-sm font-mono text-slate-400">
-              {PERSONAL_INFO.location} &bull; Remote Available
+            <span className="text-[11px] sm:text-xs font-mono text-slate-400 uppercase tracking-[0.18em]">
+              {PERSONAL_INFO.location}
             </span>
           </div>
 
@@ -174,7 +170,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </a>
             <button
               onClick={handleCopyEmail}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer pressable"
+              className="tap-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 text-xs font-mono text-slate-400 hover:text-white transition-all cursor-pointer pressable"
             >
               {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-emerald-400" />}
               <span>{copiedEmail ? 'Copied' : PERSONAL_INFO.email}</span>
@@ -197,15 +193,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             row) so the projected core keeps tracking the name at every width. */}
         <div className="relative w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center py-8 lg:flex-row lg:items-center lg:justify-center lg:gap-10 xl:gap-14">
           {/* PORTRAIT STAGE — mobile: above the name (order-1). Desktop: right of the name (order-2). */}
-          <div
-            onClick={import.meta.env.DEV ? onOpenUploadModal : undefined}
-            className={`order-1 lg:order-2 shrink-0 ${import.meta.env.DEV ? 'cursor-pointer' : ''}`}
-            title={import.meta.env.DEV ? 'Click to change profile picture' : undefined}
-          >
+          <div className="order-1 lg:order-2 shrink-0">
             <PortraitStage
-              // Dev-only avatar upload override. When it still matches the
-              // default the stage renders its own framed <picture> ladder.
-              src={avatarUrl !== PERSONAL_INFO.portraitUrl ? avatarUrl : undefined}
               alt={`Portrait of ${PERSONAL_INFO.name}, ${PERSONAL_INFO.title}`}
               delay={at('meta') + 0.05}
             />
@@ -216,7 +205,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Layer 0: Giant Gradient Display Heading (behind the core). Sized to
                 share the row with the portrait on lg+ so both fit cleanly. */}
             <GradientHeading
-              text="SHAWON MOLLA"
+              text={PERSONAL_INFO.name}
               as="h1"
               delay={at('heading')}
               stagger={shouldAnimate ? 0.022 : 0}
@@ -283,7 +272,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </AnimatePresence>
             </div>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg font-normal">
-              High-concurrency systems, distributed microservices, and autonomous AI orchestration. Built for resilience and performance.
+              I design and ship product systems, AI workflows, and dependable web experiences built to hold up in real operations and everyday business pressure.
             </p>
           </motion.div>
 
@@ -295,13 +284,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             transition={{ duration: 0.7, delay: at('cta'), ease: EASE_MICRO }}
           >
             <PillButton data-testid="cta-explore-projects" onClick={() => onNavigate('projects')} className="group">
-              <span>Explore Projects</span>
+              <span>View Product Work</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </PillButton>
 
             <GhostButton data-testid="cta-inspect-resume" onClick={onOpenResume}>
               <FileText className="w-4 h-4 text-sky-400" />
-              <span>Inspect CV Resume</span>
+              <span>Review Resume</span>
             </GhostButton>
           </motion.div>
         </div>
@@ -316,7 +305,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         >
           <button
             onClick={handleScrollToBlueprint}
-            className="flex flex-col items-center gap-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full px-3 py-1 pressable"
+            className="tap flex flex-col items-center gap-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full px-3 py-1 pressable"
             /* PHASE 5: accessible name contains the visible label (a11y fix) */
             aria-label="Explore Technical Capabilities — scroll to next section"
           >
@@ -483,24 +472,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
             />
           </div>
 
-          {/* Telemetry Stats Bar */}
+          {/* Positioning Signals */}
           <FadeIn delay={0.4} className="pt-6">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
-                <span className="text-2xl sm:text-3xl font-bold text-sky-400 font-mono">3+</span>
-                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Shipped Apps</span>
+                <span className="block text-xl sm:text-2xl font-bold text-sky-400 font-mono">Product</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Systems</span>
               </div>
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
-                <span className="text-2xl sm:text-3xl font-bold text-violet-400 font-mono">97</span>
-                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">PG Tables</span>
+                <span className="block text-xl sm:text-2xl font-bold text-violet-400 font-mono">AI</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Workflows</span>
               </div>
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
-                <span className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">+27</span>
-                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Lighthouse Gain</span>
+                <span className="block text-xl sm:text-2xl font-bold text-emerald-400 font-mono">Full-Stack</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Delivery</span>
               </div>
               <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-md">
-                <span className="text-2xl sm:text-3xl font-bold text-amber-400 font-mono">91+</span>
-                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">Vitest Specs</span>
+                <span className="block text-xl sm:text-2xl font-bold text-amber-400 font-mono">Trust</span>
+                <span className="block text-[11px] font-mono text-slate-400 mt-1 uppercase">First</span>
               </div>
             </div>
           </FadeIn>
@@ -575,15 +564,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="pt-8 border-t border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-1 text-center sm:text-left">
               <h3 className="text-lg font-bold text-slate-950">
-                Ready to deploy these capabilities to your engineering team?
+                Need product engineering that can move from idea to dependable delivery?
               </h3>
               <p className="text-sm text-slate-600">
-                Full-time software engineering role &bull; Remote or Dhaka, Bangladesh
+                Product systems, AI workflows, and full-stack execution for real-world teams
               </p>
             </div>
             <div className="flex items-center gap-3">
               <PillButton data-testid="cta-schedule-interview" onClick={() => onNavigate('contact')}>
-                <span>Schedule Interview</span>
+                <span>Book a Conversation</span>
                 <ArrowRight className="w-4 h-4" />
               </PillButton>
             </div>

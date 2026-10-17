@@ -31,8 +31,8 @@ export const StickyStackItem: React.FC<StickyStackItemProps> = ({
   if (shouldReduceMotion) {
     return (
       <div
-        className={`relative ${className}`}
-        style={{ top: `${index * topOffset}px` }}
+        className={`relative sticky-stack-item ${className}`}
+        style={{ top: `${index * topOffset}px`, '--stack-scale': 1 } as React.CSSProperties}
       >
         {children}
       </div>
@@ -42,10 +42,11 @@ export const StickyStackItem: React.FC<StickyStackItemProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`sticky top-20 min-h-[70vh] flex items-start justify-center ${className}`}
+      className={`sticky top-20 min-h-[70vh] flex items-start justify-center sticky-stack-item ${className}`}
       style={{
         top: `calc(5rem + ${index * topOffset}px)`,
-      }}
+        '--stack-scale': targetScale,
+      } as React.CSSProperties}
     >
       <motion.div
         style={{ scale }}

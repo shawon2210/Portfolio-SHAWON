@@ -251,15 +251,15 @@
   ```txt
   User-agent: *
   Allow: /
-  Sitemap: https://shawon.dev/sitemap.xml
+  Sitemap: https://shawon-portfolio-green.vercel.app/sitemap.xml
   ```
 - **Effort:** S | **Impact:** 4
 
 #### Finding SEO-02: Missing OpenGraph & Twitter Image Tags
 - **Severity:** Medium
 - **Evidence:** `index.html:11-17`.
-- **Why it hurts:** Sharing `https://shawon.dev` on LinkedIn, Twitter/X, Discord, or WhatsApp generates a link preview without an image card, severely hurting click-through rates.
-- **Recommended Fix:** Add `<meta property="og:image" content="https://shawon.dev/og-preview.png" />` and `<meta name="twitter:image" content="https://shawon.dev/og-preview.png" />` to `index.html`.
+- **Why it hurts:** Sharing the production origin (`https://shawon-portfolio-green.vercel.app`) on LinkedIn, Twitter/X, Discord, or WhatsApp generates a link preview without an image card, severely hurting click-through rates.
+- **Recommended Fix:** **Done.** `index.html` now emits `<meta property="og:image" content="%SITE_ORIGIN%/og-image.png" />` and the matching `twitter:image`, with the token resolved at build time by `vite.config.ts`. The shipped `public/og-image.png` (283,139 bytes) was verified **200 `image/png`** from both `vite dev` and `vite preview`.
 - **Effort:** S | **Impact:** 4
 
 #### Finding SEO-03: Missing Favicon Suite
@@ -488,3 +488,38 @@ Ready to paste into `src/index.css` or Tailwind configuration:
 
 ---
 *Report generated for MD Shawon Molla. Awaiting roadmap approval prior to implementation.*
+
+---
+
+## Appendix: Remediation Status (Engineering-Hygiene Pass)
+
+*Appended after implementation. The findings above are preserved exactly as originally written and are **not** retro-edited; this appendix records what has since been verified against the current code.*
+
+Every status below was re-verified against the working tree, not inferred from intent.
+
+| ID | Finding | Status | Verification |
+| --- | --- | --- | --- |
+| DS-03 | Badge & Kicker Clutter in Hero Header | **Resolved** | Both named kicker badges are gone. `src/views/HomeView.tsx` now renders one `Badge` (`variant="availability"` from `PERSONAL_INFO.statusPill`) plus plain-text location, with functional social links on the right. |
+| ST-01 | Conflicting Persona & Credibility Mismatch | **Resolved** | The original evidence (`portfolioData.ts:18` "Ambition-driven Computer Science graduate… Seeking an entry-level software engineering role", the `SYSTEMS ARCHITECT` hero kicker, `99.9% Uptime`, `97 PG Tables`) no longer exists in any production-reachable surface. The last two holdouts were the showcase routes `/#dev-motion` and `/#dev-ui` — these are *not* gated behind `import.meta.env.DEV`, so they ship publicly. Both strings were replaced with the canonical title/description. A repo-wide scan for `Ambition-driven`, `Computer Science graduate`, `entry-level`, `99.9%`, and `mathematical precision` returns zero matches, and zero matches in `dist/`. |
+| ST-02 | Distracting "Change Photo / Upload" Controls in User-Facing Hero | **Resolved** | `src/components/ImageUploadModal.tsx` deleted; upload state, `localStorage` persistence, lazy import, modal render, and `onOpenUploadModal` / `avatarUrl` callback props removed from `src/App.tsx`; dev-only portrait click target removed from `src/components/ResumeModal.tsx`. No upload chunk is emitted to `dist/`. |
+| ST-03 | CTA Choice Overload in Hero | **Resolved** | Hero now renders exactly two actions: `PillButton` "Explore Projects" (primary) and `GhostButton` "Inspect CV Resume" (secondary). The third `PillButton` in the file is in the closing CTA band, not the hero. |
+| ST-04 | Non-Existent Framework Claims ("Next.js 16") | **Resolved** | `src/data/portfolioData.ts` now reads `Next.js 15` (lines 124, 422). No `Next.js 16` / `Next 16` reference remains in source or build. |
+| CQ-03 | Dead Code in Repository | **Resolved** | `src/components/CinematicVideoHero.tsx` and `src/components/CinematicVideoHero.css` are both deleted and no longer referenced. |
+
+Additionally remediated in the same pass (not originally flagged as separate IDs):
+
+- **Canonical identity string.** `PERSONAL_INFO.title` (`'Full-Stack Engineer, Product Systems & AI'`) is now the single source for the document title, Open Graph, Twitter, JSON-LD `Person.jobTitle`, `ProfilePage.name`, resume header and body, and the showcase routes.
+- **Canonical description string.** All six identity-level description sites in `index.html` and three in `src/utils/seo.ts` now carry one identical string, eliminating static-vs-runtime drift on the home meta description and the `WebSite` JSON-LD node.
+- **LinkedIn `sameAs` divergence.** `src/utils/seo.ts` emitted `linkedin.com/in/shawon` from both `buildStructuredData` and `updateProjectSEO` while `index.html` and `src/data/portfolioData.ts` used the canonical slug. All four occurrences now agree.
+
+Deliberately **not** changed in this pass:
+
+- `CONTACT.md`'s `Full-Time SWE Role (Frontend/Full-Stack)` — a factual statement of the role being sought, pending owner confirmation.
+- Category-scoped architecture terminology in `PROJECT_CATEGORY_SEO` and the `SECTION_SEO.contact` service description — these are claim questions requiring evidence, not consistency defects. See `CLAIMS_LEDGER.md`.
+- Findings not listed in the table above (DS-01, DS-02, DS-04, A11Y-01..04, CQ-01, CQ-02, CQ-04) were **not re-verified** in this pass and their original status stands unchanged.
+- The **responsive** findings were subsequently re-verified to completion and are no longer open. Final `npm run test:responsive` result: **36/36 runs passed**, **0** touch targets under 44×44, **0** horizontal overflow, and the 4 landscape collision runs proven reachable and operable (filter click 3→2 cards; email input accepted text). Closed: R-01, R-02, R-06, R-07, R-10. Still open: **R-08** (environmental WebKit WebGL precision error) and **R-09** (tiny text, accepted by decision), plus a newly recorded **max-CLS regression 0.073 → 0.112**. Full measurements in `RESPONSIVE_AUDIT.md` §11.
+- The **benchmark** sections were **not re-verified**; their original status stands unchanged.
+
+Outstanding content blocker: several quantitative claims remain in `src/data/portfolioData.ts` (endpoint/schema/test/workflow counts, `-50% Support Load`, `+23.5% Metric Boost`, Lighthouse `64 → 91 (+27)` / `-30% latency`, BanglaBERT scaling) that have no supporting artifact in this repository and that conflict with the audit's own "no inflated titles" standard. They are enumerated in `CLAIMS_LEDGER.md` and need owner-supplied evidence or an explicit retention decision. `CONTENT_INTAKE.md` remains blank because no new claims were approved.
+
+`src/views/ContactView.tsx` also still carries `Full-Time SWE Role (Frontend/Full-Stack)`, which is pending owner confirmation rather than an evidence question.

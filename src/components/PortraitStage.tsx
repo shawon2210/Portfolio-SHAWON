@@ -8,8 +8,6 @@ import { MOTION_EASING } from '../lib/motion';
 export interface PortraitStageProps {
   /** Descriptive alt text. Use the person's name/title from portfolioData. */
   alt: string;
-  /** Dev-only avatar override; when set, a plain <img> is used instead of the stage ladder. */
-  src?: string;
   className?: string;
   /** 'framed' (default) is the shipped fallback until the cutout exists. */
   variant?: 'framed' | 'cutout';
@@ -37,7 +35,6 @@ export interface PortraitStageProps {
  */
 export const PortraitStage: React.FC<PortraitStageProps> = ({
   alt,
-  src,
   className = '',
   variant = 'framed',
   delay = 0,
@@ -146,7 +143,6 @@ export const PortraitStage: React.FC<PortraitStageProps> = ({
           style={{ x: canParallax ? layers.portraitX : 0, y: canParallax ? layers.portraitY : 0 }}
         >
           <ProfilePortrait
-            src={src}
             alt={alt}
             sizes={portraitSizes}
             // TODO(asset): swap to a transparent cutout (no frame, head breaks the

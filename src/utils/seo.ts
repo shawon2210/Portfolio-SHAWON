@@ -1,4 +1,6 @@
 import { TabType, Project } from '../types';
+import { PERSONAL_INFO } from '../data/portfolioData';
+import { siteOrigin } from '../config/site';
 
 export interface SEOConfig {
   title: string;
@@ -30,7 +32,7 @@ export const PROJECT_CATEGORY_SEO: Record<ProjectCategoryKey, {
   all: {
     categoryName: 'Engineered Systems & Full-Stack Projects',
     title: 'Engineered Projects & Systems Architecture | MD Shawon Molla',
-    description: 'Explore high-scale full-stack projects, autonomous AI pipelines, and distributed cloud applications built with mathematical precision.',
+    description: 'Explore high-scale full-stack projects, autonomous AI pipelines, and distributed cloud applications built for production use.',
     keywords: [
       'MD Shawon Molla Projects',
       'Software Engineering Portfolio',
@@ -49,7 +51,7 @@ export const PROJECT_CATEGORY_SEO: Record<ProjectCategoryKey, {
       'React TypeScript',
       'Node.js Architect',
       'PostgreSQL',
-      'Next.js Vite',
+      'Vite',
       'Full-Stack Web Applications',
       'MD Shawon Molla Full-Stack'
     ]
@@ -93,14 +95,15 @@ export const SECTION_SEO: Record<TabType, {
   keywords: string[];
 }> = {
   home: {
-    title: 'MD Shawon Molla | Software Engineer & Systems Architect',
-    description: 'Official portfolio of MD Shawon Molla. Engineering high-concurrency full-stack platforms, autonomous AI pipelines, and distributed databases.',
+    title: 'MD Shawon Molla | Full-Stack Engineer, Product Systems & AI',
+    description:
+      'Full-stack engineer building resilient product systems, AI workflows, and scalable web experiences for real users.',
     keywords: [
       'MD Shawon Molla',
+      'Full-Stack Engineer',
+      'AI Product Systems',
+      'Product Engineer',
       'Software Engineer',
-      'Systems Architect',
-      'Full-Stack Developer',
-      'AI Engineer',
       'Dhaka Bangladesh Software Engineer',
       'Web Systems Engineering'
     ]
@@ -122,8 +125,8 @@ export const SECTION_SEO: Record<TabType, {
     ]
   },
   contact: {
-    title: 'Contact & Collaboration | MD Shawon Molla - Software Engineer',
-    description: 'Connect with MD Shawon Molla for full-time software engineering roles, autonomous AI implementations, and systems architecture consultations.',
+    title: 'Contact & Collaboration | MD Shawon Molla - Full-Stack Engineer, Product Systems & AI',
+    description: 'Get in touch with MD Shawon Molla about full-time software engineering roles, contract or milestone projects, and collaboration.',
     keywords: [
       'Contact MD Shawon Molla',
       'Hire Software Engineer',
@@ -182,7 +185,7 @@ function setJsonLd(data: Record<string, any>): void {
  * Resolve canonical absolute URL for the current window location.
  */
 function getCanonicalUrl(hashFragment?: string): string {
-  if (typeof window === 'undefined') return 'https://shawon.dev';
+  if (typeof window === 'undefined') return siteOrigin;
   const origin = window.location.origin;
   const pathname = window.location.pathname;
   return `${origin}${pathname}${hashFragment ? `#${hashFragment}` : ''}`;
@@ -194,9 +197,9 @@ function getCanonicalUrl(hashFragment?: string): string {
  * crawlers, so this falls back to the canonical production host.
  */
 function getOrigin(): string {
-  if (typeof window === 'undefined') return 'https://shawon.dev';
+  if (typeof window === 'undefined') return siteOrigin;
   return window.location.origin === 'null'
-    ? 'https://shawon.dev'
+    ? siteOrigin
     : window.location.origin;
 }
 
@@ -210,8 +213,8 @@ function getOrigin(): string {
  * references by `@id`, which is how Google expects authorship to be expressed.
  */
 function buildStructuredData(section: TabType, projectCategory?: string): Record<string, any> {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shawon.dev';
-  const origin = 'https://shawon.dev';
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : siteOrigin;
+  const origin = siteOrigin;
 
   const PERSON_ID = `${origin}/#person`;
   const WEBSITE_ID = `${origin}/#website`;
@@ -223,9 +226,9 @@ function buildStructuredData(section: TabType, projectCategory?: string): Record
     alternateName: 'Shawon Molla',
     givenName: 'Shawon',
     familyName: 'Molla',
-    jobTitle: 'Software Engineer & Systems Architect',
+    jobTitle: PERSONAL_INFO.title,
     description:
-      'Full-stack software engineer building high-concurrency web platforms, distributed services, and AI orchestration systems.',
+      'Full-stack engineer building resilient product systems, AI workflows, and scalable web experiences for real users.',
     url: `${origin}/`,
     image: `${origin}/og-image.png`,
     email: 'mailto:22103330@iubat.edu',
@@ -250,7 +253,7 @@ function buildStructuredData(section: TabType, projectCategory?: string): Record
     },
     sameAs: [
       'https://github.com/shawon2210',
-      'https://linkedin.com/in/shawon',
+      'https://linkedin.com/in/md-shawon-molla-2a3877293',
     ],
   };
 
@@ -261,7 +264,7 @@ function buildStructuredData(section: TabType, projectCategory?: string): Record
     name: 'Shawon.dev',
     alternateName: 'shawon.dev',
     description:
-      'Official portfolio of MD Shawon Molla — full-stack software engineering, distributed systems, and AI orchestration.',
+      'Full-stack engineer building resilient product systems, AI workflows, and scalable web experiences for real users.',
     inLanguage: 'en-US',
     publisher: { '@id': PERSON_ID },
   };
@@ -402,7 +405,7 @@ export function updateSectionSEO(
   setMetaTag(
     'property',
     'og:image:alt',
-    'MD Shawon Molla — Software Engineer & Systems Architect. Full-stack platforms, distributed services, and AI orchestration.'
+    `MD Shawon Molla — ${PERSONAL_INFO.title}. Full-stack platforms, distributed services, and AI orchestration.`
   );
 
   // 4. Twitter / X Cards
@@ -454,9 +457,9 @@ export function updateProjectSEO(project: Project): void {
         '@type': 'Person',
         '@id': `${origin}/#person`,
         name: 'MD Shawon Molla',
-        jobTitle: 'Software Engineer & Systems Architect',
+        jobTitle: PERSONAL_INFO.title,
         url: `${origin}/`,
-        sameAs: ['https://github.com/shawon2210', 'https://linkedin.com/in/shawon'],
+        sameAs: ['https://github.com/shawon2210', 'https://linkedin.com/in/md-shawon-molla-2a3877293'],
       },
       {
         '@type': 'SoftwareApplication',

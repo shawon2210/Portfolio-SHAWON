@@ -787,7 +787,7 @@ export const BackgroundScene: React.FC<BackgroundSceneProps> = ({
       <div className="fixed bottom-5 left-5 z-40 hidden sm:flex items-center gap-2">
         <button
           onClick={togglePause}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0d1017]/85 backdrop-blur-md border border-white/[0.08] hover:border-sky-400/40 text-[11px] font-mono text-slate-400 hover:text-white transition-all shadow-lg cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
+          className="tap inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#0d1017]/85 backdrop-blur-md border border-white/[0.08] hover:border-sky-400/40 text-[11px] font-mono text-slate-400 hover:text-white transition-all shadow-lg cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
           data-testid="scene-pause-toggle"
           title={isPaused ? 'Resume 3D Background' : 'Pause 3D Background'}
           aria-label={isPaused ? 'Resume 3D animations' : 'Pause 3D animations'}

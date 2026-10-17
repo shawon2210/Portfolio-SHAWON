@@ -1,4 +1,7 @@
 {
+  "//": "Scoped to this app only. astro-site/ is an unrelated scaffold with its own tsconfig and unresolved @portfolio/* aliases; without include/exclude, `tsc --noEmit` globbed it and failed on files this build never compiles.",
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["node_modules", "dist", "release", "astro-site", ".vscode"],
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,

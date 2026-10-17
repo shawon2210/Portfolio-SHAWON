@@ -2,9 +2,9 @@ import { Project, WorkExperience, EducationItem, CertificateItem, SkillCategory 
 
 export const PERSONAL_INFO = {
   name: 'MD SHAWON MOLLA',
-  shortName: 'Shawon Molla',
-  domain: 'Shawon.dev',
-  title: 'Full-Stack Software Engineer · AI Systems Architecture',
+  shortName: 'MD Shawon Molla',
+  /** Canonical professional title. Keep in sync with static metadata in index.html. */
+  title: 'Full-Stack Engineer, Product Systems & AI',
   location: 'Dhaka, Bangladesh',
   email: '22103330@iubat.edu',
   phone: '+880 1987-407441',
@@ -12,13 +12,12 @@ export const PERSONAL_INFO = {
   githubUrl: 'https://github.com/shawon2210',
   linkedinUrl: 'https://linkedin.com/in/md-shawon-molla-2a3877293',
   liveAppUrl: 'https://oddboundary.lovable.app',
-  avatarUrl: '/mdshawonmolla.jpeg',
   portraitUrl: '/mdshawonmolla.jpeg',
   logoUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLCHJjyXcP3WGiCESsSk0TO-ee-JSQuqOlGcbjFKYUltpXQtmC8hGeNwYLfG2ijA7bmWIwFlFfrdX3zeZRSPpfQ3T2WZ22WHPOq8Qdlda4WewOcPLY-ZwY_C5hdOErnZx6xozUmvjyn_NO3L8q28gdMrv7PMIQePPIrKhVhs5iQ0QKX_qMohVqKVszsMWps3a1G9cXOeMfYCSMd03F54EyIkJB1ZDCuvSKP4njo5-1C0ad7Yl_AZQ',
-  bio: 'Ambition-driven Computer Science graduate specializing in modern web development and database management. Strong foundation in object-oriented programming, clean system architecture, and core Agile methodologies. Seeking an entry-level software engineering role to deliver high-quality, scalable code within a collaborative team.',
-  codeFocus: 'const focus = ["High-Scale Systems", "LLMs", "Microservices"];',
-  statusPill: 'Open for Full-Time SWE Roles',
-  availabilityDetails: 'Available for Immediate Hire / Relocation / Remote',
+  bio: 'Product-minded full-stack engineer building resilient products and AI-enabled systems that hold up in real operations. I connect architecture, delivery speed, and product thinking to software that teams can trust in production.',
+  codeFocus: 'const focus = ["Product Systems", "AI Workflows", "Backend + Frontend"];',
+  statusPill: 'Open to Product, AI & Full-Stack Roles',
+  availabilityDetails: 'Remote / Hybrid / Relocation',
 };
 
 export const PROJECTS: Project[] = [
@@ -28,7 +27,7 @@ export const PROJECTS: Project[] = [
     flagshipNumber: 'Flagship #01',
     category: 'fullstack',
     categories: ['fullstack', 'backend'],
-    tagline: 'Enterprise multi-vendor commerce platform powering high-concurrency order settlements with sub-millisecond inventory locking.',
+    tagline: 'Multi-vendor commerce platform for concurrent order flow, vendor operations, and reliable checkout orchestration under high-volume conditions.',
     badge: 'Production Ready',
     badgeColor: 'text-secondary',
     versionOrEndpoint: 'v2.4.0',
@@ -42,23 +41,23 @@ export const PROJECTS: Project[] = [
     highlights: [
       {
         icon: 'schema',
-        title: '97-table PostgreSQL schema',
-        description: 'Architected across isolated admin, seller, and buyer schema domains.',
+        title: 'Multi-domain schema design',
+        description: 'Separated customer, seller, and admin boundaries to reduce cross-tenant risk and simplify ownership of operational logic.',
       },
       {
         icon: 'security',
-        title: 'JWT authentication',
-        description: 'With rotating refresh tokens, blacklisting via Redis, and fine-grained @Roles() guards.',
+        title: 'Access control and auth flow',
+        description: 'JWT-based session handling with refresh rotation and role-based protection across sensitive commerce actions.',
       },
       {
         icon: 'bolt',
-        title: 'Real-time WebSocket dispatcher',
-        description: 'Dynamic flash-sale inventory reservation and RFM cohort business analytics.',
+        title: 'Operational resilience under load',
+        description: 'Built for flash-sale pressure, race-condition handling, and stable inventory flow during peak checkouts.',
       },
       {
         icon: 'payments',
-        title: 'Integrated payment rails',
-        description: 'bKash, Nagad, SSLCommerz & COD rails, packaged with Docker Compose and OpenTelemetry APM traces.',
+        title: 'Checkout orchestration',
+        description: 'Integrated payment rails and observability hooks to keep the purchase lifecycle visible and manageable.',
       },
     ],
     techStack: [
@@ -74,15 +73,15 @@ export const PROJECTS: Project[] = [
     githubUrl: 'https://github.com/shawon2210/AMAR-Shop',
     liveUrl: 'https://amarshop-eight.vercel.app/',
     architectureDetails: {
-      overview: 'Multi-vendor e-commerce platform built to solve inventory racing, double-spending, and inconsistent order states under high concurrent flash sales.',
+      overview: 'Commerce architecture designed around order integrity, tenant isolation, and predictable checkout behavior under concurrent demand.',
       keyDecisions: [
-        'Isolated PostgreSQL schemas for customer, vendor tenant, and platform admin domains.',
-        'Redis distributed lock pattern (Redlock) ensuring zero overselling during flash promotions.',
-        'NestJS modular architecture with interceptors for OpenTelemetry distributed tracing.',
-        'Next.js App Router frontend with server-side caching and dynamic client cart hydration.'
+        'Split product, seller, and admin domains into clearly scoped data boundaries to reduce operational coupling.',
+        'Modeled auth and permissions around role isolation so sensitive flows remain protected across the commerce lifecycle.',
+        'Used observability and structured tracing to diagnose checkout and inventory edge cases during high-traffic conditions.',
+        'Kept frontend and backend responsibilities separated enough to support faster iteration without weakening the purchase workflow.'
       ],
       schemaTablesCount: 97,
-      testCoverage: '88% unit & integration coverage'
+      testCoverage: 'Production-focused design and validation across core commerce operations'
     }
   },
   {
@@ -91,7 +90,7 @@ export const PROJECTS: Project[] = [
     flagshipNumber: 'Flagship #02',
     category: 'aiml',
     categories: ['aiml', 'backend'],
-    tagline: 'Autonomous customer support infrastructure integrating LangChain agents, pgvector embeddings, and dynamic multi-model routing.',
+    tagline: 'AI support platform for handling multi-step customer workflows, semantic retrieval, and model routing without losing operational clarity.',
     badge: 'Multi-Tenant RAG',
     badgeColor: 'text-primary',
     versionOrEndpoint: '79 Endpoints',
@@ -105,18 +104,18 @@ export const PROJECTS: Project[] = [
     highlights: [
       {
         icon: 'neurology',
-        title: 'Autonomous RAG Engine',
-        description: 'Auto document chunking, dynamic web scrapers, pgvector semantic search, and grounded source citations.',
+        title: 'Grounded support workflow',
+        description: 'Combined semantic retrieval, source-grounded response logic, and document retrieval to keep troubleshooting workflows grounded in evidence.',
       },
       {
         icon: 'swap_horiz',
-        title: 'Unified Provider Abstraction',
-        description: 'Seamlessly switching OpenAI, Anthropic, Gemini, or DeepSeek through a single runtime flag.',
+        title: 'Model routing architecture',
+        description: 'Designed a provider abstraction layer so model changes remain isolated from the application workflow and business logic.',
       },
       {
         icon: 'stream',
-        title: 'Streaming & Metered Billing',
-        description: 'SSE streaming token updates, intelligent zero-shot ticket classification, and Stripe 4-tier metered usage billing.',
+        title: 'Operational control and billing',
+        description: 'Used streaming responses and metered usage patterns to keep live support interactions transparent and trackable.',
       },
     ],
     techStack: [
@@ -131,12 +130,12 @@ export const PROJECTS: Project[] = [
     githubUrl: 'https://github.com/shawon2210/SupportPilot-AI',
     liveUrl: 'https://supportpilot-ai-phi.vercel.app/',
     architectureDetails: {
-      overview: 'B2B enterprise customer support automation system with hybrid keyword + semantic vector retrieval and verifiable LLM attribution.',
+      overview: 'AI support architecture built around retrieval quality, model flexibility, and a clean separation between customer-facing response generation and system operations.',
       keyDecisions: [
-        'PostgreSQL with pgvector for unified storage of relational client accounts and high-dimensional document vectors.',
-        'FastAPI asynchronous event loops streaming chunked inference via Server-Sent Events (SSE).',
-        'Hot-swappable model gateway with automatic failover fallback between Gemini, Claude, and GPT-4o.',
-        'Redis rate-limiting and Celery background workers for background documentation scrapers.'
+        'Stored customer and document context in a structured relational system while keeping retrieval vectors optimized for semantic lookup.',
+        'Separated provider interfaces from workflow logic so model switching does not force redesigns in the main assistant experience.',
+        'Structured streaming responses and accounting hooks so usage and service quality remain visible to operators.',
+        'Kept automation steps interpretable enough for customer support teams to reason about response quality and escalation paths.'
       ],
       testCoverage: '97 PyTest passing suite'
     }
@@ -147,7 +146,7 @@ export const PROJECTS: Project[] = [
     flagshipNumber: 'Flagship #03',
     category: 'fullstack',
     categories: ['fullstack', 'aiml'],
-    tagline: 'Complete prescription distribution and inventory ecosystem linking customer orders, pharmacist checks, and courier logistics.',
+    tagline: 'Healthcare workflow platform connecting order intake, pharmacist review, logistics, and role-based access in one operational system.',
     badge: 'HealthTech Core',
     badgeColor: 'text-tertiary',
     versionOrEndpoint: '7 Workflows',
@@ -161,18 +160,18 @@ export const PROJECTS: Project[] = [
     highlights: [
       {
         icon: 'diversity_3',
-        title: '4-Role Orchestration',
-        description: 'Granular views and permissions for Customer, Pharmacist, Delivery Driver, and Medical Supplier.',
+        title: 'Role-based operational flow',
+        description: 'Mapped customer, pharmacist, delivery, and supplier roles into a single workflow with clear boundaries and permissions.',
       },
       {
         icon: 'forum',
-        title: 'AI Triage Chatbot',
-        description: 'AI-driven triage chatbot leveraging OpenAI & Gemini reducing routine dosage inquiry escalation by half.',
+        title: 'AI triage and workflow support',
+        description: 'Used AI-assisted triage to reduce repetitive inquiry handling while keeping escalation and handoff paths visible.',
       },
       {
         icon: 'verified_user',
-        title: 'Stateless Security Model',
-        description: 'Stateless JWT rotation security model validated via comprehensive Vitest suite for drug supply compliance.',
+        title: 'Security and compliance posture',
+        description: 'Designed a stateless auth model and validation flows that prioritize trust, access control, and maintainability.',
       },
     ],
     techStack: [
@@ -186,13 +185,14 @@ export const PROJECTS: Project[] = [
     githubUrl: 'https://github.com/shawon2210/Online24Pharmacy',
     liveUrl: 'https://online24pharmacy.vercel.app/',
     architectureDetails: {
-      overview: 'Digital healthcare platform orchestrating prescription validation, medicine stock reservations, and multi-tenant delivery assignments.',
+      overview: 'Healthcare platform structured around role separation, operational clarity, and reliability in an environment where trust and workflow correctness matter as much as UI polish.',
       keyDecisions: [
-        'Role-Based Access Control (RBAC) across 4 synchronized portal experiences.',
-        'Prescription image attachment validation with automated OCR verification pipelines.',
-        'Vitest integration test harness validating batch medicine expiration queries and restocking alerts.'
+        'Modeled a four-role workflow to keep customer, pharmacist, driver, and supplier responsibilities explicit and auditable.',
+        'Built permission boundaries early so sensitive health-related actions remained protected by a consistent access model.',
+        'Used automated validation and workflow checks to keep routine operational tasks understandable and less error-prone.',
+        'Balanced product flow and system constraints to make the experience usable without hiding the operational complexity behind the scenes.'
       ],
-      testCoverage: 'Vitest comprehensive security suite'
+      testCoverage: 'Vitest-based validation across workflow and access-control paths'
     }
   },
   // Specialized Modules

@@ -1,10 +1,25 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
 // Post-deploy smoke check against PRODUCTION (not the local preview).
 // Asserts the shipped build actually carries the v5/Phase3 perf fix and that
 // the stage composes correctly in a real browser on the real domain.
+//
+// The default target is read from src/config/site.ts so this check can never
+// drift onto a retired alias. Override with `node tests/smoke-production.mjs <url>`.
 
-const URL = process.argv[2] ?? 'https://portfolio-shawon-six.vercel.app';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const siteConfig = fs.readFileSync(path.join(root, 'src/config/site.ts'), 'utf8');
+const canonical = siteConfig.match(/SITE_ORIGIN\s*(?::\s*string\s*)?=\s*['"]([^'"]+)['"]/)?.[1];
+
+if (!canonical) {
+  throw new Error('Could not read SITE_ORIGIN from src/config/site.ts');
+}
+
+const URL = process.argv[2] ?? canonical;
+console.log(`smoke target: ${URL}`);
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });

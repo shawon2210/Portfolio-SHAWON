@@ -12,10 +12,10 @@ Hiring managers, engineering leads, and technical recruiters evaluating MD Shawo
 
 The entire portfolio is one document. These fragment URLs address individual sections:
 
-- [`https://shawon.dev/`](https://shawon.dev/) — Hero, selected work in motion, about, core disciplines.
-- [`https://shawon.dev/#projects`](https://shawon.dev/#projects) — Case studies with architecture, telemetry metrics, and stack analysis. Filterable by category: `#projects?category=fullstack`, `#projects?category=aiml`, `#projects?category=backend`.
-- [`https://shawon.dev/#experience`](https://shawon.dev/#experience) — Engineering timeline, credentials, certifications.
-- [`https://shawon.dev/#contact`](https://shawon.dev/#contact) — Contact channels, email, and an enquiry form.
+- [`%SITE_ORIGIN%/`](%SITE_ORIGIN%/) — Hero, selected work in motion, about, core disciplines.
+- [`%SITE_ORIGIN%/#projects`](%SITE_ORIGIN%/#projects) — Case studies with architecture, telemetry metrics, and stack analysis. Filterable by category: `#projects?category=fullstack`, `#projects?category=aiml`, `#projects?category=backend`.
+- [`%SITE_ORIGIN%/#experience`](%SITE_ORIGIN%/#experience) — Engineering timeline, credentials, certifications.
+- [`%SITE_ORIGIN%/#contact`](%SITE_ORIGIN%/#contact) — Contact channels, email, and an enquiry form.
 
 ## Projects
 
@@ -40,6 +40,6 @@ TypeScript, React, Vite, Node.js, FastAPI, PostgreSQL, Prisma, pgvector, Redis, 
 ## Notes
 
 - Structured data (Schema.org `@graph`) is embedded in the page head and updated per section.
-- OpenGraph and Twitter card metadata point to a 1200×630 social image at `https://shawon.dev/og-image.png`.
+- OpenGraph and Twitter card metadata point to a 1200×630 social image at `%SITE_ORIGIN%/og-image.png`.
 - The WebGL background is decorative; all content remains available without it.
 - The site honours `prefers-reduced-motion`: all motion is removed and scrolling becomes instant.

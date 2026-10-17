@@ -8,11 +8,9 @@ import { TRANSITION_INTERACTIVE } from '../lib/motion';
 
 interface HeaderProps {
   activeTab: TabType;
-  avatarUrl: string;
   onSelectTab: (tab: TabType) => void;
   onOpenTerminal: () => void;
   onOpenResume: () => void;
-  onOpenUploadModal: () => void;
   onPrintPortfolio: () => void;
 }
 
@@ -71,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Editorial Brand Lockup: Monogram + Name + Live Status */}
         <button
           onClick={() => onSelectTab('home')}
-          className="flex items-center gap-2.5 group flex-shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full cursor-pointer text-left pressable"
+          className="tap-pill flex items-center gap-2.5 group flex-shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400 rounded-full cursor-pointer text-left pressable"
           /* PHASE 5: the accessible name is derived from the visible text plus a
              visually-hidden suffix. An `aria-label` here previously hid both the
              monogram and "Shawon.dev" from the name, failing WCAG 2.5.3

@@ -366,8 +366,141 @@ No `src/` file was modified in Phase 0.
 
 ---
 
+## 11. Post-remediation re-verification
+
+Re-verified via `npm run test:responsive` after the touch-target pass **and** the sticky-transform compensation pass. **36 effective runs** (18 viewports × Chromium + WebKit) plus 36 design-skipped mirrors; **36 passed in 3.9 m**.
+
+### Results
+
+| Metric | Before | After |
+|---|---:|---:|
+| Runs with touch targets under 44×44 | **36 / 36** | **0 / 36** |
+| Distinct under-44px targets | 8 | **0** |
+| Horizontal overflow (`>0 px`) | present | **0 across all runs** |
+| Form controls under 16px (R-07) | 5 | **0** |
+| Runs with tiny text (R-09) | 36 | 36 *(accepted — see below)* |
+| Collision runs | 6 | 4 *(all proven reachable — see below)* |
+| Page-error runs | 2–3 | 3 *(unchanged, environmental)* |
+| Max CLS | 0.073 | 0.112 → **0.0234** *(fixed — see caveat)* |
+
+Run-level roll-ups now aggregate every section's raw findings before the per-section diagnostic slices, so the totals below are complete rather than truncated.
+
+### R-06 — touch targets: remediated
+
+`.tap` applies `min-width: 44px; min-height: 44px` without changing `display`, so it is safe on full-width and stacked (`flex-col`) controls. It was used instead of `.tap-pill`, which forces `display: inline-flex` and would have broken full-width inputs.
+
+| Control | Source | Was |
+|---|---|---:|
+| Social anchors (GitHub / LinkedIn / email) | `src/components/Header.tsx:72` | 105×32 |
+| Copy-email button | `src/views/HomeView.tsx:173` | 189×34 |
+| Inspect Architecture | `src/views/ProjectsView.tsx:251` | 221×38 |
+| Live App | `src/views/ProjectsView.tsx:262` | 123×36 |
+| Inspect Code → | `src/views/ProjectsView.tsx:377` | 92×32 |
+| Project search input | `src/views/ProjectsView.tsx:157` | 259×39 |
+| View / Download Resume | `src/views/ContactView.tsx:408` | 324×38 |
+| Contact name input | `src/views/ContactView.tsx:472` | 257×39 |
+| Contact email input | `src/views/ContactView.tsx:508` | 259×39 |
+| Print Portfolio | `src/views/ContactView.tsx:664` | 99×33 |
+| Explore Technical Capabilities → | `src/views/HomeView.tsx:310` | 219×41 |
+| Pause 3D animations | `src/components/BackgroundScene.tsx:791` | 92×35 |
+
+### Measurement correction — 454-row disclosure
+
+The earlier run reported "33 touch targets". That number was produced by a defective collector, not by the page:
+
+1. It added `paddingLeft/Right` to `getBoundingClientRect()` unconditionally. Tailwind sets a global `border-box`, so the rect **already** contains padding — this inflated every measurement and masked real gaps.
+2. It ignored `[data-tap]::after` hit areas, so genuinely 44×44 controls were reported at their 14×14 visual size (this produced the false 14×14 social-anchor findings).
+
+Both are fixed in `tests/specs/_collect.js:74-106`. After the fix the matrix yielded **454 rows / 8 distinct under-44px controls**, which is the authoritative pre-remediation list reproduced above. The three 14×14 GitHub findings were collector artifacts and disappeared on correction, not by any UI change.
+
+Note on grouping: the harness groups by `selector + label`, so `contact-name`, `contact-email`, and the ProjectsView search input — which share `input.w-full.bg-white/[0.03]` and an empty label — collapse into a **single** matrix row. The 36 rows reported for that group were not solely the contact fields; the search input was the one still unfixed.
+
+### Collision detector — pointer-inert false positive (fixed in the collector)
+
+The scene-layer collisions seen in the earlier pass were one known false positive:
+
+```
+div[data-testid="scene-layer"].fixed.inset-0   >>   button.tap-pill.inline-flex
+```
+
+`scene-layer` is a `pointer-events: none` decorative canvas. The detector sampled `elementsFromPoint()` and ignored `pointer-events`, so it reported geometric overlap that cannot intercept a tap. Confirmed empirically: a real Playwright click on the contact email input succeeded and accepted its value even while the canvas was topmost.
+
+`tests/specs/_collect.js` now drops any fixed/sticky collision candidate whose computed `pointer-events` is `none`, and targeted re-verification at `390×844` reports **0 collisions** across the initial page and all seven sections. The earlier `nav.md:hidden.fixed` → CTA collision (R-10) is **gone**.
+
+### Scale-compensated targets — sticky stack (R-06 second pass)
+
+`.tap`'s `min-width/height: 44px` is a *pre-transform* guarantee. Project cards inside `StickyStack` are additionally scaled, so a nominally compliant 44px control still rendered under the floor: the `Live App` / code links on scaled cards measured **43.99 px**. The compensation is `scale`-aware rather than a blanket `!important` bump:
+
+| Layer | Change |
+|---|---|
+| `src/components/motion/StickyStack.tsx` | Both branches of `StickyStackItem` expose `sticky-stack-item` and set `--stack-scale` to the card's target scale (`0.94`, `0.97`, `1.00`). Reduced-motion cards apply no transform, so their value is `1`. |
+| `src/index.css` | `.tap`, `.tap-sm`, `.tap-pill` floor becomes `calc(44px / var(--stack-scale, 1) + 0.5px)`. |
+
+`targetScale` is deliberately used instead of the live scale because it ranges over `[1, targetScale]`; dividing by the **largest** divisor over that range is the only choice that never under-floors. The `+ 0.5px` term absorbs sub-pixel transform rounding (`43.99` → `44`).
+
+`.tap-pill` remains unsafe for full-width controls because it forces `display: inline-flex`; full-width inputs stay on `.tap`, which changes no display mode.
+
+### Landscape collision runs — reachability proven
+
+The 4 remaining collision runs are **two landscape findings duplicated across engines**, both in the fixed bottom chrome of a 375–390 px-tall viewport:
+
+| Run | Fixed chrome | Reported covered target |
+|---|---|---|
+| `667×375` chromium + webkit | `div.fixed.bottom-5` (z 40) | `button.tap-pill.relative` — "All Systems" filter |
+| `844×390` chromium + webkit | `button.fixed.bottom-20` (z 40) | `input.tap.w-full` — contact email |
+
+Geometric overlap by a bottom dock is expected in a short landscape viewport, so each was verified for actual operability rather than by geometry alone:
+
+| Check | Result |
+|---|---|
+| `667×375` — target scrolled to mid-viewport | `centerInViewport: true`, `blockers: []` |
+| `667×375` — click "AI & ML" filter | project cards **3 → 2** (filter applied) |
+| `667×375` — click fixed dock | `Pause 3D` responded |
+| `844×390` — click + type email input | accepted `reachability@example.com` |
+
+Both controls scroll clear of the chrome and operate, so neither is a defect. Note that `All Systems` is the *default* filter and therefore carries no pressed/active state — clicking it correctly leaves no state change, which is why the operable proof above uses `AI & ML`.
+
+### Page errors — known WebKit/WebGL limitation
+
+`TypeError: null is not an object (evaluating 'e.getShaderPrecisionFormat(e.VERTEX_SHADER,e.HIGH_FLOAT).precision')` from `THREE.WebGLRenderer`. Affects **2–3 WebKit runs per pass** at varying viewports — the exact set shifts between runs, which confirms it is environmental GPU/software-rasteriser behaviour in WebKit rather than a layout or responsive defect. R-08 remains **open** and is not addressed by this pass.
+
+### R-09 — tiny text: accepted, not remediated
+
+All 36 runs still contain sub-floor decorative text (`10px`, `11px` mono/status spans, `12px` body copy). This is an intentional documentation-system choice per the brief: the mono metadata/status scale is an approved brand pattern. It is recorded here for transparency rather than fixed, and no badge density was reduced.
+
+### R-01 / R-02 — portrait: now resolved by measurement
+
+Both P0 portrait findings are closed. `HomeView` renders the canonical `<ProfilePortrait />` (responsive `srcset`/`sizes`, 7:9 crop) instead of a fixed thumbnail, and the sources are dedicated portrait renditions rather than one 800×800 square.
+
+| Viewport | Rendered | Source served | Natural | Ratio |
+|---|---:|---|---:|---:|
+| `375×667` phone | **221 × 284** | `480.avif` | 221 × 284 | 0.778 |
+| `1440×900` desktop | **334 × 429** | `720.avif` | 346 × 444 | 0.779 |
+
+- **R-01 closed** — 221 px on phones clears the ≥200 px phone / ≥320 px desktop requirement by a wide margin; the 48×48 thumbnail no longer exists.
+- **R-02 closed** — measured ratio 0.778 matches the required 0.778, and `480.avif` (480 ≥ 2 × 221) satisfies 2× sharpness at the phone render size. `TODO(asset)` no longer applies.
+
+---
+
 ## GATE
 
-**Phase 0 complete — awaiting approval.**
+**Responsive audit closed for layout, overflow, and touch targets: 36/36 runs pass, 0 under-44px targets, 0 horizontal overflow, and every remaining collision run proven reachable and operable.**
 
-**Blocking on you before Phase 2:** the replacement portrait asset described in §3 (ideally **1200 × 1543 px, 7:9**). Phases 1 can start without it; Phase 2 cannot ship a sharp result without it.
+Closed this pass: **R-01**, **R-02** (portrait), **R-06** (touch targets, incl. scale-compensated sticky cards), **R-07** (16 px form controls), **R-10**.
+
+Still open: **R-08** (WebKit WebGL context/precision error — environmental, requires renderer guards) and **R-09** (tiny text, accepted by decision).
+
+**Resolved — CLS regression (0.073 → 0.112 → 0.0234).** A per-viewport attribution probe (LayoutShift `sources`) named the culprit: `.profile-portrait__frame` had no reserved height, so `.profile-portrait` collapsed to its 1px borders (~3px measured) and expanded to its full box on image decode. The largest single shift was `h:3 → h:396` (0.39 CLS at 390×844 when isolated). The frame now declares `width: 100%; aspect-ratio: 7 / 9`, matching the pre-cropped source, so the box is reserved before decode.
+
+Re-probed across all six breakpoints after the rebuild:
+
+| Viewport | CLS before fix | CLS after fix |
+|---|---:|---:|
+| 320×568 | 0.0000 | 0.0000 |
+| 390×844 | 0.3935 | 0.0000 |
+| 768×1024 | 0.2235 | 0.0042 |
+| 1024×1366 | 0.1764 | 0.0025 |
+| 1440×900 | 0.1917 | 0.0080 |
+| 1920×1080 | 0.1882 | 0.0234 |
+
+Worst case is now **0.0234**, inside the "good" band (< 0.1). The residual shifts are sub-pixel/letter-spacing motion on the fixed header wordmark and are below the reporting threshold. Closed.

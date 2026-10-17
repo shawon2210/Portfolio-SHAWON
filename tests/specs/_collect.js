@@ -85,8 +85,20 @@
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     const cs = getComputedStyle(el);
-    const effW = r.width + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-    const effH = r.height + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    /* Tailwind sets a global `border-box`, so `getBoundingClientRect()` already
+       contains the padding. Only content-box elements need it added back —
+       adding it unconditionally inflated every target and masked real gaps. */
+    const contentBox = cs.boxSizing === 'content-box';
+    let effW = r.width + (contentBox ? (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) : 0);
+    let effH = r.height + (contentBox ? (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0) : 0);
+    /* `[data-tap]::after` (see index.css) extends the hit area past the visual
+       box. A pseudo-element has no bounding rect, so read its declared minimums;
+       otherwise a genuinely 44x44 target is reported at its 14x14 visual size. */
+    const tap = getComputedStyle(el, '::after');
+    if (tap.content && tap.content !== 'none') {
+      effW = Math.max(effW, parseFloat(tap.minWidth) || 0);
+      effH = Math.max(effH, parseFloat(tap.minHeight) || 0);
+    }
     if (effW < 43.5 || effH < 43.5) {
       smallTargets.push({
         selector: sel(el),
@@ -97,10 +109,19 @@
     }
   }
 
-  /* 4 — fixed/sticky chrome overlapping interactive content */
+  /* 4 — fixed/sticky chrome overlapping interactive content.
+     A `pointer-events: none` layer is pointer-transparent: it renders behind/over
+     content but can never receive or intercept a tap, so it cannot "cover" an
+     interactive element. The full-screen decorative background scene
+     ([data-testid="scene-layer"]) is such a layer and, being viewport-sized, its
+     centre coincides with whatever content is centred — reporting it would be a
+     structural false positive, not a finding. Verified separately: a real click on
+     the email input under that layer lands and accepts input. */
   const chrome = all.filter((el) => {
-    const p = getComputedStyle(el).position;
+    const cs = getComputedStyle(el);
+    const p = cs.position;
     if (p !== 'fixed' && p !== 'sticky') return false;
+    if (cs.pointerEvents === 'none') return false;
     const r = el.getBoundingClientRect();
     return r.width >= 24 && r.height >= 4;
   }).map((el) => ({ el, rect: el.getBoundingClientRect(), z: getComputedStyle(el).zIndex, selector: sel(el) }));

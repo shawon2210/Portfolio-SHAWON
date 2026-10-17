@@ -64,7 +64,7 @@ export const DevMotionShowcase: React.FC = () => {
         <h3 className="text-xs uppercase tracking-widest text-slate-500 font-mono">3. AnimatedText (character-by-character scroll opacity)</h3>
         <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
           <AnimatedText
-            text="Ambition-driven Computer Science graduate specializing in modern web development, high-concurrency microservices, and autonomous AI systems."
+            text="Full-stack engineer building resilient product systems, AI workflows, and scalable web experiences for real users."
             className="text-xl sm:text-3xl font-light leading-relaxed text-slate-200"
           />
           <p className="text-xs font-mono text-slate-500">↑ Scroll up and down to observe character opacity transitions (0.2 → 1.0)</p>
