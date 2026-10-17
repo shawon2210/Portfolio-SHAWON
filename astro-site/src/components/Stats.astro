@@ -1,0 +1,40 @@
+---
+import { PROJECTS, WORK_EXPERIENCE, CERTIFICATES, SKILL_CATEGORIES } from '../lib/portfolio';
+
+/**
+ * Every number below is derived from portfolioData at build time, so a stat can
+ * never drift from the content it claims to measure. Nothing is hardcoded.
+ */
+const stats = [
+  { label: 'Projects', value: PROJECTS.length, caption: 'case studies documented' },
+  {
+    label: 'Skills',
+    value: SKILL_CATEGORIES.reduce((total, category) => total + category.skills.length, 0),
+    caption: 'tracked technologies',
+  },
+  { label: 'Experience', value: WORK_EXPERIENCE.length, caption: 'professional roles' },
+  { label: 'Certificates', value: CERTIFICATES.length, caption: 'verified credentials' },
+];
+---
+
+<section id="stats" class="border-t border-border-glass px-gutter py-section-y">
+  <div class="mx-auto" style="max-width: var(--container-wide)">
+    <h2 class="font-display text-h2 font-bold tracking-tight text-heading">
+      By the numbers
+    </h2>
+
+    <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border-glass bg-border-glass lg:grid-cols-4">
+      {
+        stats.map((stat) => (
+          <div class="bg-canvas p-6 xs:p-8">
+            <dt class="text-caption uppercase tracking-widest text-body">{stat.label}</dt>
+            <dd class="mt-3 font-display text-h1 font-extrabold text-heading tabular-nums">
+              {String(stat.value).padStart(2, '0')}
+            </dd>
+            <p class="mt-1 text-caption text-body">{stat.caption}</p>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

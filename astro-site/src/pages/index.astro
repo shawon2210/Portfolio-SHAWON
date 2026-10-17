@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Stats from '../components/Stats.astro';
+import { PERSONAL_INFO } from '../lib/portfolio';
+---
+
+<BaseLayout>
+  <section id="hero" class="relative flex min-h-screen items-center px-gutter pt-28 pb-20">
+    <div
+      class="pointer-events-none absolute inset-0 -z-10"
+      style="background:
+        radial-gradient(60rem 40rem at 20% 10%, rgba(56, 189, 248, 0.12), transparent 60%),
+        radial-gradient(40rem 30rem at 85% 70%, rgba(52, 211, 153, 0.08), transparent 60%);"
+    >
+    </div>
+
+    <div class="mx-auto w-full" style="max-width: var(--container-content)">
+      <p
+        class="mb-6 inline-flex items-center gap-2 rounded-pill border border-border-glass bg-surface-glass px-4 py-2 text-xs font-medium tracking-wide text-body"
+      >
+        <span class="size-2 rounded-full bg-availability"></span>
+        {PERSONAL_INFO.statusPill}
+      </p>
+
+      <h1
+        class="font-display text-display font-extrabold leading-[0.95] tracking-tight text-heading"
+      >
+        {PERSONAL_INFO.name}
+      </h1>
+
+      <p class="mt-6 font-display text-h2 font-semibold text-primary">
+        {PERSONAL_INFO.title}
+      </p>
+
+      <p class="mt-6 max-w-2xl text-body text-[length:var(--text-body)] leading-relaxed">
+        {PERSONAL_INFO.bio}
+      </p>
+
+      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-caption text-body">
+        <li>{PERSONAL_INFO.location}</li>
+        <li aria-hidden="true">·</li>
+        <li>{PERSONAL_INFO.availabilityDetails}</li>
+      </ul>
+
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <a
+          href={`mailto:${PERSONAL_INFO.email}`}
+          class="rounded-pill bg-primary px-6 py-3 text-sm font-semibold text-on-primary transition-transform duration-200 hover:scale-[1.02]"
+        >
+          Email me
+        </a>
+        <a
+          href={PERSONAL_INFO.githubUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          class="rounded-pill border border-border-glass px-6 py-3 text-sm font-semibold text-heading transition-colors duration-200 hover:border-border-hover hover:text-primary"
+        >
+          GitHub
+        </a>
+        <a
+          href={PERSONAL_INFO.linkedinUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          class="rounded-pill border border-border-glass px-6 py-3 text-sm font-semibold text-heading transition-colors duration-200 hover:border-border-hover hover:text-primary"
+        >
+          LinkedIn
+        </a>
+      </div>
+
+      <p class="mt-14 text-caption tracking-widest text-body uppercase">
+        Scroll
+      </p>
+    </div>
+  </section>
+
+  <Stats />
+</BaseLayout>

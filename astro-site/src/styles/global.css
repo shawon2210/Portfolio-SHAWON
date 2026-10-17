@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/* Design tokens mirrored from src/lib/tokens.ts — the React app and this Astro
+   site must stay visually identical, so the palette/radii/shadows/spacing live
+   in one place per runtime and are asserted against each other. */
+@theme {
+  --color-canvas: #090b11;
+  --color-surface-glass: rgba(255, 255, 255, 0.03);
+  --color-surface-glass-hover: rgba(255, 255, 255, 0.06);
+  --color-border-glass: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(56, 189, 248, 0.35);
+  --color-accent: #38bdf8;
+  --color-availability: #34d399;
+  --color-heading: #e2e8f0;
+  --color-body: #94a3b8;
+
+  --color-surface: #10131a;
+  --color-surface-container-low: #191b23;
+  --color-surface-container: #1d1f27;
+  --color-surface-container-high: #272a32;
+  --color-on-surface: #e1e2ec;
+  --color-on-surface-variant: #bcc9cd;
+  --color-outline: #869397;
+  --color-outline-variant: #3d494c;
+  --color-primary: #4cd7f6;
+  --color-on-primary: #003640;
+  --color-primary-container: #06b6d4;
+  --color-secondary: #4edea3;
+  --color-secondary-container: #00a572;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-glow-sky: 0 0 24px -4px rgba(56, 189, 248, 0.35);
+  --shadow-glow-emerald: 0 0 24px -4px rgba(52, 211, 153, 0.35);
+
+  --breakpoint-xs: 25rem;
+
+  --text-display: clamp(2.75rem, 13vw, 11rem);
+  --text-h1: clamp(1.75rem, 5.5vw, 4rem);
+  --text-h2: clamp(1.25rem, 3.4vw, 2.25rem);
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+  --text-caption: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+
+  --spacing-gutter: clamp(1rem, 5vw, 3rem);
+  --spacing-section-y: clamp(3.5rem, 9vw, 8rem);
+
+  --container-content: 75rem;
+  --container-wide: 90rem;
+}
+
+:root {
+  --section-y: clamp(3.5rem, 8vw, 6.5rem);
+  --container-max: 72rem;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  background-color: #090b11;
+  color: #e2e8f0;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-heading);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::selection {
+  background: rgba(76, 215, 246, 0.2);
+  color: var(--color-primary);
+}
