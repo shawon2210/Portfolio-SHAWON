@@ -1,77 +1,205 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Stats from '../components/Stats.astro';
-import { PERSONAL_INFO } from '../lib/portfolio';
+import ProjectCard from '../components/ProjectCard.astro';
+import { PERSONAL_INFO, PROJECTS, WORK_EXPERIENCE, SKILL_CATEGORIES, EDUCATION_LIST } from '../lib/portfolio';
 ---
 
 <BaseLayout>
-  <section id="hero" class="relative flex min-h-screen items-center px-gutter pt-28 pb-20">
-    <div
-      class="pointer-events-none absolute inset-0 -z-10"
-      style="background:
-        radial-gradient(60rem 40rem at 20% 10%, rgba(56, 189, 248, 0.12), transparent 60%),
-        radial-gradient(40rem 30rem at 85% 70%, rgba(52, 211, 153, 0.08), transparent 60%);"
-    >
-    </div>
-
-    <div class="mx-auto w-full" style="max-width: var(--container-content)">
-      <p
-        class="mb-6 inline-flex items-center gap-2 rounded-pill border border-border-glass bg-surface-glass px-4 py-2 text-xs font-medium tracking-wide text-body"
-      >
-        <span class="size-2 rounded-full bg-availability"></span>
-        {PERSONAL_INFO.statusPill}
-      </p>
-
-      <h1
-        class="font-display text-display font-extrabold leading-[0.95] tracking-tight text-heading"
-      >
-        {PERSONAL_INFO.name}
-      </h1>
-
-      <p class="mt-6 font-display text-h2 font-semibold text-primary">
-        {PERSONAL_INFO.title}
-      </p>
-
-      <p class="mt-6 max-w-2xl text-body text-[length:var(--text-body)] leading-relaxed">
-        {PERSONAL_INFO.bio}
-      </p>
-
-      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-caption text-body">
-        <li>{PERSONAL_INFO.location}</li>
-        <li aria-hidden="true">·</li>
-        <li>{PERSONAL_INFO.availabilityDetails}</li>
-      </ul>
-
-      <div class="mt-10 flex flex-wrap items-center gap-4">
-        <a
-          href={`mailto:${PERSONAL_INFO.email}`}
-          class="rounded-pill bg-primary px-6 py-3 text-sm font-semibold text-on-primary transition-transform duration-200 hover:scale-[1.02]"
-        >
-          Email me
-        </a>
-        <a
-          href={PERSONAL_INFO.githubUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          class="rounded-pill border border-border-glass px-6 py-3 text-sm font-semibold text-heading transition-colors duration-200 hover:border-border-hover hover:text-primary"
-        >
-          GitHub
-        </a>
-        <a
-          href={PERSONAL_INFO.linkedinUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          class="rounded-pill border border-border-glass px-6 py-3 text-sm font-semibold text-heading transition-colors duration-200 hover:border-border-hover hover:text-primary"
-        >
-          LinkedIn
-        </a>
+  <section id="top" class="hero-section section-shell">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-layout">
+      <div class="hero-copy">
+        <p class="eyebrow reveal"><span>01</span> / INTRODUCTION <span class="availability"><i></i>{PERSONAL_INFO.statusPill}</span></p>
+        <h1 class="hero-title reveal">
+          Engineering<br />
+          <span>what's next.</span>
+        </h1>
+        <div class="hero-role reveal">
+          <span>{PERSONAL_INFO.title}</span>
+          <span aria-hidden="true" class="hero-cross">✳</span>
+          <span>{PERSONAL_INFO.location}</span>
+        </div>
+        <p class="hero-description reveal">
+          Full-stack engineer building resilient product systems, AI workflows, and scalable web experiences for real users.
+        </p>
+        <div class="hero-actions reveal">
+          <a class="button button-primary" href="#work">Explore selected work <span aria-hidden="true">↓</span></a>
+          <a class="button button-quiet" href={`mailto:${PERSONAL_INFO.email}?subject=${encodeURIComponent('Hello, Shawon')}`}>Start a conversation <span aria-hidden="true">↗</span></a>
+        </div>
+        <a class="scroll-cue reveal" href="#about"><span class="scroll-cue-line"></span> Scroll to explore</a>
       </div>
 
-      <p class="mt-14 text-caption tracking-widest text-body uppercase">
-        Scroll
+      <div class="hero-visual reveal">
+        <div class="hero-orbit orbit-one" aria-hidden="true"></div>
+        <div class="hero-orbit orbit-two" aria-hidden="true"></div>
+        <figure class="portrait-card">
+          <picture>
+            <source
+              type="image/avif"
+              srcset="/portrait/320.avif 320w, /portrait/400.avif 400w, /portrait/560.avif 560w, /portrait/720.avif 720w"
+              sizes="(max-width: 780px) 70vw, 34vw"
+            />
+            <img
+              src="/mdshawonmolla.webp"
+              alt="Portrait of MD Shawon Molla"
+              width="622"
+              height="800"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+          <figcaption><span>MD / 01</span><span>Dhaka, BD</span></figcaption>
+        </figure>
+        <div class="floating-note note-top"><span>BUILD</span><b>with intent</b></div>
+        <div class="floating-note note-bottom"><span>DESIGN × ENGINEERING</span><b>One connected practice</b></div>
+      </div>
+    </div>
+    <div class="hero-foot" aria-hidden="true">
+      <span>PRODUCT SYSTEMS</span><span>AI WORKFLOWS</span><span>REAL-WORLD SOFTWARE</span>
+    </div>
+  </section>
+
+  <section id="about" class="about-section section-shell">
+    <div class="section-heading reveal">
+      <p class="eyebrow"><span>02</span> / ABOUT</p>
+      <h2>Curiosity meets <span>craft.</span></h2>
+    </div>
+    <div class="about-grid">
+      <p class="about-lead reveal">
+        I connect product thinking, architecture, and delivery to build software teams can trust in production.
       </p>
+      <div class="about-detail reveal">
+        <p>{PERSONAL_INFO.bio}</p>
+        <div class="about-facts">
+          <div><span>BASED IN</span><strong>{PERSONAL_INFO.location}</strong></div>
+          <div><span>OPEN TO</span><strong>{PERSONAL_INFO.availabilityDetails}</strong></div>
+        </div>
+        <a class="text-link" href={`mailto:${PERSONAL_INFO.email}`}>Let’s build something useful <span aria-hidden="true">↗</span></a>
+      </div>
     </div>
   </section>
 
   <Stats />
+
+  <section class="ticker-section" aria-label="Areas of practice">
+    <div class="ticker-track">
+      {[0, 1].map((copy) => (
+        <div class="ticker-group" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {['Product engineering', 'AI workflows', 'Full-stack systems', 'Reliable delivery', 'Human-centered interfaces'].map((item) => (
+            <span>{item}<i aria-hidden="true">✳</i></span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="work" class="work-section section-shell">
+    <div class="section-heading work-heading reveal">
+      <div>
+        <p class="eyebrow"><span>04</span> / SELECTED WORK</p>
+        <h2>Ideas made <span>operational.</span></h2>
+      </div>
+      <p>Selected systems and products from the workbench. Open a project to explore its live experience or source.</p>
+    </div>
+    <div class="project-grid">
+      {PROJECTS.map((project, index) => <ProjectCard project={project} index={index} />)}
+    </div>
+  </section>
+
+  <section id="expertise" class="expertise-section section-shell">
+    <div class="section-heading reveal">
+      <p class="eyebrow"><span>05</span> / CAPABILITIES</p>
+      <h2>From first sketch <span>to first user.</span></h2>
+    </div>
+    <div class="capability-grid">
+      {SKILL_CATEGORIES.map((category, index) => (
+        <article class="capability-card reveal">
+          <span class="capability-index">{String(index + 1).padStart(2, '0')}</span>
+          <p class="eyebrow">{category.badge}</p>
+          <h3>{category.name}</h3>
+          <ul aria-label={`${category.name} technologies`}>
+            {category.skills.map((skill) => <li>{skill}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="experience" class="experience-section section-shell">
+    <div class="section-heading reveal">
+      <p class="eyebrow"><span>06</span> / EXPERIENCE & LEARNING</p>
+      <h2>Built through <span>practice.</span></h2>
+    </div>
+    <div class="experience-grid">
+      <div class="experience-list">
+        {WORK_EXPERIENCE.map((experience, index) => (
+          <article class="experience-card reveal">
+            <span class="experience-index">{String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <p class="eyebrow">{experience.period} <span>·</span> {experience.location}</p>
+              <h3>{experience.role}</h3>
+              <p class="experience-company">{experience.company}</p>
+              <p class="experience-stack">{experience.stackSummary}</p>
+              <ul>
+                {experience.achievements.slice(0, 2).map((achievement) => <li>{achievement}</li>)}
+              </ul>
+            </div>
+            <span class="experience-badge">{experience.typeBadge}</span>
+          </article>
+        ))}
+      </div>
+      <aside class="education-card reveal">
+        <p class="eyebrow">EDUCATION</p>
+        {EDUCATION_LIST.slice(0, 2).map((education) => (
+          <div class="education-item">
+            <span>{education.period}</span>
+            <h3>{education.degree}</h3>
+            <p>{education.institution}</p>
+            <strong>{education.gradeLabel} {education.gradeValue}</strong>
+          </div>
+        ))}
+      </aside>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section section-shell">
+    <div class="contact-orbit" aria-hidden="true">✳</div>
+    <div class="contact-content reveal">
+      <p class="eyebrow"><span>07</span> / NEXT STEP</p>
+      <h2>Have a good<br /><span>problem to solve?</span></h2>
+      <p>Let’s talk about a product, a role, or a system that needs to work better.</p>
+      <div class="contact-actions">
+        <a class="button button-primary" href={`mailto:${PERSONAL_INFO.email}?subject=${encodeURIComponent('Hello, Shawon')}`}>
+          Say hello <span aria-hidden="true">↗</span>
+        </a>
+        <button class="button button-outline" type="button" data-copy-email={PERSONAL_INFO.email}>
+          Copy email
+        </button>
+      </div>
+      <p class="copy-status" aria-live="polite" data-copy-status></p>
+      <div class="social-links">
+        <a href={PERSONAL_INFO.githubUrl} target="_blank" rel="noreferrer noopener">GitHub <span aria-hidden="true">↗</span></a>
+        <a href={PERSONAL_INFO.linkedinUrl} target="_blank" rel="noreferrer noopener">LinkedIn <span aria-hidden="true">↗</span></a>
+        <a href={PERSONAL_INFO.whatsAppUrl} target="_blank" rel="noreferrer noopener">WhatsApp <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-email]');
+  const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]');
+
+  copyButton?.addEventListener('click', async () => {
+    const email = copyButton.dataset.copyEmail;
+    if (!email || !copyStatus) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      copyStatus.textContent = 'Email address copied.';
+    } catch (error) {
+      copyStatus.textContent = `Copy unavailable. Email ${email} directly.`;
+      console.error('Could not copy the contact email.', error);
+    }
+  });
+</script>

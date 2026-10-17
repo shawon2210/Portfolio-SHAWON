@@ -1,0 +1,64 @@
+---
+import type { Project } from '@portfolio/types';
+
+interface Props {
+  project: Project;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const externalLink = project.liveUrl || project.githubUrl;
+const displayMetric = project.metrics[0];
+---
+
+<article class="project-card reveal" style={`--card-index: ${index}`}>
+  <a
+    class="project-art"
+    href={externalLink}
+    target="_blank"
+    rel="noreferrer noopener"
+    aria-label={`Open ${project.title} project`}
+  >
+    {
+      project.imageUrl ? (
+        <img
+          src={project.imageUrl}
+          alt=""
+          width="640"
+          height="420"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <span class="project-art-placeholder" aria-hidden="true">
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <span>{project.category}</span>
+        </span>
+      )
+    }
+    <span class="project-art-index">{String(index + 1).padStart(2, '0')}</span>
+    <span class="project-open" aria-hidden="true">↗</span>
+  </a>
+  <div class="project-copy">
+    <div class="project-kicker">
+      <span>{project.badge}</span>
+      <span>{project.versionOrEndpoint}</span>
+    </div>
+    <h3>
+      <a href={externalLink} target="_blank" rel="noreferrer noopener">{project.title}</a>
+    </h3>
+    <p>{project.tagline}</p>
+    <div class="project-meta">
+      {
+        displayMetric && (
+          <span class="project-metric">
+            {displayMetric.value} <span>{displayMetric.label}</span>
+          </span>
+        )
+      }
+      <ul aria-label={`${project.title} technologies`}>
+        {project.techStack.slice(0, 4).map((technology) => <li>{technology}</li>)}
+      </ul>
+    </div>
+  </div>
+</article>

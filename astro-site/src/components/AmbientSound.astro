@@ -1,0 +1,78 @@
+<button
+  class="sound-toggle"
+  type="button"
+  aria-label="Turn ambient sound on"
+  aria-pressed="false"
+  data-sound-toggle
+>
+  <span class="sound-indicator" aria-hidden="true"><span></span><span></span><span></span></span>
+  <span data-sound-label>Sound off</span>
+</button>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-sound-toggle]');
+  const label = button?.querySelector<HTMLElement>('[data-sound-label]');
+
+  if (button && label) {
+    let context: AudioContext | null = null;
+    let oscillators: OscillatorNode[] = [];
+    let master: GainNode | null = null;
+
+    const stopSound = () => {
+      if (!context || !master) return;
+      master.gain.setTargetAtTime(0, context.currentTime, 0.08);
+      window.setTimeout(() => {
+        oscillators.forEach((oscillator) => oscillator.stop());
+        void context?.close();
+        context = null;
+        oscillators = [];
+        master = null;
+      }, 320);
+      button.setAttribute('aria-pressed', 'false');
+      button.setAttribute('aria-label', 'Turn ambient sound on');
+      label.textContent = 'Sound off';
+    };
+
+    button.addEventListener('click', async () => {
+      if (context) {
+        stopSound();
+        return;
+      }
+
+      try {
+        context = new AudioContext();
+        await context.resume();
+        master = context.createGain();
+        master.gain.setValueAtTime(0, context.currentTime);
+        master.gain.setTargetAtTime(0.012, context.currentTime, 0.35);
+        master.connect(context.destination);
+
+        oscillators = [174.61, 261.63].map((frequency, index) => {
+          const oscillator = context!.createOscillator();
+          const voice = context!.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.value = frequency;
+          voice.gain.value = index === 0 ? 0.55 : 0.24;
+          oscillator.connect(voice);
+          voice.connect(master!);
+          oscillator.start();
+          return oscillator;
+        });
+
+        button.setAttribute('aria-pressed', 'true');
+        button.setAttribute('aria-label', 'Turn ambient sound off');
+        label.textContent = 'Sound on';
+      } catch (error) {
+        context = null;
+        master = null;
+        oscillators = [];
+        button.disabled = true;
+        button.setAttribute('aria-label', 'Ambient sound unavailable in this browser');
+        label.textContent = 'Sound unavailable';
+        console.error('Could not start the optional ambient sound.', error);
+      }
+    });
+
+    window.addEventListener('pagehide', stopSound, { once: true });
+  }
+</script>
